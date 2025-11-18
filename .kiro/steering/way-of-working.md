@@ -1,7 +1,3 @@
----
-inclusion: always
----
-
 # Way of Working
 
 ## Test-Driven Development Rules

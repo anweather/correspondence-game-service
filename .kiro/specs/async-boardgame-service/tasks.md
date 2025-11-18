@@ -10,8 +10,8 @@ Following Red-Green-Refactor TDD: Write failing tests first (Red), implement min
   - Add npm scripts for running tests
   - _Requirements: 6.1, 6.2_
 
-- [ ] 2. TDD: Core domain models and interfaces
-  - [ ] 2.1 Write tests for domain models
+- [x] 2. TDD: Core domain models and interfaces
+  - [x] 2.1 Write tests for domain models
     - Write tests for GameState interface with generic metadata support
     - Write tests for Player interface with externalId support
     - Write tests for Move interface with generic parameters
@@ -19,30 +19,30 @@ Following Red-Green-Refactor TDD: Write failing tests first (Red), implement min
     - Write tests for GameLifecycle enum transitions
     - _Requirements: 6.1, 6.2_
   
-  - [ ] 2.2 Implement domain models to pass tests
+  - [x] 2.2 Implement domain models to pass tests
     - Create domain model interfaces: GameState<TMetadata>, Player, Move<TParameters>, Board, Space, Token, Position
     - Create GameLifecycle enum with all states (CREATED, WAITING_FOR_PLAYERS, ACTIVE, COMPLETED, ABANDONED)
     - _Requirements: 5.1_
 
-- [ ] 3. TDD: GameEnginePlugin interface and base class
-  - [ ] 3.1 Write tests for BaseGameEngine
+- [x] 3. TDD: GameEnginePlugin interface and base class
+  - [x] 3.1 Write tests for BaseGameEngine
     - Write tests for default hook implementations (should be no-ops)
     - Write tests for utility methods (player lookup, validation helpers)
     - Write tests that abstract methods throw when not implemented
     - _Requirements: 6.1, 6.2, 6.4_
   
-  - [ ] 3.2 Define GameEnginePlugin interface
+  - [x] 3.2 Define GameEnginePlugin interface
     - Define all interface methods: metadata, lifecycle hooks, core logic with pre/post hooks, turn management, rendering
     - Define ValidationResult, BoardRenderData, and related rendering interfaces
     - _Requirements: 5.1, 5.6, 5.7_
   
-  - [ ] 3.3 Implement BaseGameEngine to pass tests
+  - [x] 3.3 Implement BaseGameEngine to pass tests
     - Create abstract class with no-op implementations for optional hooks
     - Implement utility methods for common operations
     - Leave core methods abstract (initializeGame, validateMove, applyMove, renderBoard)
     - _Requirements: 5.1_
 
-- [ ] 4. TDD: Error handling classes
+- [-] 4. TDD: Error handling classes
   - [ ] 4.1 Write tests for error classes
     - Write tests for GameError base class with code, statusCode, details
     - Write tests for each specific error type with correct status codes
