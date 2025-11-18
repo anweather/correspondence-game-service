@@ -42,13 +42,13 @@ Following Red-Green-Refactor TDD: Write failing tests first (Red), implement min
     - Leave core methods abstract (initializeGame, validateMove, applyMove, renderBoard)
     - _Requirements: 5.1_
 
-- [-] 4. TDD: Error handling classes
-  - [ ] 4.1 Write tests for error classes
+- [x] 4. TDD: Error handling classes
+  - [x] 4.1 Write tests for error classes
     - Write tests for GameError base class with code, statusCode, details
     - Write tests for each specific error type with correct status codes
     - _Requirements: 6.1, 6.2, 6.4_
   
-  - [ ] 4.2 Implement error classes to pass tests
+  - [x] 4.2 Implement error classes to pass tests
     - Create GameError base class
     - Implement GameNotFoundError (404), InvalidMoveError (400), ConcurrencyError (409), UnauthorizedMoveError (403), GameFullError (409)
     - _Requirements: 1.4, 1a.5, 3.3, 7.3_
