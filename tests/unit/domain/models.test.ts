@@ -7,7 +7,7 @@ import {
   Token,
   Position,
   GameLifecycle,
-} from '../../../src/domain/models';
+} from '@domain/models';
 
 describe('Domain Models', () => {
   describe('GameLifecycle enum', () => {
