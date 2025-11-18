@@ -40,8 +40,11 @@ npm install
 # Run tests (watch mode)
 npm test
 
-# Run tests (single run)
-npm test -- --run
+# Run tests (single run - ALL tests)
+npm run test:run
+
+# Run specific test file (single run)
+npm run test:run -- PluginRegistry.test.ts
 
 # Run tests with coverage
 npm run test:coverage
@@ -58,6 +61,14 @@ npm run lint
 # Format code
 npm run format
 ```
+
+## Important: Test Command Notes
+
+- **DO NOT USE**: `npm test -- --run` (this fails with "Unrecognized option" error)
+- **CORRECT COMMAND**: `npm run test:run` for single test execution
+- **CORRECT COMMAND**: `npm run test:run -- <filename>` for specific test files
+- The `test:run` script is defined in package.json as `jest` without watch mode
+- The `test` script runs Jest in watch mode by default
 
 ## Code Quality Tools
 

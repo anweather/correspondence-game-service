@@ -53,15 +53,15 @@ Following Red-Green-Refactor TDD: Write failing tests first (Red), implement min
     - Implement GameNotFoundError (404), InvalidMoveError (400), ConcurrencyError (409), UnauthorizedMoveError (403), GameFullError (409)
     - _Requirements: 1.4, 1a.5, 3.3, 7.3_
 
-- [ ] 5. TDD: PluginRegistry
-  - [ ] 5.1 Write tests for PluginRegistry
+- [x] 5. TDD: PluginRegistry
+  - [x] 5.1 Write tests for PluginRegistry
     - Write tests for plugin registration and retrieval
     - Write tests for duplicate registration prevention
     - Write tests for listing available game types
     - Write tests for unregister functionality
     - _Requirements: 6.1, 6.2, 6.4_
   
-  - [ ] 5.2 Implement PluginRegistry to pass tests
+  - [x] 5.2 Implement PluginRegistry to pass tests
     - Create PluginRegistry class with Map-based storage
     - Implement register, get, list, unregister methods
     - Add validation for duplicate game types
