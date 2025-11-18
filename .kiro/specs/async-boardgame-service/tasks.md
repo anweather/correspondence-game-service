@@ -67,8 +67,8 @@ Following Red-Green-Refactor TDD: Write failing tests first (Red), implement min
     - Add validation for duplicate game types
     - _Requirements: 1.7, 5.1_
 
-- [ ] 6. TDD: InMemoryGameRepository
-  - [ ] 6.1 Write tests for GameRepository interface
+- [x] 6. TDD: InMemoryGameRepository
+  - [x] 6.1 Write tests for GameRepository interface
     - Write tests for save, findById, findByPlayer operations
     - Write tests for update with optimistic locking (version checking)
     - Write tests for delete operation
@@ -76,12 +76,12 @@ Following Red-Green-Refactor TDD: Write failing tests first (Red), implement min
     - Write tests for ConcurrencyError when version mismatch
     - _Requirements: 6.1, 6.2, 6.4, 7.4_
   
-  - [ ] 6.2 Define GameRepository interface
+  - [x] 6.2 Define GameRepository interface
     - Define all repository methods with proper signatures
     - Define PaginatedResult interface
     - _Requirements: 7.4_
   
-  - [ ] 6.3 Implement InMemoryGameRepository to pass tests
+  - [x] 6.3 Implement InMemoryGameRepository to pass tests
     - Use Map<string, GameState> for storage
     - Implement all methods with version checking for updates
     - Implement pagination logic

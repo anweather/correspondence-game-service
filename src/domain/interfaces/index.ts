@@ -225,3 +225,63 @@ export abstract class BaseGameEngine implements GameEnginePlugin {
     return state.players.some((p) => p.id === playerId);
   }
 }
+
+/**
+ * Paginated result wrapper
+ */
+export interface PaginatedResult<T> {
+  items: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+/**
+ * Filters for querying games
+ */
+export interface GameFilters {
+  playerId?: string;
+  lifecycle?: string;
+  gameType?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+/**
+ * Repository interface for game state persistence
+ */
+export interface GameRepository {
+  /**
+   * Save a new game state
+   */
+  save(state: GameState): Promise<void>;
+
+  /**
+   * Find a game by its ID
+   */
+  findById(gameId: string): Promise<GameState | null>;
+
+  /**
+   * Find games by player ID with optional filters and pagination
+   */
+  findByPlayer(
+    playerId: string,
+    filters: GameFilters
+  ): Promise<PaginatedResult<GameState>>;
+
+  /**
+   * Update an existing game state with optimistic locking
+   * @throws ConcurrencyError if version mismatch
+   */
+  update(
+    gameId: string,
+    state: GameState,
+    expectedVersion: number
+  ): Promise<GameState>;
+
+  /**
+   * Delete a game by its ID
+   */
+  delete(gameId: string): Promise<void>;
+}
