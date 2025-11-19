@@ -197,21 +197,21 @@ Following Red-Green-Refactor TDD: Write failing tests first (Red), implement min
     - Render tokens in appropriate spaces
     - _Requirements: 4.2, 4.3, 4.4, 4.7_
 
-- [ ] 13. TDD: Express REST API setup
-  - [ ] 13.1 Write tests for Express app initialization
+- [x] 13. TDD: Express REST API setup
+  - [x] 13.1 Write tests for Express app initialization
     - Write tests for middleware setup (JSON parser, CORS)
     - Write tests for error handling middleware
     - Write tests for GameError to HTTP response conversion
     - _Requirements: 6.1, 6.2, 6.5_
   
-  - [ ] 13.2 Implement Express app to pass tests
+  - [x] 13.2 Implement Express app to pass tests
     - Initialize Express app with middleware
     - Implement error handling middleware
     - Configure CORS
     - _Requirements: 6.5_
 
-- [ ] 14. TDD: Game management API endpoints
-  - [ ] 14.1 Write tests for game management endpoints
+- [x] 14. TDD: Game management API endpoints
+  - [x] 14.1 Write tests for game management endpoints
     - Write tests for POST /api/games (success, invalid game type)
     - Write tests for GET /api/games (filtering, pagination)
     - Write tests for GET /api/games/:gameId (found, not found)
@@ -220,7 +220,7 @@ Following Red-Green-Refactor TDD: Write failing tests first (Red), implement min
     - Write tests for GET /api/game-types
     - _Requirements: 6.1, 6.2, 6.5, 1.1, 1.5, 1.7, 2.1, 2.2, 2.3, 8.1, 8.2, 8.3, 8.4, 8.5_
   
-  - [ ] 14.2 Implement game management endpoints to pass tests
+  - [x] 14.2 Implement game management endpoints to pass tests
     - Implement all game management routes
     - Wire up to GameManagerService
     - Handle request validation and error responses

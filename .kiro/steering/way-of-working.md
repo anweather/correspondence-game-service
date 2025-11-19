@@ -15,6 +15,16 @@
 - Write meaningful test descriptions that explain the behavior being tested
 - Follow the Red-Green-Refactor cycle strictly
 
+### Don't Test Mocks - Test Real Code With Mocks
+- **Mocks are valuable** for isolating business logic and testing application behavior without external dependencies
+- **NEVER** write tests that only verify mock behavior without testing real production code
+- Tests should fail when the production implementation is removed (proper Red phase)
+- If a test creates inline implementations (e.g., routes in `beforeEach`) that call mocks, it's testing nothing - the mock will always work
+- The test must exercise real production code, even if that code uses mocked dependencies
+- Example of BAD test: Creating a route handler inline in the test that calls a mock service (tests the mock, not real code)
+- Example of GOOD test: Testing a real route handler from `src/` that uses a mock service (tests real code with isolated dependencies)
+- Example of GOOD test: Testing `GameManagerService` with a mocked repository (tests real business logic with isolated persistence)
+
 ## Commit Guidelines
 
 ### When to Commit
