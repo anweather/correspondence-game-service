@@ -5,6 +5,12 @@ node_modules/
 dist/
 build/
 
+# Compiled test files
+tests/**/*.js
+tests/**/*.d.ts
+tests/**/*.d.ts.map
+tests/**/*.js.map
+
 # Test coverage
 coverage/
 

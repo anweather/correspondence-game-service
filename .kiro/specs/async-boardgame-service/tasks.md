@@ -162,21 +162,21 @@ Following Red-Green-Refactor TDD: Write failing tests first (Red), implement min
     - Implement getCurrentPlayer, getNextPlayer, advanceTurn
     - _Requirements: 5.1, 5.2_
 
-- [ ] 11. TDD: RendererService
-  - [ ] 11.1 Write tests for RendererService
+- [x] 11. TDD: RendererService
+  - [x] 11.1 Write tests for RendererService
     - Write tests for renderGame and renderState methods
     - Write tests for plugin delegation and hook invocation
     - Write tests for frame layer creation with metadata
     - Write tests for layer composition by z-index
     - _Requirements: 6.1, 6.2, 6.4, 4.1, 4.2, 4.3, 4.7_
   
-  - [ ] 11.2 Write tests for SVG generation
+  - [x] 11.2 Write tests for SVG generation
     - Write tests for RenderElement conversion to SVG
     - Write tests for all element types (rect, circle, path, text, image)
     - Write tests for viewBox and dimensions
     - _Requirements: 6.1, 6.2, 6.4, 4.5, 4.6_
   
-  - [ ] 11.3 Implement RendererService to pass tests
+  - [x] 11.3 Implement RendererService to pass tests
     - Add svg.js or similar library dependency
     - Implement rendering methods with plugin delegation
     - Implement layered composition
