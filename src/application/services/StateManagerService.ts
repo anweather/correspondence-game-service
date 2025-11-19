@@ -116,9 +116,17 @@ export class StateManagerService {
 
       // Check if game is over
       if (plugin.isGameOver(updatedState)) {
+        const winner = plugin.getWinner(updatedState);
+        const isDraw = winner === null;
+        
         updatedState = {
           ...updatedState,
           lifecycle: GameLifecycle.COMPLETED,
+          metadata: {
+            ...updatedState.metadata,
+            winner,
+            isDraw,
+          },
         };
       }
 
