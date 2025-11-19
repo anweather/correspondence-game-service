@@ -356,7 +356,7 @@ describe('StateManagerService', () => {
       };
 
       const move2: Move = {
-        playerId: 'player1',
+        playerId: 'player2', // Changed to player2 since turn advances
         timestamp: new Date(),
         action: 'move2',
         parameters: {},
@@ -371,7 +371,7 @@ describe('StateManagerService', () => {
       );
       const state2 = await stateManager.applyMove(
         'test-game-1',
-        'player1',
+        'player2', // Changed to player2 since turn advances
         move2,
         2
       );
@@ -464,7 +464,7 @@ describe('StateManagerService', () => {
       };
 
       const move2: Move = {
-        playerId: 'player1',
+        playerId: 'player2', // Changed to player2 to match turn order
         timestamp: new Date(),
         action: 'move2',
         parameters: {},
@@ -473,7 +473,7 @@ describe('StateManagerService', () => {
       // Act - Submit two moves concurrently with same expected version
       // Both expect version 1, but only one should succeed
       const promise1 = stateManager.applyMove('test-game-1', 'player1', move1, 1);
-      const promise2 = stateManager.applyMove('test-game-1', 'player1', move2, 1);
+      const promise2 = stateManager.applyMove('test-game-1', 'player2', move2, 1);
 
       // Assert - One should succeed, one should fail due to version mismatch
       const results = await Promise.allSettled([promise1, promise2]);

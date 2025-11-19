@@ -1,17 +1,20 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { GameManagerService } from '@application/services/GameManagerService';
+import { StateManagerService } from '@application/services/StateManagerService';
 import { GameRepository } from '@domain/interfaces';
 import { GameNotFoundError } from '@domain/errors';
 
 /**
- * Creates game management routes
+ * Creates game management and gameplay routes
  * @param gameManagerService - Service for managing games
  * @param gameRepository - Repository for game persistence
- * @returns Express router with game management routes
+ * @param stateManagerService - Service for managing game state and moves
+ * @returns Express router with game management and gameplay routes
  */
 export function createGameRoutes(
   gameManagerService: GameManagerService,
-  gameRepository: GameRepository
+  gameRepository: GameRepository,
+  stateManagerService: StateManagerService
 ): Router {
   const router = Router();
 
@@ -100,6 +103,59 @@ export function createGameRoutes(
     try {
       const gameTypes = gameManagerService.listAvailableGameTypes();
       res.json(gameTypes);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // ========== Gameplay Endpoints ==========
+
+  /**
+   * GET /api/games/:gameId/state
+   * Get current game state
+   */
+  router.get('/games/:gameId/state', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const game = await gameRepository.findById(req.params.gameId);
+      if (!game) {
+        throw new GameNotFoundError(req.params.gameId);
+      }
+      res.json(game);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  /**
+   * POST /api/games/:gameId/moves
+   * Apply a move to a game
+   */
+  router.post('/games/:gameId/moves', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { playerId, move, version } = req.body;
+      const updatedState = await stateManagerService.applyMove(
+        req.params.gameId,
+        playerId,
+        move,
+        version
+      );
+      res.json(updatedState);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  /**
+   * GET /api/games/:gameId/moves
+   * Get move history for a game
+   */
+  router.get('/games/:gameId/moves', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const game = await gameRepository.findById(req.params.gameId);
+      if (!game) {
+        throw new GameNotFoundError(req.params.gameId);
+      }
+      res.json(game.moveHistory);
     } catch (error) {
       next(error);
     }

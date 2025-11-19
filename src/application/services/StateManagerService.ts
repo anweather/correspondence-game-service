@@ -109,6 +109,11 @@ export class StateManagerService {
       // Apply move
       let updatedState = plugin.applyMove(game, playerId, move);
 
+      // Advance turn if game is not over
+      if (!plugin.isGameOver(updatedState)) {
+        updatedState = plugin.advanceTurn(updatedState);
+      }
+
       // Check if game is over
       if (plugin.isGameOver(updatedState)) {
         updatedState = {

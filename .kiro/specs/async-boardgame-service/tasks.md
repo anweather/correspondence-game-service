@@ -226,15 +226,15 @@ Following Red-Green-Refactor TDD: Write failing tests first (Red), implement min
     - Handle request validation and error responses
     - _Requirements: 1.1, 1.5, 1.7, 2.1, 2.2, 2.3, 8.1, 8.2, 8.3, 8.4, 8.5_
 
-- [ ] 15. TDD: Gameplay API endpoints
-  - [ ] 15.1 Write tests for gameplay endpoints
+- [x] 15. TDD: Gameplay API endpoints
+  - [x] 15.1 Write tests for gameplay endpoints
     - Write tests for GET /api/games/:gameId/state
     - Write tests for POST /api/games/:gameId/moves (valid, invalid, unauthorized, conflict)
     - Write tests for GET /api/games/:gameId/moves
     - Write tests for optimistic locking with version parameter
     - _Requirements: 6.1, 6.2, 6.5, 2.1, 2.4, 2.5, 3.1, 3.2, 3.3, 3.4, 3.5_
   
-  - [ ] 15.2 Implement gameplay endpoints to pass tests
+  - [x] 15.2 Implement gameplay endpoints to pass tests
     - Implement all gameplay routes
     - Wire up to StateManagerService
     - Handle version parameter for optimistic locking
