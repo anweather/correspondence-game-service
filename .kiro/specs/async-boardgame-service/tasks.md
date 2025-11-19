@@ -135,19 +135,19 @@ Following Red-Green-Refactor TDD: Write failing tests first (Red), implement min
     - Handle lifecycle transitions
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 7.1, 7.2, 7.3, 7.4, 7.5_
 
-- [ ] 10. TDD: Tic-Tac-Toe game plugin
-  - [ ] 10.1 Write tests for TicTacToeEngine initialization
+- [x] 10. TDD: Tic-Tac-Toe game plugin
+  - [x] 10.1 Write tests for TicTacToeEngine initialization
     - Write tests for metadata methods (getGameType, min/max players, description)
     - Write tests for initializeGame creating 3x3 board
     - Write tests for initial game state (empty board, first player)
     - _Requirements: 6.1, 6.2, 6.4, 5.1, 5.2_
   
-  - [ ] 10.2 Write tests for TicTacToeEngine move validation
+  - [x] 10.2 Write tests for TicTacToeEngine move validation
     - Write tests for valid moves (empty space, correct turn)
     - Write tests for invalid moves (occupied space, wrong player, out of bounds)
     - _Requirements: 6.1, 6.2, 6.4_
   
-  - [ ] 10.3 Write tests for TicTacToeEngine move application
+  - [x] 10.3 Write tests for TicTacToeEngine move application
     - Write tests for placing tokens
     - Write tests for turn advancement
     - Write tests for win detection (rows, columns, diagonals)
@@ -155,7 +155,7 @@ Following Red-Green-Refactor TDD: Write failing tests first (Red), implement min
     - Write tests for game over states
     - _Requirements: 6.1, 6.2, 6.4_
   
-  - [ ] 10.4 Implement TicTacToeEngine to pass tests
+  - [x] 10.4 Implement TicTacToeEngine to pass tests
     - Create TicTacToeEngine extending BaseGameEngine
     - Define TicTacToeState and TicTacToeMove interfaces
     - Implement all game logic methods
@@ -253,13 +253,29 @@ Following Red-Green-Refactor TDD: Write failing tests first (Red), implement min
     - Set proper content-type headers
     - _Requirements: 4.1, 4.5, 4.6_
 
-- [ ] 17. Integration testing and refactoring
+- [ ] 17. E2E: Tic-Tac-Toe full game flow
+  - [ ] 17.1 Write e2e test for complete Tic-Tac-Toe game
+    - Write test for creating game via REST API
+    - Write test for players joining via REST API
+    - Write test for making moves via REST API
+    - Write test for checking game state via REST API
+    - Write test for win detection via REST API
+    - Write test for draw scenario via REST API
+    - Write test for board rendering via REST API
+    - _Requirements: 6.1, 6.2, 6.5_
+  
+  - [ ] 17.2 Implement any missing integration points
+    - Fix any issues discovered during e2e testing
+    - Ensure all components work together correctly
+    - _Requirements: 6.1, 6.5_
+
+- [ ] 18. Integration testing and refactoring
   - Run full test suite and verify all tests pass
   - Refactor code for better organization and readability
   - Ensure test coverage meets goals (80%+ overall)
   - _Requirements: 6.1, 6.3_
 
-- [ ] 18. Create test utilities and documentation
+- [ ] 19. Create test utilities and documentation
   - Implement GameStateBuilder for test data creation
   - Implement MockGameEngine for testing
   - Create test fixtures for common scenarios
@@ -268,7 +284,7 @@ Following Red-Green-Refactor TDD: Write failing tests first (Red), implement min
   - Document REST API endpoints with examples
   - _Requirements: 6.2, 6.4, 5.1_
 
-- [ ] 19. Set up development tooling
+- [ ] 20. Set up development tooling
   - Configure ESLint for code quality
   - Configure Prettier for code formatting
   - Add npm scripts for dev, test, build, lint
