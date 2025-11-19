@@ -1,84 +1,13 @@
 import { GameManagerService } from '@application/services/GameManagerService';
 import { PluginRegistry } from '@application/PluginRegistry';
 import { InMemoryGameRepository } from '@infrastructure/persistence/InMemoryGameRepository';
-import { BaseGameEngine } from '@domain/interfaces';
 import {
-  GameState,
   Player,
-  Move,
+  GameState,
   GameLifecycle,
 } from '@domain/models';
-import {
-  GameConfig,
-  ValidationResult,
-  BoardRenderData,
-} from '@domain/interfaces';
 import { GameNotFoundError, GameFullError } from '@domain/errors';
-
-// Mock game engine for testing
-class MockGameEngine extends BaseGameEngine {
-  constructor(
-    private gameType: string,
-    private minPlayers: number = 2,
-    private maxPlayers: number = 4,
-    private description: string = 'Mock game for testing'
-  ) {
-    super();
-  }
-
-  getGameType(): string {
-    return this.gameType;
-  }
-
-  getMinPlayers(): number {
-    return this.minPlayers;
-  }
-
-  getMaxPlayers(): number {
-    return this.maxPlayers;
-  }
-
-  getDescription(): string {
-    return this.description;
-  }
-
-  initializeGame(players: Player[], _config: GameConfig): GameState {
-    return {
-      gameId: 'test-game',
-      gameType: this.gameType,
-      lifecycle: players.length >= this.minPlayers ? GameLifecycle.ACTIVE : GameLifecycle.WAITING_FOR_PLAYERS,
-      players,
-      currentPlayerIndex: 0,
-      phase: 'main',
-      board: { spaces: [], metadata: {} },
-      moveHistory: [],
-      metadata: {},
-      version: 1,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-  }
-
-  validateMove(
-    _state: GameState,
-    _playerId: string,
-    _move: Move
-  ): ValidationResult {
-    return { valid: true };
-  }
-
-  applyMove(state: GameState, _playerId: string, _move: Move): GameState {
-    return { ...state, version: state.version + 1 };
-  }
-
-  renderBoard(_state: GameState): BoardRenderData {
-    return {
-      viewBox: { width: 100, height: 100 },
-      spaces: [],
-      layers: [],
-    };
-  }
-}
+import { MockGameEngine, createPlayer } from '../../utils';
 
 describe('GameManagerService', () => {
   let service: GameManagerService;
@@ -93,7 +22,9 @@ describe('GameManagerService', () => {
 
   describe('createGame', () => {
     it('should create a game with CREATED lifecycle when no players provided', async () => {
-      const plugin = new MockGameEngine('tic-tac-toe', 2, 2);
+      const plugin = new MockGameEngine('tic-tac-toe')
+        .withMinPlayers(2)
+        .withMaxPlayers(2);
       registry.register(plugin);
 
       const game = await service.createGame('tic-tac-toe', {});
@@ -106,14 +37,12 @@ describe('GameManagerService', () => {
     });
 
     it('should create a game with WAITING_FOR_PLAYERS lifecycle when fewer than minimum players', async () => {
-      const plugin = new MockGameEngine('poker', 2, 8);
+      const plugin = new MockGameEngine('poker')
+        .withMinPlayers(2)
+        .withMaxPlayers(8);
       registry.register(plugin);
 
-      const player1: Player = {
-        id: 'player1',
-        name: 'Alice',
-        joinedAt: new Date(),
-      };
+      const player1 = createPlayer('player1', 'Alice');
 
       const game = await service.createGame('poker', {
         players: [player1],
@@ -125,19 +54,13 @@ describe('GameManagerService', () => {
     });
 
     it('should create a game with ACTIVE lifecycle when minimum players provided', async () => {
-      const plugin = new MockGameEngine('tic-tac-toe', 2, 2);
+      const plugin = new MockGameEngine('tic-tac-toe')
+        .withMinPlayers(2)
+        .withMaxPlayers(2);
       registry.register(plugin);
 
-      const player1: Player = {
-        id: 'player1',
-        name: 'Alice',
-        joinedAt: new Date(),
-      };
-      const player2: Player = {
-        id: 'player2',
-        name: 'Bob',
-        joinedAt: new Date(),
-      };
+      const player1 = createPlayer('player1', 'Alice');
+      const player2 = createPlayer('player2', 'Bob');
 
       const game = await service.createGame('tic-tac-toe', {
         players: [player1, player2],
@@ -155,7 +78,9 @@ describe('GameManagerService', () => {
     });
 
     it('should generate unique game IDs for multiple games', async () => {
-      const plugin = new MockGameEngine('tic-tac-toe', 2, 2);
+      const plugin = new MockGameEngine('tic-tac-toe')
+        .withMinPlayers(2)
+        .withMaxPlayers(2);
       registry.register(plugin);
 
       const game1 = await service.createGame('tic-tac-toe', {});
@@ -165,7 +90,9 @@ describe('GameManagerService', () => {
     });
 
     it('should save the created game to repository', async () => {
-      const plugin = new MockGameEngine('tic-tac-toe', 2, 2);
+      const plugin = new MockGameEngine('tic-tac-toe')
+        .withMinPlayers(2)
+        .withMaxPlayers(2);
       registry.register(plugin);
 
       const game = await service.createGame('tic-tac-toe', {});
@@ -176,7 +103,9 @@ describe('GameManagerService', () => {
     });
 
     it('should pass custom settings to game engine', async () => {
-      const plugin = new MockGameEngine('tic-tac-toe', 2, 2);
+      const plugin = new MockGameEngine('tic-tac-toe')
+        .withMinPlayers(2)
+        .withMaxPlayers(2);
       registry.register(plugin);
 
       const customSettings = { boardSize: 5, winCondition: 4 };
@@ -190,7 +119,9 @@ describe('GameManagerService', () => {
 
   describe('getGame', () => {
     it('should return game when it exists', async () => {
-      const plugin = new MockGameEngine('tic-tac-toe', 2, 2);
+      const plugin = new MockGameEngine('tic-tac-toe')
+        .withMinPlayers(2)
+        .withMaxPlayers(2);
       registry.register(plugin);
 
       const created = await service.createGame('tic-tac-toe', {});
@@ -209,14 +140,12 @@ describe('GameManagerService', () => {
 
   describe('joinGame', () => {
     it('should add player to game in WAITING_FOR_PLAYERS state', async () => {
-      const plugin = new MockGameEngine('poker', 2, 8);
+      const plugin = new MockGameEngine('poker')
+        .withMinPlayers(2)
+        .withMaxPlayers(8);
       registry.register(plugin);
 
-      const player1: Player = {
-        id: 'player1',
-        name: 'Alice',
-        joinedAt: new Date(),
-      };
+      const player1 = createPlayer('player1', 'Alice');
 
       const game = await service.createGame('poker', {
         players: [player1],
@@ -235,14 +164,12 @@ describe('GameManagerService', () => {
     });
 
     it('should transition to ACTIVE when minimum players reached', async () => {
-      const plugin = new MockGameEngine('tic-tac-toe', 2, 2);
+      const plugin = new MockGameEngine('tic-tac-toe')
+        .withMinPlayers(2)
+        .withMaxPlayers(2);
       registry.register(plugin);
 
-      const player1: Player = {
-        id: 'player1',
-        name: 'Alice',
-        joinedAt: new Date(),
-      };
+      const player1 = createPlayer('player1', 'Alice');
 
       const game = await service.createGame('tic-tac-toe', {
         players: [player1],
@@ -250,11 +177,7 @@ describe('GameManagerService', () => {
 
       expect(game.lifecycle).toBe(GameLifecycle.WAITING_FOR_PLAYERS);
 
-      const player2: Player = {
-        id: 'player2',
-        name: 'Bob',
-        joinedAt: new Date(),
-      };
+      const player2 = createPlayer('player2', 'Bob');
 
       const updated = await service.joinGame(game.gameId, player2);
 
@@ -263,19 +186,13 @@ describe('GameManagerService', () => {
     });
 
     it('should throw error when joining game not in joinable state', async () => {
-      const plugin = new MockGameEngine('poker', 2, 8);
+      const plugin = new MockGameEngine('poker')
+        .withMinPlayers(2)
+        .withMaxPlayers(8);
       registry.register(plugin);
 
-      const player1: Player = {
-        id: 'player1',
-        name: 'Alice',
-        joinedAt: new Date(),
-      };
-      const player2: Player = {
-        id: 'player2',
-        name: 'Bob',
-        joinedAt: new Date(),
-      };
+      const player1 = createPlayer('player1', 'Alice');
+      const player2 = createPlayer('player2', 'Bob');
 
       // Create an active game with room for more players
       const game = await service.createGame('poker', {
@@ -290,11 +207,7 @@ describe('GameManagerService', () => {
       };
       await repository.update(game.gameId, completedGame, game.version);
 
-      const player3: Player = {
-        id: 'player3',
-        name: 'Charlie',
-        joinedAt: new Date(),
-      };
+      const player3 = createPlayer('player3', 'Charlie');
 
       await expect(
         service.joinGame(game.gameId, player3)
@@ -302,14 +215,12 @@ describe('GameManagerService', () => {
     });
 
     it('should throw error when player already in game', async () => {
-      const plugin = new MockGameEngine('poker', 2, 8);
+      const plugin = new MockGameEngine('poker')
+        .withMinPlayers(2)
+        .withMaxPlayers(8);
       registry.register(plugin);
 
-      const player1: Player = {
-        id: 'player1',
-        name: 'Alice',
-        joinedAt: new Date(),
-      };
+      const player1 = createPlayer('player1', 'Alice');
 
       const game = await service.createGame('poker', {
         players: [player1],
@@ -321,25 +232,14 @@ describe('GameManagerService', () => {
     });
 
     it('should throw GameFullError when game is at maximum capacity', async () => {
-      const plugin = new MockGameEngine('tic-tac-toe', 2, 2);
+      const plugin = new MockGameEngine('tic-tac-toe')
+        .withMinPlayers(2)
+        .withMaxPlayers(2);
       registry.register(plugin);
 
-      const player1: Player = {
-        id: 'player1',
-        name: 'Alice',
-        joinedAt: new Date(),
-      };
-      const player2: Player = {
-        id: 'player2',
-        name: 'Bob',
-        joinedAt: new Date(),
-      };
-
-      const player3: Player = {
-        id: 'player3',
-        name: 'Charlie',
-        joinedAt: new Date(),
-      };
+      const player1 = createPlayer('player1', 'Alice');
+      const player2 = createPlayer('player2', 'Bob');
+      const player3 = createPlayer('player3', 'Charlie');
 
       // Create a game with 1 player where max is 2, then add 2nd player
       const game2 = await service.createGame('tic-tac-toe', {
@@ -355,11 +255,7 @@ describe('GameManagerService', () => {
     });
 
     it('should throw GameNotFoundError when game does not exist', async () => {
-      const player: Player = {
-        id: 'player1',
-        name: 'Alice',
-        joinedAt: new Date(),
-      };
+      const player = createPlayer('player1', 'Alice');
 
       await expect(
         service.joinGame('nonexistent-game', player)
@@ -367,17 +263,15 @@ describe('GameManagerService', () => {
     });
 
     it('should allow joining game in CREATED state', async () => {
-      const plugin = new MockGameEngine('poker', 2, 8);
+      const plugin = new MockGameEngine('poker')
+        .withMinPlayers(2)
+        .withMaxPlayers(8);
       registry.register(plugin);
 
       const game = await service.createGame('poker', {});
       expect(game.lifecycle).toBe(GameLifecycle.CREATED);
 
-      const player1: Player = {
-        id: 'player1',
-        name: 'Alice',
-        joinedAt: new Date(),
-      };
+      const player1 = createPlayer('player1', 'Alice');
 
       const updated = await service.joinGame(game.gameId, player1);
 
@@ -395,7 +289,9 @@ describe('GameManagerService', () => {
     });
 
     it('should return all games when no filters applied', async () => {
-      const plugin = new MockGameEngine('tic-tac-toe', 2, 2);
+      const plugin = new MockGameEngine('tic-tac-toe')
+        .withMinPlayers(2)
+        .withMaxPlayers(2);
       registry.register(plugin);
 
       await service.createGame('tic-tac-toe', {});
@@ -408,19 +304,13 @@ describe('GameManagerService', () => {
     });
 
     it('should filter games by playerId', async () => {
-      const plugin = new MockGameEngine('tic-tac-toe', 2, 2);
+      const plugin = new MockGameEngine('tic-tac-toe')
+        .withMinPlayers(2)
+        .withMaxPlayers(2);
       registry.register(plugin);
 
-      const player1: Player = {
-        id: 'player1',
-        name: 'Alice',
-        joinedAt: new Date(),
-      };
-      const player2: Player = {
-        id: 'player2',
-        name: 'Bob',
-        joinedAt: new Date(),
-      };
+      const player1 = createPlayer('player1', 'Alice');
+      const player2 = createPlayer('player2', 'Bob');
 
       await service.createGame('tic-tac-toe', { players: [player1] });
       await service.createGame('tic-tac-toe', { players: [player2] });
@@ -436,19 +326,13 @@ describe('GameManagerService', () => {
     });
 
     it('should filter games by lifecycle state', async () => {
-      const plugin = new MockGameEngine('tic-tac-toe', 2, 2);
+      const plugin = new MockGameEngine('tic-tac-toe')
+        .withMinPlayers(2)
+        .withMaxPlayers(2);
       registry.register(plugin);
 
-      const player1: Player = {
-        id: 'player1',
-        name: 'Alice',
-        joinedAt: new Date(),
-      };
-      const player2: Player = {
-        id: 'player2',
-        name: 'Bob',
-        joinedAt: new Date(),
-      };
+      const player1 = createPlayer('player1', 'Alice');
+      const player2 = createPlayer('player2', 'Bob');
 
       await service.createGame('tic-tac-toe', {});
       await service.createGame('tic-tac-toe', { players: [player1] });
@@ -461,8 +345,12 @@ describe('GameManagerService', () => {
     });
 
     it('should filter games by game type', async () => {
-      const plugin1 = new MockGameEngine('tic-tac-toe', 2, 2);
-      const plugin2 = new MockGameEngine('chess', 2, 2);
+      const plugin1 = new MockGameEngine('tic-tac-toe')
+        .withMinPlayers(2)
+        .withMaxPlayers(2);
+      const plugin2 = new MockGameEngine('chess')
+        .withMinPlayers(2)
+        .withMaxPlayers(2);
       registry.register(plugin1);
       registry.register(plugin2);
 
@@ -479,7 +367,9 @@ describe('GameManagerService', () => {
     });
 
     it('should support pagination', async () => {
-      const plugin = new MockGameEngine('tic-tac-toe', 2, 2);
+      const plugin = new MockGameEngine('tic-tac-toe')
+        .withMinPlayers(2)
+        .withMaxPlayers(2);
       registry.register(plugin);
 
       // Create 5 games
@@ -504,19 +394,13 @@ describe('GameManagerService', () => {
     });
 
     it('should combine multiple filters', async () => {
-      const plugin = new MockGameEngine('tic-tac-toe', 2, 2);
+      const plugin = new MockGameEngine('tic-tac-toe')
+        .withMinPlayers(2)
+        .withMaxPlayers(2);
       registry.register(plugin);
 
-      const player1: Player = {
-        id: 'player1',
-        name: 'Alice',
-        joinedAt: new Date(),
-      };
-      const player2: Player = {
-        id: 'player2',
-        name: 'Bob',
-        joinedAt: new Date(),
-      };
+      const player1 = createPlayer('player1', 'Alice');
+      const player2 = createPlayer('player2', 'Bob');
 
       await service.createGame('tic-tac-toe', { players: [player1] });
       await service.createGame('tic-tac-toe', { players: [player1, player2] });
@@ -540,8 +424,14 @@ describe('GameManagerService', () => {
     });
 
     it('should return all registered game types', () => {
-      const plugin1 = new MockGameEngine('tic-tac-toe', 2, 2, 'Classic Tic-Tac-Toe');
-      const plugin2 = new MockGameEngine('chess', 2, 2, 'Classic Chess');
+      const plugin1 = new MockGameEngine('tic-tac-toe')
+        .withMinPlayers(2)
+        .withMaxPlayers(2)
+        .withDescription('Classic Tic-Tac-Toe');
+      const plugin2 = new MockGameEngine('chess')
+        .withMinPlayers(2)
+        .withMaxPlayers(2)
+        .withDescription('Classic Chess');
       registry.register(plugin1);
       registry.register(plugin2);
 
@@ -553,7 +443,10 @@ describe('GameManagerService', () => {
     });
 
     it('should include game metadata in results', () => {
-      const plugin = new MockGameEngine('poker', 2, 8, 'Texas Hold\'em Poker');
+      const plugin = new MockGameEngine('poker')
+        .withMinPlayers(2)
+        .withMaxPlayers(8)
+        .withDescription('Texas Hold\'em Poker');
       registry.register(plugin);
 
       const result = service.listAvailableGameTypes();

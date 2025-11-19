@@ -23,7 +23,8 @@ module.exports = {
     '^@domain/(.*)$': '<rootDir>/src/domain/$1',
     '^@application/(.*)$': '<rootDir>/src/application/$1',
     '^@infrastructure/(.*)$': '<rootDir>/src/infrastructure/$1',
-    '^@adapters/(.*)$': '<rootDir>/src/adapters/$1'
+    '^@adapters/(.*)$': '<rootDir>/src/adapters/$1',
+    '^@tests/(.*)$': '<rootDir>/tests/$1'
   },
   verbose: true
 };

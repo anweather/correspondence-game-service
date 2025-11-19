@@ -3,17 +3,10 @@ import { GameLockManager } from '@application/GameLockManager';
 import { PluginRegistry } from '@application/PluginRegistry';
 import { InMemoryGameRepository } from '@infrastructure/persistence/InMemoryGameRepository';
 import {
-  GameEnginePlugin,
-  ValidationResult,
-  GameConfig,
-  BoardRenderData,
-} from '@domain/interfaces';
-import {
   GameState,
   GameLifecycle,
   Player,
   Move,
-  Board,
 } from '@domain/models';
 import {
   GameNotFoundError,
@@ -21,133 +14,25 @@ import {
   UnauthorizedMoveError,
   ConcurrencyError,
 } from '@domain/errors';
-
-// Mock game engine for testing
-class MockGameEngine implements GameEnginePlugin {
-  public beforeApplyMoveCalled = false;
-  public afterApplyMoveCalled = false;
-  public isGameOverResult = false;
-  public getWinnerResult: string | null = null;
-
-  getGameType(): string {
-    return 'mock-game';
-  }
-
-  getMinPlayers(): number {
-    return 2;
-  }
-
-  getMaxPlayers(): number {
-    return 4;
-  }
-
-  getDescription(): string {
-    return 'Mock game for testing';
-  }
-
-  onGameCreated(_state: GameState, _config: GameConfig): void {}
-  onPlayerJoined(_state: GameState, _playerId: string): void {}
-  onGameStarted(_state: GameState): void {}
-  onGameEnded(_state: GameState): void {}
-
-  initializeGame(players: Player[], _config: GameConfig): GameState {
-    return createMockGameState(players);
-  }
-
-  validateMove(
-    _state: GameState,
-    _playerId: string,
-    move: Move
-  ): ValidationResult {
-    // Return invalid if move action is 'invalid'
-    if (move.action === 'invalid') {
-      return { valid: false, reason: 'Invalid move action' };
-    }
-    return { valid: true };
-  }
-
-  beforeApplyMove(_state: GameState, _playerId: string, _move: Move): void {
-    this.beforeApplyMoveCalled = true;
-  }
-
-  applyMove(state: GameState, _playerId: string, move: Move): GameState {
-    return {
-      ...state,
-      moveHistory: [...state.moveHistory, move],
-      version: state.version + 1,
-      updatedAt: new Date(),
-    };
-  }
-
-  afterApplyMove(_oldState: GameState, _newState: GameState, _move: Move): void {
-    this.afterApplyMoveCalled = true;
-  }
-
-  isGameOver(_state: GameState): boolean {
-    return this.isGameOverResult;
-  }
-
-  getWinner(_state: GameState): string | null {
-    return this.getWinnerResult;
-  }
-
-  getCurrentPlayer(state: GameState): string {
-    return state.players[state.currentPlayerIndex].id;
-  }
-
-  getNextPlayer(state: GameState): string {
-    const nextIndex = (state.currentPlayerIndex + 1) % state.players.length;
-    return state.players[nextIndex].id;
-  }
-
-  advanceTurn(state: GameState): GameState {
-    const nextIndex = (state.currentPlayerIndex + 1) % state.players.length;
-    return {
-      ...state,
-      currentPlayerIndex: nextIndex,
-    };
-  }
-
-  renderBoard(_state: GameState): BoardRenderData {
-    return {
-      viewBox: { width: 100, height: 100 },
-      spaces: [],
-      layers: [],
-    };
-  }
-}
+import { MockGameEngine, GameStateBuilder, createPlayer } from '../../utils';
 
 // Helper function to create mock game state
 function createMockGameState(players: Player[]): GameState {
-  return {
-    gameId: 'test-game-1',
-    gameType: 'mock-game',
-    lifecycle: GameLifecycle.ACTIVE,
-    players,
-    currentPlayerIndex: 0,
-    phase: 'main',
-    board: { spaces: [], metadata: {} } as Board,
-    moveHistory: [],
-    metadata: {},
-    version: 1,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
+  return new GameStateBuilder()
+    .withGameId('test-game-1')
+    .withGameType('mock-game')
+    .withLifecycle(GameLifecycle.ACTIVE)
+    .withPlayers(players)
+    .withCurrentPlayerIndex(0)
+    .withPhase('main')
+    .build();
 }
 
 // Helper function to create mock players
 function createMockPlayers(): Player[] {
   return [
-    {
-      id: 'player1',
-      name: 'Player 1',
-      joinedAt: new Date(),
-    },
-    {
-      id: 'player2',
-      name: 'Player 2',
-      joinedAt: new Date(),
-    },
+    createPlayer('player1', 'Player 1'),
+    createPlayer('player2', 'Player 2'),
   ];
 }
 
@@ -162,7 +47,8 @@ describe('StateManagerService', () => {
     repository = new InMemoryGameRepository();
     pluginRegistry = new PluginRegistry();
     lockManager = new GameLockManager();
-    mockEngine = new MockGameEngine();
+    mockEngine = new MockGameEngine('mock-game')
+      .withValidationResult({ valid: true });
     pluginRegistry.register(mockEngine);
 
     stateManager = new StateManagerService(
@@ -202,6 +88,9 @@ describe('StateManagerService', () => {
       const players = createMockPlayers();
       const gameState = createMockGameState(players);
       await repository.save(gameState);
+
+      // Configure mock to return invalid result
+      mockEngine.withValidationResult({ valid: false, reason: 'Invalid move action' });
 
       const move: Move = {
         playerId: 'player1',
@@ -310,6 +199,9 @@ describe('StateManagerService', () => {
       const gameState = createMockGameState(players);
       await repository.save(gameState);
 
+      // Configure mock to return invalid result
+      mockEngine.withValidationResult({ valid: false, reason: 'Invalid move action' });
+
       const move: Move = {
         playerId: 'player1',
         timestamp: new Date(),
@@ -388,8 +280,7 @@ describe('StateManagerService', () => {
       const gameState = createMockGameState(players);
       await repository.save(gameState);
 
-      mockEngine.isGameOverResult = true;
-      mockEngine.getWinnerResult = 'player1';
+      mockEngine.withGameOverResult(true).withWinnerResult('player1');
 
       const move: Move = {
         playerId: 'player1',
