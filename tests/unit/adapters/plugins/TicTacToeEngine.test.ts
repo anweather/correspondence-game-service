@@ -547,4 +547,208 @@ describe('TicTacToeEngine', () => {
       expect(engine.isGameOver(gameState)).toBe(true);
     });
   });
+
+  describe('Board rendering', () => {
+    describe('BoardRenderData structure', () => {
+      it('should return BoardRenderData with viewBox dimensions', () => {
+        const gameState = engine.initializeGame(testPlayers, {});
+        const renderData = engine.renderBoard(gameState);
+        expect(renderData.viewBox).toBeDefined();
+        expect(renderData.viewBox.width).toBeGreaterThan(0);
+        expect(renderData.viewBox.height).toBeGreaterThan(0);
+      });
+
+      it('should return BoardRenderData with backgroundColor', () => {
+        const gameState = engine.initializeGame(testPlayers, {});
+        const renderData = engine.renderBoard(gameState);
+        expect(renderData.backgroundColor).toBeDefined();
+        expect(typeof renderData.backgroundColor).toBe('string');
+      });
+
+      it('should return BoardRenderData with spaces array', () => {
+        const gameState = engine.initializeGame(testPlayers, {});
+        const renderData = engine.renderBoard(gameState);
+        expect(renderData.spaces).toBeDefined();
+        expect(Array.isArray(renderData.spaces)).toBe(true);
+        expect(renderData.spaces).toHaveLength(9);
+      });
+
+      it('should return BoardRenderData with layers array', () => {
+        const gameState = engine.initializeGame(testPlayers, {});
+        const renderData = engine.renderBoard(gameState);
+        expect(renderData.layers).toBeDefined();
+        expect(Array.isArray(renderData.layers)).toBe(true);
+      });
+
+      it('should include space positions in render data', () => {
+        const gameState = engine.initializeGame(testPlayers, {});
+        const renderData = engine.renderBoard(gameState);
+        renderData.spaces.forEach((space) => {
+          expect(space.position).toBeDefined();
+          expect(typeof space.position.x).toBe('number');
+          expect(typeof space.position.y).toBe('number');
+        });
+      });
+    });
+
+    describe('Grid layout generation', () => {
+      it('should include grid layer in render data', () => {
+        const gameState = engine.initializeGame(testPlayers, {});
+        const renderData = engine.renderBoard(gameState);
+        const gridLayer = renderData.layers.find((l) => l.name === 'grid');
+        expect(gridLayer).toBeDefined();
+      });
+
+      it('should have grid layer with lower z-index than tokens', () => {
+        const gameState = engine.initializeGame(testPlayers, {});
+        const renderData = engine.renderBoard(gameState);
+        const gridLayer = renderData.layers.find((l) => l.name === 'grid');
+        const tokenLayer = renderData.layers.find((l) => l.name === 'tokens');
+        if (gridLayer && tokenLayer) {
+          expect(gridLayer.zIndex).toBeLessThan(tokenLayer.zIndex);
+        }
+      });
+
+      it('should include grid lines as render elements', () => {
+        const gameState = engine.initializeGame(testPlayers, {});
+        const renderData = engine.renderBoard(gameState);
+        const gridLayer = renderData.layers.find((l) => l.name === 'grid');
+        expect(gridLayer?.elements).toBeDefined();
+        expect(gridLayer!.elements.length).toBeGreaterThan(0);
+      });
+
+      it('should use line or path elements for grid', () => {
+        const gameState = engine.initializeGame(testPlayers, {});
+        const renderData = engine.renderBoard(gameState);
+        const gridLayer = renderData.layers.find((l) => l.name === 'grid');
+        gridLayer?.elements.forEach((element) => {
+          expect(['rect', 'path']).toContain(element.type);
+        });
+      });
+    });
+
+    describe('Token rendering', () => {
+      it('should render X token for player 1', () => {
+        let gameState = engine.initializeGame(testPlayers, {});
+        gameState = engine.applyMove(gameState, 'player-1', {
+          playerId: 'player-1',
+          timestamp: new Date(),
+          action: 'place',
+          parameters: { row: 1, col: 1 },
+        });
+        const renderData = engine.renderBoard(gameState);
+        const centerSpace = renderData.spaces.find((s) => s.id === '1,1');
+        expect(centerSpace?.tokens).toHaveLength(1);
+        expect(centerSpace?.tokens[0].type).toBe('X');
+      });
+
+      it('should render O token for player 2', () => {
+        let gameState = engine.initializeGame(testPlayers, {});
+        gameState = engine.applyMove(gameState, 'player-1', {
+          playerId: 'player-1',
+          timestamp: new Date(),
+          action: 'place',
+          parameters: { row: 0, col: 0 },
+        });
+        gameState = engine.advanceTurn(gameState);
+        gameState = engine.applyMove(gameState, 'player-2', {
+          playerId: 'player-2',
+          timestamp: new Date(),
+          action: 'place',
+          parameters: { row: 1, col: 1 },
+        });
+        const renderData = engine.renderBoard(gameState);
+        const centerSpace = renderData.spaces.find((s) => s.id === '1,1');
+        expect(centerSpace?.tokens).toHaveLength(1);
+        expect(centerSpace?.tokens[0].type).toBe('O');
+      });
+
+      it('should include token layer in render data', () => {
+        let gameState = engine.initializeGame(testPlayers, {});
+        gameState = engine.applyMove(gameState, 'player-1', {
+          playerId: 'player-1',
+          timestamp: new Date(),
+          action: 'place',
+          parameters: { row: 0, col: 0 },
+        });
+        const renderData = engine.renderBoard(gameState);
+        const tokenLayer = renderData.layers.find((l) => l.name === 'tokens');
+        expect(tokenLayer).toBeDefined();
+      });
+
+      it('should render token elements for placed tokens', () => {
+        let gameState = engine.initializeGame(testPlayers, {});
+        gameState = engine.applyMove(gameState, 'player-1', {
+          playerId: 'player-1',
+          timestamp: new Date(),
+          action: 'place',
+          parameters: { row: 0, col: 0 },
+        });
+        gameState = engine.advanceTurn(gameState);
+        gameState = engine.applyMove(gameState, 'player-2', {
+          playerId: 'player-2',
+          timestamp: new Date(),
+          action: 'place',
+          parameters: { row: 1, col: 1 },
+        });
+        const renderData = engine.renderBoard(gameState);
+        const tokenLayer = renderData.layers.find((l) => l.name === 'tokens');
+        expect(tokenLayer?.elements.length).toBeGreaterThan(0);
+      });
+
+      it('should use appropriate element types for tokens', () => {
+        let gameState = engine.initializeGame(testPlayers, {});
+        gameState = engine.applyMove(gameState, 'player-1', {
+          playerId: 'player-1',
+          timestamp: new Date(),
+          action: 'place',
+          parameters: { row: 0, col: 0 },
+        });
+        const renderData = engine.renderBoard(gameState);
+        const tokenLayer = renderData.layers.find((l) => l.name === 'tokens');
+        tokenLayer?.elements.forEach((element) => {
+          expect(['path', 'text', 'circle']).toContain(element.type);
+        });
+      });
+    });
+
+    describe('Empty spaces', () => {
+      it('should render empty spaces with no tokens', () => {
+        const gameState = engine.initializeGame(testPlayers, {});
+        const renderData = engine.renderBoard(gameState);
+        renderData.spaces.forEach((space) => {
+          expect(space.tokens).toHaveLength(0);
+        });
+      });
+
+      it('should maintain all 9 spaces in render data regardless of tokens', () => {
+        let gameState = engine.initializeGame(testPlayers, {});
+        gameState = engine.applyMove(gameState, 'player-1', {
+          playerId: 'player-1',
+          timestamp: new Date(),
+          action: 'place',
+          parameters: { row: 0, col: 0 },
+        });
+        const renderData = engine.renderBoard(gameState);
+        expect(renderData.spaces).toHaveLength(9);
+      });
+
+      it('should include empty spaces in correct positions', () => {
+        let gameState = engine.initializeGame(testPlayers, {});
+        gameState = engine.applyMove(gameState, 'player-1', {
+          playerId: 'player-1',
+          timestamp: new Date(),
+          action: 'place',
+          parameters: { row: 1, col: 1 },
+        });
+        const renderData = engine.renderBoard(gameState);
+        const emptySpaces = renderData.spaces.filter((s) => s.tokens.length === 0);
+        expect(emptySpaces).toHaveLength(8);
+        emptySpaces.forEach((space) => {
+          expect(space.position).toBeDefined();
+          expect(space.id).toBeDefined();
+        });
+      });
+    });
+  });
 });

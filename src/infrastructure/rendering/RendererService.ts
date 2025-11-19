@@ -59,26 +59,29 @@ export class RendererService {
    * Generate SVG from board render data
    */
   private generateSVG(state: GameState, renderData: BoardRenderData): string {
-    const { width, height } = renderData.viewBox;
+    const boardWidth = renderData.viewBox.width;
+    const boardHeight = renderData.viewBox.height;
     
-    // Start SVG document
-    let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`;
+    // Add padding for frame metadata
+    const framePadding = 40; // Space for metadata below the board
+    const totalWidth = boardWidth;
+    const totalHeight = boardHeight + framePadding;
+    
+    // Start SVG document with expanded dimensions
+    let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${totalWidth}" height="${totalHeight}" viewBox="0 0 ${totalWidth} ${totalHeight}">`;
 
     // Apply background color if provided
     if (renderData.backgroundColor) {
-      svg += `<rect x="0" y="0" width="${width}" height="${height}" fill="${renderData.backgroundColor}" />`;
+      svg += `<rect x="0" y="0" width="${totalWidth}" height="${totalHeight}" fill="${renderData.backgroundColor}" />`;
     }
 
-    // Create frame layer with metadata
-    const frameLayer = this.createFrameLayer(state, renderData);
+    // Wrap board layers in a group (no offset needed, board starts at 0,0)
+    svg += `<g id="board">`;
     
-    // Combine all layers (frame + plugin layers)
-    const allLayers = [frameLayer, ...renderData.layers];
-    
-    // Sort layers by z-index
-    const sortedLayers = allLayers.sort((a, b) => a.zIndex - b.zIndex);
+    // Sort plugin layers by z-index
+    const sortedLayers = renderData.layers.sort((a, b) => a.zIndex - b.zIndex);
 
-    // Render each layer
+    // Render each board layer
     for (const layer of sortedLayers) {
       svg += `<g id="${layer.name}">`;
       
@@ -88,6 +91,16 @@ export class RendererService {
       
       svg += '</g>';
     }
+    
+    svg += '</g>'; // Close board group
+
+    // Create and render frame layer below the board
+    const frameLayer = this.createFrameLayer(state, renderData, boardHeight);
+    svg += `<g id="${frameLayer.name}">`;
+    for (const element of frameLayer.elements) {
+      svg += this.renderElement(element);
+    }
+    svg += '</g>';
 
     // Close SVG
     svg += '</svg>';
@@ -96,50 +109,61 @@ export class RendererService {
   }
 
   /**
-   * Create a frame layer with game metadata
+   * Create a frame layer with game metadata positioned below the board
    */
-  private createFrameLayer(state: GameState, renderData: BoardRenderData): RenderLayer {
+  private createFrameLayer(state: GameState, renderData: BoardRenderData, boardHeight: number): RenderLayer {
     const { width } = renderData.viewBox;
     const padding = 10;
-    const fontSize = 12;
+    const fontSize = 11;
+    const yOffset = boardHeight + 15; // Position below the board
 
     return {
       name: 'frame',
       zIndex: 1000, // High z-index to render on top
       elements: [
-        // Game type label
+        // Separator line
+        {
+          type: 'path',
+          attributes: {
+            d: `M 0 ${boardHeight + 5} L ${width} ${boardHeight + 5}`,
+            stroke: '#e0e0e0',
+            strokeWidth: 1,
+          },
+        },
+        // Game type label (left side)
         {
           type: 'text',
           attributes: {
             x: padding,
-            y: padding + fontSize,
+            y: yOffset,
             'font-size': fontSize,
             'font-family': 'Arial, sans-serif',
-            fill: '#333333',
-            text: `Game: ${state.gameType}`,
+            fill: '#666666',
+            text: `${state.gameType}`,
           },
         },
-        // Game ID label
+        // Game ID (center)
         {
           type: 'text',
           attributes: {
-            x: padding,
-            y: padding + fontSize * 2 + 5,
-            'font-size': fontSize - 2,
+            x: width / 2,
+            y: yOffset,
+            'font-size': fontSize - 1,
             'font-family': 'Arial, sans-serif',
-            fill: '#666666',
-            text: `ID: ${state.gameId}`,
+            fill: '#999999',
+            'text-anchor': 'middle',
+            text: `${state.gameId}`,
           },
         },
-        // Timestamp
+        // Timestamp (right side)
         {
           type: 'text',
           attributes: {
             x: width - padding,
-            y: padding + fontSize,
-            'font-size': fontSize - 2,
+            y: yOffset,
+            'font-size': fontSize - 1,
             'font-family': 'Arial, sans-serif',
-            fill: '#666666',
+            fill: '#999999',
             'text-anchor': 'end',
             text: new Date(state.updatedAt).toISOString().split('T')[0],
           },

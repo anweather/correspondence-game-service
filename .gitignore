@@ -36,3 +36,6 @@ npm-debug.log*
 # Temporary files
 *.tmp
 .cache/
+
+# Generated SVG output
+output/

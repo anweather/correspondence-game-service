@@ -454,7 +454,8 @@ describe('RendererService', () => {
 
       const svg = await rendererService.renderState(gameState);
 
-      expect(svg).toContain('viewBox="0 0 500 400"');
+      // ViewBox now includes frame padding (40px added to height)
+      expect(svg).toContain('viewBox="0 0 500 440"');
     });
 
     it('should set width and height attributes', async () => {

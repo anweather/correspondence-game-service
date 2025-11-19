@@ -222,8 +222,11 @@ export class TicTacToeEngine extends BaseGameEngine {
   }
 
   renderBoard(state: GameState): BoardRenderData {
-    // Basic rendering implementation
-    // This will be enhanced in the rendering task
+    const cellSize = 100;
+    const boardSize = this.BOARD_SIZE * cellSize;
+    const lineWidth = 2;
+
+    // Map spaces to render data
     const spaces = state.board.spaces.map(space => ({
       id: space.id,
       position: { x: space.position.x, y: space.position.y },
@@ -234,11 +237,110 @@ export class TicTacToeEngine extends BaseGameEngine {
       })),
     }));
 
+    // Create grid layer with borders and dividers
+    const gridElements: any[] = [];
+    
+    // Vertical lines
+    for (let i = 1; i < this.BOARD_SIZE; i++) {
+      gridElements.push({
+        type: 'path',
+        attributes: {
+          d: `M ${i * cellSize} 0 L ${i * cellSize} ${boardSize}`,
+          stroke: '#333333',
+          strokeWidth: lineWidth,
+        },
+      });
+    }
+    
+    // Horizontal lines
+    for (let i = 1; i < this.BOARD_SIZE; i++) {
+      gridElements.push({
+        type: 'path',
+        attributes: {
+          d: `M 0 ${i * cellSize} L ${boardSize} ${i * cellSize}`,
+          stroke: '#333333',
+          strokeWidth: lineWidth,
+        },
+      });
+    }
+    
+    // Border
+    gridElements.push({
+      type: 'rect',
+      attributes: {
+        x: 0,
+        y: 0,
+        width: boardSize,
+        height: boardSize,
+        fill: 'none',
+        stroke: '#333333',
+        strokeWidth: lineWidth * 2,
+      },
+    });
+
+    // Create token layer with X and O symbols
+    const tokenElements: any[] = [];
+    
+    state.board.spaces.forEach(space => {
+      if (space.tokens.length > 0) {
+        const token = space.tokens[0];
+        const centerX = space.position.x * cellSize + cellSize / 2;
+        const centerY = space.position.y * cellSize + cellSize / 2;
+        const padding = 20;
+        
+        if (token.type === 'X') {
+          // Draw X as two diagonal lines
+          tokenElements.push({
+            type: 'path',
+            attributes: {
+              d: `M ${centerX - cellSize / 2 + padding} ${centerY - cellSize / 2 + padding} L ${centerX + cellSize / 2 - padding} ${centerY + cellSize / 2 - padding}`,
+              stroke: '#e74c3c',
+              strokeWidth: 8,
+              strokeLinecap: 'round',
+            },
+          });
+          tokenElements.push({
+            type: 'path',
+            attributes: {
+              d: `M ${centerX + cellSize / 2 - padding} ${centerY - cellSize / 2 + padding} L ${centerX - cellSize / 2 + padding} ${centerY + cellSize / 2 - padding}`,
+              stroke: '#e74c3c',
+              strokeWidth: 8,
+              strokeLinecap: 'round',
+            },
+          });
+        } else if (token.type === 'O') {
+          // Draw O as a circle
+          tokenElements.push({
+            type: 'circle',
+            attributes: {
+              cx: centerX,
+              cy: centerY,
+              r: cellSize / 2 - padding,
+              fill: 'none',
+              stroke: '#3498db',
+              strokeWidth: 8,
+            },
+          });
+        }
+      }
+    });
+
     return {
-      viewBox: { width: 300, height: 300 },
+      viewBox: { width: boardSize, height: boardSize },
       backgroundColor: '#ffffff',
       spaces,
-      layers: [],
+      layers: [
+        {
+          name: 'grid',
+          zIndex: 1,
+          elements: gridElements,
+        },
+        {
+          name: 'tokens',
+          zIndex: 2,
+          elements: tokenElements,
+        },
+      ],
     };
   }
 }

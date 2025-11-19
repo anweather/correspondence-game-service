@@ -183,15 +183,15 @@ Following Red-Green-Refactor TDD: Write failing tests first (Red), implement min
     - Implement SVG generation from RenderLayer data
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7_
 
-- [ ] 12. TDD: Tic-Tac-Toe rendering
-  - [ ] 12.1 Write tests for TicTacToeEngine rendering
+- [x] 12. TDD: Tic-Tac-Toe rendering
+  - [x] 12.1 Write tests for TicTacToeEngine rendering
     - Write tests for BoardRenderData structure
     - Write tests for grid layout generation
     - Write tests for token rendering (X and O)
     - Write tests for empty spaces
     - _Requirements: 6.1, 6.2, 6.4, 4.2, 4.3, 4.4, 4.7_
   
-  - [ ] 12.2 Implement TicTacToeEngine renderBoard to pass tests
+  - [x] 12.2 Implement TicTacToeEngine renderBoard to pass tests
     - Implement renderBoard method
     - Generate grid with borders and dividers
     - Render tokens in appropriate spaces
