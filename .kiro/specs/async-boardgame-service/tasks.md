@@ -87,22 +87,22 @@ Following Red-Green-Refactor TDD: Write failing tests first (Red), implement min
     - Implement pagination logic
     - _Requirements: 7.1, 7.2, 7.3, 7.4_
 
-- [ ] 7. TDD: GameLockManager
-  - [ ] 7.1 Write tests for GameLockManager
+- [x] 7. TDD: GameLockManager
+  - [x] 7.1 Write tests for GameLockManager
     - Write tests for sequential processing of operations on same game
     - Write tests for concurrent operations on different games
     - Write tests for lock cleanup after operation
     - Write tests for error handling within locked operations
     - _Requirements: 6.1, 6.2, 6.4, 7.1, 7.2, 7.5_
   
-  - [ ] 7.2 Implement GameLockManager to pass tests
+  - [x] 7.2 Implement GameLockManager to pass tests
     - Create class with withLock method
     - Implement per-game-instance locking using Map<string, Promise>
     - Handle lock cleanup
     - _Requirements: 7.1, 7.2, 7.5_
 
-- [ ] 8. TDD: GameManagerService
-  - [ ] 8.1 Write tests for GameManagerService
+- [x] 8. TDD: GameManagerService
+  - [x] 8.1 Write tests for GameManagerService
     - Write tests for createGame with different player counts (CREATED vs WAITING_FOR_PLAYERS)
     - Write tests for getGame (found and not found cases)
     - Write tests for joinGame (success, duplicate player, full game, wrong lifecycle)
@@ -111,7 +111,7 @@ Following Red-Green-Refactor TDD: Write failing tests first (Red), implement min
     - Write tests for listAvailableGameTypes
     - _Requirements: 6.1, 6.2, 6.4, 1.1, 1.2, 1.3, 1.5, 1a.1, 1a.2, 1a.3, 1a.4, 1a.5_
   
-  - [ ] 8.2 Implement GameManagerService to pass tests
+  - [x] 8.2 Implement GameManagerService to pass tests
     - Implement all methods using PluginRegistry and GameRepository
     - Handle lifecycle state management
     - Add validation logic

@@ -263,6 +263,11 @@ export interface GameRepository {
   findById(gameId: string): Promise<GameState | null>;
 
   /**
+   * Find all games with optional filters and pagination
+   */
+  findAll(filters: GameFilters): Promise<PaginatedResult<GameState>>;
+
+  /**
    * Find games by player ID with optional filters and pagination
    */
   findByPlayer(

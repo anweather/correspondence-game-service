@@ -1,0 +1,197 @@
+import { PluginRegistry } from '@application/PluginRegistry';
+import {
+  GameRepository,
+  GameConfig,
+  GameFilters,
+  PaginatedResult,
+} from '@domain/interfaces';
+import { GameState, Player, GameLifecycle } from '@domain/models';
+import { GameNotFoundError, GameFullError } from '@domain/errors';
+import { randomUUID } from 'crypto';
+
+/**
+ * Information about a registered game type
+ */
+export interface GameTypeInfo {
+  type: string;
+  name: string;
+  description: string;
+  minPlayers: number;
+  maxPlayers: number;
+  configSchema?: object;
+}
+
+/**
+ * Service for managing game instances
+ * Handles game creation, player joining, and game listing
+ */
+export class GameManagerService {
+  constructor(
+    private registry: PluginRegistry,
+    private repository: GameRepository
+  ) {}
+
+  /**
+   * Create a new game instance
+   * @param gameType - The type of game to create
+   * @param config - Configuration for the game
+   * @returns The created game state
+   * @throws Error if game type is not supported
+   */
+  async createGame(gameType: string, config: GameConfig): Promise<GameState> {
+    const plugin = this.registry.get(gameType);
+    
+    if (!plugin) {
+      throw new Error(`Game type "${gameType}" is not supported`);
+    }
+
+    const gameId = randomUUID();
+    const players = config.players || [];
+    const minPlayers = plugin.getMinPlayers();
+
+    // Determine initial lifecycle state
+    let lifecycle: GameLifecycle;
+    if (players.length === 0) {
+      lifecycle = GameLifecycle.CREATED;
+    } else if (players.length < minPlayers) {
+      lifecycle = GameLifecycle.WAITING_FOR_PLAYERS;
+    } else {
+      lifecycle = GameLifecycle.ACTIVE;
+    }
+
+    // Initialize game state using plugin
+    const initialState = plugin.initializeGame(players, config);
+
+    // Override with our managed fields
+    const gameState: GameState = {
+      ...initialState,
+      gameId,
+      gameType,
+      lifecycle,
+      players,
+      version: 1,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    // Save to repository
+    await this.repository.save(gameState);
+
+    // Invoke lifecycle hook
+    plugin.onGameCreated(gameState, config);
+
+    return gameState;
+  }
+
+  /**
+   * Get a game by its ID
+   * @param gameId - The game ID to retrieve
+   * @returns The game state, or null if not found
+   */
+  async getGame(gameId: string): Promise<GameState | null> {
+    return await this.repository.findById(gameId);
+  }
+
+  /**
+   * Add a player to a game
+   * @param gameId - The game ID to join
+   * @param player - The player to add
+   * @returns The updated game state
+   * @throws GameNotFoundError if game not found
+   * @throws GameFullError if game is at maximum capacity
+   * @throws Error if game is not in joinable state or player already in game
+   */
+  async joinGame(gameId: string, player: Player): Promise<GameState> {
+    const game = await this.repository.findById(gameId);
+    
+    if (!game) {
+      throw new GameNotFoundError(gameId);
+    }
+
+    // Get plugin to check max players
+    const plugin = this.registry.get(game.gameType);
+    if (!plugin) {
+      throw new Error(`Game type "${game.gameType}" is not supported`);
+    }
+
+    // Check if game is full first (more specific error)
+    if (game.players.length >= plugin.getMaxPlayers()) {
+      throw new GameFullError(gameId);
+    }
+
+    // Check if game is in joinable state
+    // Allow joining CREATED, WAITING_FOR_PLAYERS, and ACTIVE (if not full)
+    if (game.lifecycle !== GameLifecycle.CREATED && 
+        game.lifecycle !== GameLifecycle.WAITING_FOR_PLAYERS &&
+        game.lifecycle !== GameLifecycle.ACTIVE) {
+      throw new Error(`Cannot join game in lifecycle state: ${game.lifecycle}`);
+    }
+
+    // Check if player already in game
+    if (game.players.some((p) => p.id === player.id)) {
+      throw new Error(`Player ${player.id} is already in the game`);
+    }
+
+    // Add player
+    const updatedPlayers = [...game.players, player];
+    
+    // Determine new lifecycle state
+    let newLifecycle: GameLifecycle = game.lifecycle;
+    if (game.lifecycle === GameLifecycle.CREATED) {
+      newLifecycle = updatedPlayers.length >= plugin.getMinPlayers()
+        ? GameLifecycle.ACTIVE
+        : GameLifecycle.WAITING_FOR_PLAYERS;
+    } else if (game.lifecycle === GameLifecycle.WAITING_FOR_PLAYERS) {
+      if (updatedPlayers.length >= plugin.getMinPlayers()) {
+        newLifecycle = GameLifecycle.ACTIVE;
+      }
+    }
+
+    // Update game state
+    const updatedGame: GameState = {
+      ...game,
+      players: updatedPlayers,
+      lifecycle: newLifecycle,
+      version: game.version + 1,
+      updatedAt: new Date(),
+    };
+
+    // Save updated state
+    await this.repository.update(gameId, updatedGame, game.version);
+
+    // Invoke lifecycle hooks
+    plugin.onPlayerJoined(updatedGame, player.id);
+    
+    // Check if game just transitioned to ACTIVE
+    const wasNotActive = game.lifecycle === GameLifecycle.CREATED || 
+                         game.lifecycle === GameLifecycle.WAITING_FOR_PLAYERS;
+    if (newLifecycle === GameLifecycle.ACTIVE && wasNotActive) {
+      plugin.onGameStarted(updatedGame);
+    }
+
+    return updatedGame;
+  }
+
+  /**
+   * List games with optional filtering and pagination
+   * @param filters - Filters to apply
+   * @returns Paginated list of games
+   */
+  async listGames(filters: GameFilters): Promise<PaginatedResult<GameState>> {
+    // If playerId filter is provided, use repository's findByPlayer
+    if (filters.playerId) {
+      return await this.repository.findByPlayer(filters.playerId, filters);
+    }
+
+    // Otherwise, use findAll
+    return await this.repository.findAll(filters);
+  }
+
+  /**
+   * List all available game types
+   * @returns Array of game type information
+   */
+  listAvailableGameTypes(): GameTypeInfo[] {
+    return this.registry.list();
+  }
+}

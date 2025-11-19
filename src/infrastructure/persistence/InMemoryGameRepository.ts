@@ -33,6 +33,43 @@ export class InMemoryGameRepository implements GameRepository {
   }
 
   /**
+   * Find all games with optional filters and pagination
+   */
+  async findAll(filters: GameFilters): Promise<PaginatedResult<GameState>> {
+    // Get all games
+    let games = Array.from(this.games.values());
+
+    // Apply lifecycle filter
+    if (filters.lifecycle) {
+      games = games.filter((game) => game.lifecycle === filters.lifecycle);
+    }
+
+    // Apply game type filter
+    if (filters.gameType) {
+      games = games.filter((game) => game.gameType === filters.gameType);
+    }
+
+    // Calculate pagination
+    const page = filters.page || 1;
+    const pageSize = filters.pageSize || 20;
+    const total = games.length;
+    const totalPages = Math.ceil(total / pageSize);
+
+    // Apply pagination
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const items = games.slice(startIndex, endIndex);
+
+    return {
+      items,
+      total,
+      page,
+      pageSize,
+      totalPages,
+    };
+  }
+
+  /**
    * Find games by player ID with optional filters and pagination
    */
   async findByPlayer(
