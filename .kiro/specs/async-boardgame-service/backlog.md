@@ -118,6 +118,313 @@ This document tracks future improvements, technical debt, and known issues that 
 
 ---
 
+### Docker Containerization and AWS ECS Deployment
+
+**Issue**: No containerization or cloud deployment infrastructure currently exists.
+
+**Problem**:
+- Manual deployment process is error-prone
+- Difficult to ensure consistent environments (dev, staging, prod)
+- No infrastructure as code
+- Cannot easily scale or deploy updates
+- Missing CI/CD pipeline
+- No production-ready hosting solution
+
+**Proposed Solution**: Implement Docker containerization and AWS ECS deployment:
+
+1. **Docker Setup**:
+   ```dockerfile
+   # Multi-stage Dockerfile
+   FROM node:20-alpine AS builder
+   WORKDIR /app
+   COPY package*.json ./
+   RUN npm ci
+   COPY . .
+   RUN npm run build
+   RUN npm prune --production
+   
+   FROM node:20-alpine
+   WORKDIR /app
+   COPY --from=builder /app/dist ./dist
+   COPY --from=builder /app/node_modules ./node_modules
+   COPY --from=builder /app/package.json ./
+   EXPOSE 3000
+   CMD ["node", "dist/index.js"]
+   ```
+
+2. **Docker Compose for Local Development**:
+   ```yaml
+   version: '3.8'
+   services:
+     app:
+       build: .
+       ports:
+         - "3000:3000"
+       environment:
+         - NODE_ENV=development
+         - DATABASE_URL=postgresql://postgres:password@db:5432/boardgames
+       depends_on:
+         - db
+         - redis
+     
+     db:
+       image: postgres:15-alpine
+       environment:
+         POSTGRES_DB: boardgames
+         POSTGRES_PASSWORD: password
+       volumes:
+         - postgres_data:/var/lib/postgresql/data
+     
+     redis:
+       image: redis:7-alpine
+       volumes:
+         - redis_data:/data
+   
+   volumes:
+     postgres_data:
+     redis_data:
+   ```
+
+3. **AWS ECS Infrastructure** (Terraform or CloudFormation):
+   - **VPC Setup**: Public and private subnets, NAT gateway
+   - **ECS Cluster**: Fargate-based for serverless containers
+   - **Task Definition**: Container specs, resource limits, environment variables
+   - **Service**: Auto-scaling, load balancing, health checks
+   - **Application Load Balancer**: HTTPS termination, routing
+   - **RDS PostgreSQL**: Managed database with automated backups
+   - **ElastiCache Redis**: Distributed locking and caching
+   - **CloudWatch**: Logs and metrics
+   - **Secrets Manager**: Secure credential storage
+   - **ECR**: Container image registry
+
+4. **Infrastructure as Code** (Terraform example):
+   ```hcl
+   # terraform/main.tf
+   resource "aws_ecs_cluster" "boardgame" {
+     name = "boardgame-cluster"
+   }
+   
+   resource "aws_ecs_task_definition" "app" {
+     family                   = "boardgame-service"
+     network_mode             = "awsvpc"
+     requires_compatibilities = ["FARGATE"]
+     cpu                      = "256"
+     memory                   = "512"
+     
+     container_definitions = jsonencode([{
+       name  = "boardgame-api"
+       image = "${aws_ecr_repository.app.repository_url}:latest"
+       portMappings = [{
+         containerPort = 3000
+         protocol      = "tcp"
+       }]
+       environment = [
+         { name = "NODE_ENV", value = "production" },
+         { name = "DATABASE_URL", value = "..." }
+       ]
+       logConfiguration = {
+         logDriver = "awslogs"
+         options = {
+           "awslogs-group"         = "/ecs/boardgame-service"
+           "awslogs-region"        = "us-east-1"
+           "awslogs-stream-prefix" = "ecs"
+         }
+       }
+     }])
+   }
+   
+   resource "aws_ecs_service" "app" {
+     name            = "boardgame-service"
+     cluster         = aws_ecs_cluster.boardgame.id
+     task_definition = aws_ecs_task_definition.app.arn
+     desired_count   = 2
+     launch_type     = "FARGATE"
+     
+     load_balancer {
+       target_group_arn = aws_lb_target_group.app.arn
+       container_name   = "boardgame-api"
+       container_port   = 3000
+     }
+     
+     network_configuration {
+       subnets          = aws_subnet.private[*].id
+       security_groups  = [aws_security_group.ecs_tasks.id]
+       assign_public_ip = false
+     }
+   }
+   ```
+
+5. **CI/CD Pipeline** (GitHub Actions):
+   ```yaml
+   # .github/workflows/deploy.yml
+   name: Deploy to AWS ECS
+   
+   on:
+     push:
+       branches: [main]
+   
+   jobs:
+     test:
+       runs-on: ubuntu-latest
+       steps:
+         - uses: actions/checkout@v3
+         - uses: actions/setup-node@v3
+           with:
+             node-version: '20'
+         - run: npm ci
+         - run: npm run test:run
+         - run: npm run lint
+     
+     build-and-deploy:
+       needs: test
+       runs-on: ubuntu-latest
+       steps:
+         - uses: actions/checkout@v3
+         
+         - name: Configure AWS credentials
+           uses: aws-actions/configure-aws-credentials@v2
+           with:
+             aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+             aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+             aws-region: us-east-1
+         
+         - name: Login to Amazon ECR
+           id: login-ecr
+           uses: aws-actions/amazon-ecr-login@v1
+         
+         - name: Build and push Docker image
+           env:
+             ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+             ECR_REPOSITORY: boardgame-service
+             IMAGE_TAG: ${{ github.sha }}
+           run: |
+             docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+             docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+             docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+             docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+         
+         - name: Deploy to ECS
+           run: |
+             aws ecs update-service \
+               --cluster boardgame-cluster \
+               --service boardgame-service \
+               --force-new-deployment
+   ```
+
+6. **Environment Configuration**:
+   ```typescript
+   // src/config/index.ts
+   export const config = {
+     port: process.env.PORT || 3000,
+     nodeEnv: process.env.NODE_ENV || 'development',
+     database: {
+       url: process.env.DATABASE_URL,
+       poolSize: parseInt(process.env.DB_POOL_SIZE || '10'),
+     },
+     redis: {
+       url: process.env.REDIS_URL,
+     },
+     aws: {
+       region: process.env.AWS_REGION || 'us-east-1',
+     },
+     logging: {
+       level: process.env.LOG_LEVEL || 'info',
+     },
+   };
+   ```
+
+7. **Health Check Endpoint**:
+   ```typescript
+   // src/adapters/rest/healthRoutes.ts
+   router.get('/health', async (req, res) => {
+     const health = {
+       status: 'healthy',
+       timestamp: new Date().toISOString(),
+       uptime: process.uptime(),
+       database: await checkDatabaseConnection(),
+       redis: await checkRedisConnection(),
+     };
+     res.json(health);
+   });
+   ```
+
+**Implementation Steps**:
+
+**Phase 1: Containerization (Week 1)**
+- Create Dockerfile with multi-stage build
+- Create docker-compose.yml for local development
+- Add .dockerignore file
+- Test local Docker builds
+- Document Docker usage in README
+
+**Phase 2: AWS Infrastructure (Week 2)**
+- Set up AWS account and IAM roles
+- Create Terraform/CloudFormation templates
+- Provision VPC, subnets, security groups
+- Set up RDS PostgreSQL instance
+- Set up ElastiCache Redis cluster
+- Create ECR repository
+
+**Phase 3: ECS Deployment (Week 3)**
+- Create ECS cluster and task definitions
+- Configure Application Load Balancer
+- Set up auto-scaling policies
+- Configure CloudWatch logging and alarms
+- Test manual deployment
+
+**Phase 4: CI/CD Pipeline (Week 4)**
+- Create GitHub Actions workflow
+- Configure AWS credentials in GitHub secrets
+- Implement automated testing
+- Implement automated Docker builds
+- Implement automated ECS deployments
+- Add deployment notifications (Slack/Discord)
+
+**Phase 5: Monitoring & Operations (Week 5)**
+- Set up CloudWatch dashboards
+- Configure alarms for critical metrics
+- Implement log aggregation
+- Create runbooks for common operations
+- Document deployment procedures
+- Set up backup and disaster recovery
+
+**Benefits**:
+- Consistent environments across dev, staging, and production
+- Easy scaling with ECS Fargate
+- Automated deployments reduce human error
+- Infrastructure as code enables version control
+- Managed services (RDS, ElastiCache) reduce operational burden
+- CloudWatch provides comprehensive monitoring
+- Cost-effective with pay-per-use pricing
+
+**Cost Estimates** (Monthly, US East):
+- ECS Fargate (2 tasks, 0.25 vCPU, 0.5 GB): ~$15
+- Application Load Balancer: ~$20
+- RDS PostgreSQL (db.t3.micro): ~$15
+- ElastiCache Redis (cache.t3.micro): ~$12
+- Data transfer and storage: ~$10
+- **Total: ~$70-80/month** for small production deployment
+
+**Priority**: High - Required for production deployment and professional development workflow
+
+**Related Requirements**: Deployment strategy (design doc), scalability, reliability
+
+**Estimated Effort**: Large (4-5 weeks)
+- Containerization: 3-4 days
+- AWS infrastructure setup: 5-7 days
+- ECS configuration: 3-4 days
+- CI/CD pipeline: 4-5 days
+- Monitoring and documentation: 3-4 days
+- Testing and refinement: 3-4 days
+
+**Dependencies**:
+- Persistent storage implementation (database)
+- Environment configuration management
+- Health check endpoints
+- Logging infrastructure
+
+---
+
 ### Persistent Storage Implementation
 
 **Issue**: Currently using in-memory storage (`InMemoryGameRepository`) which loses all data on server restart.
