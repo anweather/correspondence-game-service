@@ -4,7 +4,7 @@
  * concurrent operations on different games.
  */
 export class GameLockManager {
-  private locks: Map<string, Promise<any>>;
+  private locks: Map<string, Promise<unknown>>;
 
   constructor() {
     this.locks = new Map();
@@ -14,7 +14,7 @@ export class GameLockManager {
    * Executes a function with exclusive access to a specific game instance.
    * Operations on the same gameId are processed sequentially.
    * Operations on different gameIds can run concurrently.
-   * 
+   *
    * @param gameId - The unique identifier of the game instance
    * @param fn - The async function to execute with the lock
    * @returns The result of the function execution

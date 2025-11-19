@@ -1,18 +1,5 @@
-import {
-  GameState,
-  Player,
-  Move,
-  GameLifecycle,
-  Board,
-  Space,
-  Token,
-} from '@domain/models';
-import {
-  BaseGameEngine,
-  ValidationResult,
-  BoardRenderData,
-  GameConfig,
-} from '@domain/interfaces';
+import { GameState, Player, Move, GameLifecycle, Board, Space, Token } from '@domain/models';
+import { BaseGameEngine, ValidationResult, BoardRenderData, GameConfig } from '@domain/interfaces';
 
 /**
  * Tic-Tac-Toe specific move parameters
@@ -52,7 +39,7 @@ export class TicTacToeEngine extends BaseGameEngine {
 
   initializeGame(players: Player[], config: GameConfig): GameState {
     const gameId = config.customSettings?.gameId || `ttt-${Date.now()}`;
-    
+
     // Create 3x3 board with empty spaces
     const spaces: Space[] = [];
     for (let row = 0; row < this.BOARD_SIZE; row++) {
@@ -88,11 +75,7 @@ export class TicTacToeEngine extends BaseGameEngine {
     };
   }
 
-  validateMove(
-    state: GameState,
-    playerId: string,
-    move: Move
-  ): ValidationResult {
+  validateMove(state: GameState, playerId: string, move: Move): ValidationResult {
     const { row, col } = move.parameters as { row: number; col: number };
 
     // Check if it's the player's turn
@@ -114,8 +97,8 @@ export class TicTacToeEngine extends BaseGameEngine {
 
     // Check if space is empty
     const spaceId = `${row},${col}`;
-    const space = state.board.spaces.find(s => s.id === spaceId);
-    
+    const space = state.board.spaces.find((s) => s.id === spaceId);
+
     if (!space) {
       return {
         valid: false,
@@ -138,7 +121,7 @@ export class TicTacToeEngine extends BaseGameEngine {
     const spaceId = `${row},${col}`;
 
     // Determine token type based on player index
-    const playerIndex = state.players.findIndex(p => p.id === playerId);
+    const playerIndex = state.players.findIndex((p) => p.id === playerId);
     const tokenType = playerIndex === 0 ? 'X' : 'O';
 
     // Create new token
@@ -149,7 +132,7 @@ export class TicTacToeEngine extends BaseGameEngine {
     };
 
     // Create new board with token placed
-    const newSpaces = state.board.spaces.map(space => {
+    const newSpaces = state.board.spaces.map((space) => {
       if (space.id === spaceId) {
         return {
           ...space,
@@ -178,9 +161,7 @@ export class TicTacToeEngine extends BaseGameEngine {
     }
 
     // Check if board is full (draw)
-    const allSpacesFilled = state.board.spaces.every(
-      space => space.tokens.length > 0
-    );
+    const allSpacesFilled = state.board.spaces.every((space) => space.tokens.length > 0);
 
     return allSpacesFilled;
   }
@@ -202,17 +183,15 @@ export class TicTacToeEngine extends BaseGameEngine {
     ];
 
     for (const pattern of winPatterns) {
-      const spaces = pattern.map(id => 
-        state.board.spaces.find(s => s.id === id)
-      );
+      const spaces = pattern.map((id) => state.board.spaces.find((s) => s.id === id));
 
       // Check if all spaces in pattern have tokens
-      if (spaces.every(s => s && s.tokens.length > 0)) {
-        const tokens = spaces.map(s => s!.tokens[0]);
-        
+      if (spaces.every((s) => s && s.tokens.length > 0)) {
+        const tokens = spaces.map((s) => s!.tokens[0]);
+
         // Check if all tokens are the same type and have the same owner
         const firstToken = tokens[0];
-        if (tokens.every(t => t.type === firstToken.type && t.ownerId === firstToken.ownerId)) {
+        if (tokens.every((t) => t.type === firstToken.type && t.ownerId === firstToken.ownerId)) {
           return firstToken.ownerId!;
         }
       }
@@ -227,10 +206,10 @@ export class TicTacToeEngine extends BaseGameEngine {
     const lineWidth = 2;
 
     // Map spaces to render data
-    const spaces = state.board.spaces.map(space => ({
+    const spaces = state.board.spaces.map((space) => ({
       id: space.id,
       position: { x: space.position.x, y: space.position.y },
-      tokens: space.tokens.map(token => ({
+      tokens: space.tokens.map((token) => ({
         id: token.id,
         type: token.type,
         ownerId: token.ownerId,
@@ -239,7 +218,7 @@ export class TicTacToeEngine extends BaseGameEngine {
 
     // Create grid layer with borders and dividers
     const gridElements: any[] = [];
-    
+
     // Vertical lines
     for (let i = 1; i < this.BOARD_SIZE; i++) {
       gridElements.push({
@@ -251,7 +230,7 @@ export class TicTacToeEngine extends BaseGameEngine {
         },
       });
     }
-    
+
     // Horizontal lines
     for (let i = 1; i < this.BOARD_SIZE; i++) {
       gridElements.push({
@@ -263,7 +242,7 @@ export class TicTacToeEngine extends BaseGameEngine {
         },
       });
     }
-    
+
     // Border
     gridElements.push({
       type: 'rect',
@@ -280,14 +259,14 @@ export class TicTacToeEngine extends BaseGameEngine {
 
     // Create token layer with X and O symbols
     const tokenElements: any[] = [];
-    
-    state.board.spaces.forEach(space => {
+
+    state.board.spaces.forEach((space) => {
       if (space.tokens.length > 0) {
         const token = space.tokens[0];
         const centerX = space.position.x * cellSize + cellSize / 2;
         const centerY = space.position.y * cellSize + cellSize / 2;
         const padding = 20;
-        
+
         if (token.type === 'X') {
           // Draw X as two diagonal lines
           tokenElements.push({

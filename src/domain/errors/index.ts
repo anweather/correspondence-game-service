@@ -6,12 +6,7 @@ export class GameError extends Error {
   public readonly statusCode: number;
   public readonly details?: any;
 
-  constructor(
-    message: string,
-    code: string,
-    statusCode: number,
-    details?: any
-  ) {
+  constructor(message: string, code: string, statusCode: number, details?: any) {
     super(message);
     this.name = 'GameError';
     this.code = code;
@@ -53,11 +48,7 @@ export class InvalidMoveError extends GameError {
  */
 export class ConcurrencyError extends GameError {
   constructor(gameId: string) {
-    super(
-      `Game ${gameId} was modified by another request`,
-      'STALE_STATE',
-      409
-    );
+    super(`Game ${gameId} was modified by another request`, 'STALE_STATE', 409);
     this.name = 'ConcurrencyError';
   }
 }
@@ -68,11 +59,7 @@ export class ConcurrencyError extends GameError {
  */
 export class UnauthorizedMoveError extends GameError {
   constructor(playerId: string) {
-    super(
-      `Player ${playerId} is not authorized to make this move`,
-      'UNAUTHORIZED_MOVE',
-      403
-    );
+    super(`Player ${playerId} is not authorized to make this move`, 'UNAUTHORIZED_MOVE', 403);
     this.name = 'UnauthorizedMoveError';
   }
 }

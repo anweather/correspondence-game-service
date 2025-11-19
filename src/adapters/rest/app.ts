@@ -27,11 +27,11 @@ export function errorHandler(err: Error, _req: Request, res: Response, _next: Ne
   // Handle unknown errors
   // In production, don't expose internal error details
   const isProduction = process.env.NODE_ENV === 'production';
-  
+
   res.status(500).json({
     error: {
       code: 'INTERNAL_ERROR',
-      message: isProduction 
+      message: isProduction
         ? 'An unexpected error occurred'
         : err.message || 'An unexpected error occurred',
     },

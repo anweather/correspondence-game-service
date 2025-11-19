@@ -126,11 +126,7 @@ export abstract class BaseGameEngine implements GameEnginePlugin {
 
   // Abstract core methods - must be implemented by subclasses
   abstract initializeGame(players: Player[], config: GameConfig): GameState;
-  abstract validateMove(
-    state: GameState,
-    playerId: string,
-    move: Move
-  ): ValidationResult;
+  abstract validateMove(state: GameState, playerId: string, move: Move): ValidationResult;
   abstract applyMove(state: GameState, playerId: string, move: Move): GameState;
   abstract renderBoard(state: GameState): BoardRenderData;
 
@@ -270,20 +266,13 @@ export interface GameRepository {
   /**
    * Find games by player ID with optional filters and pagination
    */
-  findByPlayer(
-    playerId: string,
-    filters: GameFilters
-  ): Promise<PaginatedResult<GameState>>;
+  findByPlayer(playerId: string, filters: GameFilters): Promise<PaginatedResult<GameState>>;
 
   /**
    * Update an existing game state with optimistic locking
    * @throws ConcurrencyError if version mismatch
    */
-  update(
-    gameId: string,
-    state: GameState,
-    expectedVersion: number
-  ): Promise<GameState>;
+  update(gameId: string, state: GameState, expectedVersion: number): Promise<GameState>;
 
   /**
    * Delete a game by its ID

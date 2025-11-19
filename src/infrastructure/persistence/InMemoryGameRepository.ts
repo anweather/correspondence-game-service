@@ -1,8 +1,4 @@
-import {
-  GameRepository,
-  GameFilters,
-  PaginatedResult,
-} from '@domain/interfaces';
+import { GameRepository, GameFilters, PaginatedResult } from '@domain/interfaces';
 import { GameState } from '@domain/models';
 import { ConcurrencyError, GameNotFoundError } from '@domain/errors';
 
@@ -72,10 +68,7 @@ export class InMemoryGameRepository implements GameRepository {
   /**
    * Find games by player ID with optional filters and pagination
    */
-  async findByPlayer(
-    playerId: string,
-    filters: GameFilters
-  ): Promise<PaginatedResult<GameState>> {
+  async findByPlayer(playerId: string, filters: GameFilters): Promise<PaginatedResult<GameState>> {
     // Get all games where player is a participant
     let games = Array.from(this.games.values()).filter((game) =>
       game.players.some((p) => p.id === playerId)
@@ -116,11 +109,7 @@ export class InMemoryGameRepository implements GameRepository {
    * @throws ConcurrencyError if version mismatch
    * @throws GameNotFoundError if game not found
    */
-  async update(
-    gameId: string,
-    state: GameState,
-    expectedVersion: number
-  ): Promise<GameState> {
+  async update(gameId: string, state: GameState, expectedVersion: number): Promise<GameState> {
     const existingGame = this.games.get(gameId);
 
     if (!existingGame) {

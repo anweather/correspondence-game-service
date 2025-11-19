@@ -30,11 +30,11 @@ export class PluginRegistry {
    */
   register(plugin: GameEnginePlugin): void {
     const gameType = plugin.getGameType();
-    
+
     if (this.plugins.has(gameType)) {
       throw new Error(`Game type "${gameType}" is already registered`);
     }
-    
+
     this.plugins.set(gameType, plugin);
   }
 
@@ -53,7 +53,7 @@ export class PluginRegistry {
    */
   list(): GameTypeInfo[] {
     const gameTypes: GameTypeInfo[] = [];
-    
+
     for (const plugin of this.plugins.values()) {
       gameTypes.push({
         type: plugin.getGameType(),
@@ -63,7 +63,7 @@ export class PluginRegistry {
         maxPlayers: plugin.getMaxPlayers(),
       });
     }
-    
+
     return gameTypes;
   }
 

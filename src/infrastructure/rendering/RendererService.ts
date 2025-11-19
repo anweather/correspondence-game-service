@@ -18,7 +18,7 @@ export class RendererService {
    */
   async renderGame(gameId: string): Promise<string> {
     const gameState = await this.gameRepository.findById(gameId);
-    
+
     if (!gameState) {
       throw new GameNotFoundError(gameId);
     }
@@ -31,7 +31,7 @@ export class RendererService {
    */
   async renderState(state: GameState): Promise<string> {
     const plugin = this.pluginRegistry.get(state.gameType);
-    
+
     if (!plugin) {
       throw new Error(`No plugin found for game type: ${state.gameType}`);
     }
@@ -61,12 +61,12 @@ export class RendererService {
   private generateSVG(state: GameState, renderData: BoardRenderData): string {
     const boardWidth = renderData.viewBox.width;
     const boardHeight = renderData.viewBox.height;
-    
+
     // Add padding for frame metadata
     const framePadding = 40; // Space for metadata below the board
     const totalWidth = boardWidth;
     const totalHeight = boardHeight + framePadding;
-    
+
     // Start SVG document with expanded dimensions
     let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${totalWidth}" height="${totalHeight}" viewBox="0 0 ${totalWidth} ${totalHeight}">`;
 
@@ -77,21 +77,21 @@ export class RendererService {
 
     // Wrap board layers in a group (no offset needed, board starts at 0,0)
     svg += `<g id="board">`;
-    
+
     // Sort plugin layers by z-index
     const sortedLayers = renderData.layers.sort((a, b) => a.zIndex - b.zIndex);
 
     // Render each board layer
     for (const layer of sortedLayers) {
       svg += `<g id="${layer.name}">`;
-      
+
       for (const element of layer.elements) {
         svg += this.renderElement(element);
       }
-      
+
       svg += '</g>';
     }
-    
+
     svg += '</g>'; // Close board group
 
     // Create and render frame layer below the board
@@ -111,7 +111,11 @@ export class RendererService {
   /**
    * Create a frame layer with game metadata positioned below the board
    */
-  private createFrameLayer(state: GameState, renderData: BoardRenderData, boardHeight: number): RenderLayer {
+  private createFrameLayer(
+    state: GameState,
+    renderData: BoardRenderData,
+    boardHeight: number
+  ): RenderLayer {
     const { width } = renderData.viewBox;
     const padding = 10;
     const fontSize = 11;

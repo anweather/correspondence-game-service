@@ -253,8 +253,8 @@ Following Red-Green-Refactor TDD: Write failing tests first (Red), implement min
     - Set proper content-type headers
     - _Requirements: 4.1, 4.5, 4.6_
 
-- [ ] 17. E2E: Tic-Tac-Toe full game flow
-  - [ ] 17.1 Write e2e test for complete Tic-Tac-Toe game
+- [x] 17. E2E: Tic-Tac-Toe full game flow
+  - [x] 17.1 Write e2e test for complete Tic-Tac-Toe game
     - Write test for creating game via REST API
     - Write test for players joining via REST API
     - Write test for making moves via REST API
@@ -264,12 +264,12 @@ Following Red-Green-Refactor TDD: Write failing tests first (Red), implement min
     - Write test for board rendering via REST API
     - _Requirements: 6.1, 6.2, 6.5_
   
-  - [ ] 17.2 Implement any missing integration points
+  - [x] 17.2 Implement any missing integration points
     - Fix any issues discovered during e2e testing
     - Ensure all components work together correctly
     - _Requirements: 6.1, 6.5_
 
-- [ ] 18. Integration testing and refactoring
+- [x] 18. Integration testing and refactoring
   - Run full test suite and verify all tests pass
   - Refactor code for better organization and readability
   - Ensure test coverage meets goals (80%+ overall)

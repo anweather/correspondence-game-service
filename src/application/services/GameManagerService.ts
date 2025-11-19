@@ -1,10 +1,5 @@
 import { PluginRegistry } from '@application/PluginRegistry';
-import {
-  GameRepository,
-  GameConfig,
-  GameFilters,
-  PaginatedResult,
-} from '@domain/interfaces';
+import { GameRepository, GameConfig, GameFilters, PaginatedResult } from '@domain/interfaces';
 import { GameState, Player, GameLifecycle } from '@domain/models';
 import { GameNotFoundError, GameFullError } from '@domain/errors';
 import { randomUUID } from 'crypto';
@@ -40,7 +35,7 @@ export class GameManagerService {
    */
   async createGame(gameType: string, config: GameConfig): Promise<GameState> {
     const plugin = this.registry.get(gameType);
-    
+
     if (!plugin) {
       throw new Error(`Game type "${gameType}" is not supported`);
     }
@@ -103,7 +98,7 @@ export class GameManagerService {
    */
   async joinGame(gameId: string, player: Player): Promise<GameState> {
     const game = await this.repository.findById(gameId);
-    
+
     if (!game) {
       throw new GameNotFoundError(gameId);
     }
@@ -121,9 +116,11 @@ export class GameManagerService {
 
     // Check if game is in joinable state
     // Allow joining CREATED, WAITING_FOR_PLAYERS, and ACTIVE (if not full)
-    if (game.lifecycle !== GameLifecycle.CREATED && 
-        game.lifecycle !== GameLifecycle.WAITING_FOR_PLAYERS &&
-        game.lifecycle !== GameLifecycle.ACTIVE) {
+    if (
+      game.lifecycle !== GameLifecycle.CREATED &&
+      game.lifecycle !== GameLifecycle.WAITING_FOR_PLAYERS &&
+      game.lifecycle !== GameLifecycle.ACTIVE
+    ) {
       throw new Error(`Cannot join game in lifecycle state: ${game.lifecycle}`);
     }
 
@@ -134,13 +131,14 @@ export class GameManagerService {
 
     // Add player
     const updatedPlayers = [...game.players, player];
-    
+
     // Determine new lifecycle state
     let newLifecycle: GameLifecycle = game.lifecycle;
     if (game.lifecycle === GameLifecycle.CREATED) {
-      newLifecycle = updatedPlayers.length >= plugin.getMinPlayers()
-        ? GameLifecycle.ACTIVE
-        : GameLifecycle.WAITING_FOR_PLAYERS;
+      newLifecycle =
+        updatedPlayers.length >= plugin.getMinPlayers()
+          ? GameLifecycle.ACTIVE
+          : GameLifecycle.WAITING_FOR_PLAYERS;
     } else if (game.lifecycle === GameLifecycle.WAITING_FOR_PLAYERS) {
       if (updatedPlayers.length >= plugin.getMinPlayers()) {
         newLifecycle = GameLifecycle.ACTIVE;
@@ -161,10 +159,11 @@ export class GameManagerService {
 
     // Invoke lifecycle hooks
     plugin.onPlayerJoined(updatedGame, player.id);
-    
+
     // Check if game just transitioned to ACTIVE
-    const wasNotActive = game.lifecycle === GameLifecycle.CREATED || 
-                         game.lifecycle === GameLifecycle.WAITING_FOR_PLAYERS;
+    const wasNotActive =
+      game.lifecycle === GameLifecycle.CREATED ||
+      game.lifecycle === GameLifecycle.WAITING_FOR_PLAYERS;
     if (newLifecycle === GameLifecycle.ACTIVE && wasNotActive) {
       plugin.onGameStarted(updatedGame);
     }

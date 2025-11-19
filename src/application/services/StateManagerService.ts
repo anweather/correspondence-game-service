@@ -2,11 +2,7 @@ import { GameLockManager } from '@application/GameLockManager';
 import { PluginRegistry } from '@application/PluginRegistry';
 import { GameRepository, ValidationResult } from '@domain/interfaces';
 import { GameState, Move, GameLifecycle } from '@domain/models';
-import {
-  GameNotFoundError,
-  InvalidMoveError,
-  UnauthorizedMoveError,
-} from '@domain/errors';
+import { GameNotFoundError, InvalidMoveError, UnauthorizedMoveError } from '@domain/errors';
 
 /**
  * Service for managing game state updates and move processing
@@ -27,11 +23,7 @@ export class StateManagerService {
    * @returns Validation result
    * @throws GameNotFoundError if game not found
    */
-  async validateMove(
-    gameId: string,
-    playerId: string,
-    move: Move
-  ): Promise<ValidationResult> {
+  async validateMove(gameId: string, playerId: string, move: Move): Promise<ValidationResult> {
     const game = await this.repository.findById(gameId);
 
     if (!game) {
@@ -101,9 +93,7 @@ export class StateManagerService {
       // Validate move
       const validationResult = plugin.validateMove(game, playerId, move);
       if (!validationResult.valid) {
-        throw new InvalidMoveError(
-          validationResult.reason || 'Move validation failed'
-        );
+        throw new InvalidMoveError(validationResult.reason || 'Move validation failed');
       }
 
       // Apply move
@@ -118,7 +108,7 @@ export class StateManagerService {
       if (plugin.isGameOver(updatedState)) {
         const winner = plugin.getWinner(updatedState);
         const isDraw = winner === null;
-        
+
         updatedState = {
           ...updatedState,
           lifecycle: GameLifecycle.COMPLETED,
@@ -137,11 +127,7 @@ export class StateManagerService {
       };
 
       // Save to repository with optimistic locking
-      const savedState = await this.repository.update(
-        gameId,
-        updatedState,
-        expectedVersion
-      );
+      const savedState = await this.repository.update(gameId, updatedState, expectedVersion);
 
       // Invoke afterApplyMove hook if present
       if (plugin.afterApplyMove) {

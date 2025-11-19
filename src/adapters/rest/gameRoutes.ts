@@ -171,15 +171,18 @@ export function createGameRoutes(
    * Get SVG rendering of game board
    */
   if (rendererService) {
-    router.get('/games/:gameId/board.svg', async (req: Request, res: Response, next: NextFunction) => {
-      try {
-        const svg = await rendererService.renderGame(req.params.gameId);
-        res.setHeader('Content-Type', 'image/svg+xml');
-        res.send(svg);
-      } catch (error) {
-        next(error);
+    router.get(
+      '/games/:gameId/board.svg',
+      async (req: Request, res: Response, next: NextFunction) => {
+        try {
+          const svg = await rendererService.renderGame(req.params.gameId);
+          res.setHeader('Content-Type', 'image/svg+xml');
+          res.send(svg);
+        } catch (error) {
+          next(error);
+        }
       }
-    });
+    );
   }
 
   return router;
