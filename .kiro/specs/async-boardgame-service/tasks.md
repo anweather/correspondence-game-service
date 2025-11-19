@@ -117,8 +117,8 @@ Following Red-Green-Refactor TDD: Write failing tests first (Red), implement min
     - Add validation logic
     - _Requirements: 1.1, 1.2, 1.3, 1.5, 1a.1, 1a.2, 1a.3, 1a.4, 1a.5, 8.1, 8.2, 8.3, 8.4_
 
-- [ ] 9. TDD: StateManagerService
-  - [ ] 9.1 Write tests for StateManagerService
+- [x] 9. TDD: StateManagerService
+  - [x] 9.1 Write tests for StateManagerService
     - Write tests for validateMove delegation to plugin
     - Write tests for applyMove with valid moves
     - Write tests for player authorization (wrong player, not in game)
@@ -128,7 +128,7 @@ Following Red-Green-Refactor TDD: Write failing tests first (Red), implement min
     - Write tests for hook invocation (beforeApplyMove, afterApplyMove)
     - _Requirements: 6.1, 6.2, 6.4, 3.1, 3.2, 3.3, 3.4, 3.5_
   
-  - [ ] 9.2 Implement StateManagerService to pass tests
+  - [x] 9.2 Implement StateManagerService to pass tests
     - Implement validateMove and applyMove methods
     - Integrate with GameLockManager for concurrency control
     - Add authorization checks and move history
