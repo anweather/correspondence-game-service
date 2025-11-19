@@ -240,14 +240,14 @@ Following Red-Green-Refactor TDD: Write failing tests first (Red), implement min
     - Handle version parameter for optimistic locking
     - _Requirements: 2.1, 2.4, 2.5, 3.1, 3.2, 3.3, 3.4, 3.5_
 
-- [ ] 16. TDD: Rendering API endpoints
-  - [ ] 16.1 Write tests for rendering endpoints
+- [x] 16. TDD: Rendering API endpoints
+  - [x] 16.1 Write tests for rendering endpoints
     - Write tests for GET /api/games/:gameId/board.svg
     - Write tests for proper SVG content-type headers
     - Write tests for rendering errors
     - _Requirements: 6.1, 6.2, 6.5, 4.1, 4.5, 4.6_
   
-  - [ ] 16.2 Implement rendering endpoints to pass tests
+  - [x] 16.2 Implement rendering endpoints to pass tests
     - Implement SVG rendering route
     - Wire up to RendererService
     - Set proper content-type headers

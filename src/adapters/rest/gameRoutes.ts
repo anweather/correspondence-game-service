@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { GameManagerService } from '@application/services/GameManagerService';
 import { StateManagerService } from '@application/services/StateManagerService';
+import { RendererService } from '@infrastructure/rendering/RendererService';
 import { GameRepository } from '@domain/interfaces';
 import { GameNotFoundError } from '@domain/errors';
 
@@ -9,12 +10,14 @@ import { GameNotFoundError } from '@domain/errors';
  * @param gameManagerService - Service for managing games
  * @param gameRepository - Repository for game persistence
  * @param stateManagerService - Service for managing game state and moves
+ * @param rendererService - Service for rendering game boards (optional)
  * @returns Express router with game management and gameplay routes
  */
 export function createGameRoutes(
   gameManagerService: GameManagerService,
   gameRepository: GameRepository,
-  stateManagerService: StateManagerService
+  stateManagerService: StateManagerService,
+  rendererService?: RendererService
 ): Router {
   const router = Router();
 
@@ -160,6 +163,24 @@ export function createGameRoutes(
       next(error);
     }
   });
+
+  // ========== Rendering Endpoints ==========
+
+  /**
+   * GET /api/games/:gameId/board.svg
+   * Get SVG rendering of game board
+   */
+  if (rendererService) {
+    router.get('/games/:gameId/board.svg', async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const svg = await rendererService.renderGame(req.params.gameId);
+        res.setHeader('Content-Type', 'image/svg+xml');
+        res.send(svg);
+      } catch (error) {
+        next(error);
+      }
+    });
+  }
 
   return router;
 }

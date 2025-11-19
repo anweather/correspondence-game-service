@@ -4,6 +4,7 @@ import { createApp, addApiRoutes, finalizeApp } from '@adapters/rest/app';
 import { createGameRoutes } from '@adapters/rest/gameRoutes';
 import { GameManagerService } from '@application/services/GameManagerService';
 import { StateManagerService } from '@application/services/StateManagerService';
+import { RendererService } from '@infrastructure/rendering/RendererService';
 import { GameLockManager } from '@application/GameLockManager';
 import { PluginRegistry } from '@application/PluginRegistry';
 import { InMemoryGameRepository } from '@infrastructure/persistence/InMemoryGameRepository';
@@ -711,6 +712,152 @@ describe('Gameplay Routes Integration', () => {
         .expect(404);
 
       expect(response.body.error.code).toBe('GAME_NOT_FOUND');
+    });
+  });
+});
+
+describe('Rendering Routes Integration', () => {
+  let app: Express;
+  let gameManagerService: GameManagerService;
+  let stateManagerService: StateManagerService;
+  let rendererService: RendererService;
+  let repository: InMemoryGameRepository;
+  let registry: PluginRegistry;
+  let lockManager: GameLockManager;
+
+  beforeEach(() => {
+    // Set up real dependencies
+    repository = new InMemoryGameRepository();
+    registry = new PluginRegistry();
+    lockManager = new GameLockManager();
+    
+    // Register Tic-Tac-Toe plugin
+    const ticTacToeEngine = new TicTacToeEngine();
+    registry.register(ticTacToeEngine);
+    
+    gameManagerService = new GameManagerService(registry, repository);
+    stateManagerService = new StateManagerService(repository, registry, lockManager);
+    rendererService = new RendererService(registry, repository);
+
+    // Create app with real routes including renderer
+    app = createApp();
+    const gameRouter = createGameRoutes(gameManagerService, repository, stateManagerService, rendererService);
+    addApiRoutes(app, gameRouter);
+    finalizeApp(app);
+  });
+
+  describe('GET /api/games/:gameId/board.svg', () => {
+    it('should return SVG board rendering with proper content-type', async () => {
+      // Create a game
+      const createResponse = await request(app)
+        .post('/api/games')
+        .send({
+          gameType: 'tic-tac-toe',
+          config: {
+            players: [
+              { id: 'player1', name: 'Alice', joinedAt: new Date() },
+              { id: 'player2', name: 'Bob', joinedAt: new Date() },
+            ],
+          },
+        });
+
+      const gameId = createResponse.body.gameId;
+
+      // Get SVG rendering
+      const response = await request(app)
+        .get(`/api/games/${gameId}/board.svg`)
+        .expect(200);
+
+      // Check content-type header
+      expect(response.headers['content-type']).toContain('image/svg+xml');
+      
+      // Check that response is valid SVG
+      const svg = response.text || (Buffer.isBuffer(response.body) ? response.body.toString() : response.body);
+      expect(svg).toContain('<svg');
+      expect(svg).toContain('</svg>');
+      expect(svg).toContain('xmlns="http://www.w3.org/2000/svg"');
+    });
+
+    it('should render board with game state', async () => {
+      // Create a game
+      const createResponse = await request(app)
+        .post('/api/games')
+        .send({
+          gameType: 'tic-tac-toe',
+          config: {
+            players: [
+              { id: 'player1', name: 'Alice', joinedAt: new Date() },
+              { id: 'player2', name: 'Bob', joinedAt: new Date() },
+            ],
+          },
+        });
+
+      const gameId = createResponse.body.gameId;
+      let version = createResponse.body.version;
+
+      // Make a move
+      await request(app)
+        .post(`/api/games/${gameId}/moves`)
+        .send({
+          playerId: 'player1',
+          move: {
+            action: 'place',
+            parameters: { row: 0, col: 0 },
+            playerId: 'player1',
+            timestamp: new Date(),
+          },
+          version: version,
+        });
+
+      // Get SVG rendering
+      const response = await request(app)
+        .get(`/api/games/${gameId}/board.svg`)
+        .expect(200);
+
+      // Check that SVG contains game metadata in frame layer
+      const svg = response.text || (Buffer.isBuffer(response.body) ? response.body.toString() : response.body);
+      expect(svg).toContain('tic-tac-toe');
+      expect(svg).toContain(gameId);
+      
+      // Check that SVG has proper structure
+      expect(svg).toContain('id="board"');
+      expect(svg).toContain('id="frame"');
+    });
+
+    it('should return 404 for non-existent game', async () => {
+      const response = await request(app)
+        .get('/api/games/nonexistent-id/board.svg')
+        .expect(404);
+
+      expect(response.body.error.code).toBe('GAME_NOT_FOUND');
+    });
+
+    it('should handle rendering errors gracefully', async () => {
+      // Create a game
+      const createResponse = await request(app)
+        .post('/api/games')
+        .send({
+          gameType: 'tic-tac-toe',
+          config: {
+            players: [
+              { id: 'player1', name: 'Alice', joinedAt: new Date() },
+              { id: 'player2', name: 'Bob', joinedAt: new Date() },
+            ],
+          },
+        });
+
+      const gameId = createResponse.body.gameId;
+
+      // Unregister the plugin to simulate rendering error
+      registry.unregister('tic-tac-toe');
+
+      // Try to render - should get error
+      const response = await request(app)
+        .get(`/api/games/${gameId}/board.svg`)
+        .expect(500);
+
+      expect(response.body.error).toBeDefined();
+      expect(response.body.error.message).toContain('plugin');
     });
   });
 });
