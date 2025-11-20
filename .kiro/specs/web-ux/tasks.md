@@ -110,18 +110,18 @@
     - Add responsive layout
     - _Requirements: 10.5, 12.1, 12.2, 12.3, 12.4, 12.5_
 
-- [ ] 8. Implement Move Input component (TDD)
-  - [ ] 8.1 Create base MoveInput component with TDD
+- [x] 8. Implement Move Input component (TDD)
+  - [x] 8.1 Create base MoveInput component with TDD
     - Write tests for MoveInput in `src/components/MoveInput/__tests__/MoveInput.test.tsx`
     - Test rendering, submit button, disabled state, loading state
     - Create `src/components/MoveInput/MoveInput.tsx` to pass tests
     - _Requirements: 6.4, 7.1, 7.2, 7.3, 7.4, 7.5_
-  - [ ] 8.2 Create Tic-Tac-Toe move input with TDD
+  - [x] 8.2 Create Tic-Tac-Toe move input with TDD
     - Write tests for TicTacToeMoveInput in `src/components/MoveInput/__tests__/TicTacToeMoveInput.test.tsx`
     - Test grid rendering, cell clicks, disabled cells
     - Create `src/components/MoveInput/TicTacToeMoveInput.tsx` to pass tests
     - _Requirements: 7.2, 7.3_
-  - [ ] 8.3 Style MoveInput components
+  - [x] 8.3 Style MoveInput components
     - Create `src/components/MoveInput/MoveInput.module.css`
     - Style Tic-Tac-Toe grid with hover states
     - Add responsive sizing
