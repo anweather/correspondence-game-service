@@ -51,7 +51,12 @@
     "svgdom": "^0.1.22"
   },
   "lint-staged": {
-    "*.ts": [
+    "src/**/*.ts": [
+      "eslint --fix",
+      "prettier --write",
+      "npm run test:run -- --bail --findRelatedTests"
+    ],
+    "tests/**/*.ts": [
       "eslint --fix",
       "prettier --write",
       "npm run test:run -- --bail --findRelatedTests"
