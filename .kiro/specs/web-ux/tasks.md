@@ -96,14 +96,14 @@
     - Add responsive breakpoints
     - _Requirements: 2.5, 6.5, 9.4, 9.5, 12.1, 12.2, 12.3, 12.4, 12.5_
 
-- [ ] 7. Implement Player Impersonation Panel (TDD)
-  - [ ] 7.1 Create PlayerPanel component with TDD
+- [x] 7. Implement Player Impersonation Panel (TDD)
+  - [x] 7.1 Create PlayerPanel component with TDD
     - Write tests for PlayerPanel in `src/components/PlayerPanel/__tests__/PlayerPanel.test.tsx`
     - Test player list rendering, impersonate button clicks, add player form submission
     - Test visual indicator for impersonated player
     - Create `src/components/PlayerPanel/PlayerPanel.tsx` to pass tests
     - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 11.1, 11.2, 11.3, 11.4, 11.5_
-  - [ ] 7.2 Style PlayerPanel component
+  - [x] 7.2 Style PlayerPanel component
     - Create `src/components/PlayerPanel/PlayerPanel.module.css`
     - Style player list items with impersonation state
     - Style add player form
