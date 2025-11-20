@@ -127,14 +127,14 @@
     - Add responsive sizing
     - _Requirements: 7.1, 12.1, 12.2, 12.3, 12.4, 12.5_
 
-- [ ] 9. Implement Admin View page (TDD)
-  - [ ] 9.1 Create AdminView component with TDD
+- [x] 9. Implement Admin View page (TDD)
+  - [x] 9.1 Create AdminView component with TDD
     - Write tests for AdminView in `src/views/__tests__/AdminView.test.tsx`
     - Test rendering with AdminContext, game selection, filter changes, refresh
     - Mock child components (GameList, GameDetail, PlayerPanel)
     - Create `src/views/AdminView.tsx` to pass tests
     - _Requirements: 1.1, 1.2, 1.3, 1.5, 2.1, 2.2, 2.5, 3.1, 3.2, 3.3, 11.1_
-  - [ ] 9.2 Style AdminView with responsive layout
+  - [x] 9.2 Style AdminView with responsive layout
     - Create `src/views/AdminView.module.css`
     - Implement two-column layout for desktop
     - Implement single-column stacked layout for mobile/tablet
