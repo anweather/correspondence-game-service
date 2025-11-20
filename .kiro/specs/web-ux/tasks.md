@@ -1,0 +1,221 @@
+# Implementation Plan
+
+- [x] 1. Set up React project structure with Vite, TypeScript, and testing
+  - Create `web-client/` directory in project root
+  - Initialize Vite project with React and TypeScript template
+  - Configure Vite with API proxy to Express server on port 3000
+  - Set up TypeScript configuration with strict mode
+  - Configure CSS Modules support
+  - Install and configure Vitest with React Testing Library
+  - Set up test utilities and custom render function
+  - Create base directory structure (src/api, src/components, src/views, src/context, src/hooks, src/types, src/utils, src/styles, src/__tests__)
+  - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5_
+
+- [x] 2. Create TypeScript type definitions and API client (TDD)
+  - [x] 2.1 Define TypeScript interfaces for all game-related types
+    - Create `src/types/game.ts` with GameState, Player, Move, GameType, and other API response types
+    - Define filter and configuration interfaces
+    - _Requirements: 1.1, 2.1, 4.1, 5.1, 6.1_
+  - [x] 2.2 Implement API client wrapper class with TDD
+    - Write tests for GameClient in `src/api/__tests__/gameClient.test.ts`
+    - Test all API methods with mocked fetch responses
+    - Test error handling scenarios
+    - Create `src/api/gameClient.ts` and implement methods to pass tests
+    - Refactor for code quality
+    - _Requirements: 1.1, 2.1, 3.2, 4.3, 5.2, 6.1, 7.3_
+  - [x] 2.3 Create custom React hooks with TDD
+    - Write tests for `useGameApi` hook in `src/hooks/__tests__/useGameApi.test.ts`
+    - Test loading states, error states, and successful API calls
+    - Implement `src/hooks/useGameApi.ts` to pass tests
+    - Write tests for `useLocalStorage` hook in `src/hooks/__tests__/useLocalStorage.test.ts`
+    - Test get, set, and remove operations
+    - Implement `src/hooks/useLocalStorage.ts` to pass tests
+    - _Requirements: 1.5, 5.3, 8.2_
+
+- [x] 3. Implement global state management with React Context (TDD)
+  - [x] 3.1 Create AdminContext with TDD
+    - Write tests for AdminContext in `src/context/__tests__/AdminContext.test.tsx`
+    - Test state initialization, loadGames, selectGame, createTestGame, addTestPlayer, impersonatePlayer, deleteGame, setFilter actions
+    - Mock API client calls
+    - Create `src/context/AdminContext.tsx` and implement to pass tests
+    - Refactor for code quality
+    - _Requirements: 1.1, 1.2, 1.3, 2.1, 3.1, 3.2, 10.1, 10.2, 10.3, 10.4, 11.1, 11.2, 11.3_
+  - [x] 3.2 Create PlayerContext with TDD
+    - Write tests for PlayerContext in `src/context/__tests__/PlayerContext.test.tsx`
+    - Test state initialization, createGame, joinGame, loadGame, submitMove, refreshGame actions
+    - Test localStorage integration
+    - Mock API client calls
+    - Create `src/context/PlayerContext.tsx` and implement to pass tests
+    - Refactor for code quality
+    - _Requirements: 4.1, 4.3, 4.4, 5.2, 5.3, 5.4, 6.1, 6.5, 7.3, 7.4, 8.2_
+
+- [x] 4. Build common UI components (TDD)
+  - [x] 4.1 Create Button component with TDD
+    - Write tests for Button in `src/components/common/__tests__/Button.test.tsx`
+    - Test rendering, click handlers, disabled state, loading state, variants
+    - Create `src/components/common/Button.tsx` to pass tests
+    - Add CSS Module styling with hover and focus states
+    - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5_
+  - [x] 4.2 Create Modal component with TDD
+    - Write tests for Modal in `src/components/common/__tests__/Modal.test.tsx`
+    - Test open/close behavior, keyboard support (Escape), overlay clicks
+    - Create `src/components/common/Modal.tsx` to pass tests
+    - Style with CSS Modules
+    - _Requirements: 3.1, 3.5_
+  - [x] 4.3 Create Toast component with TDD
+    - Write tests for Toast in `src/components/common/__tests__/Toast.test.tsx`
+    - Test rendering, auto-dismiss, manual dismiss
+    - Create `src/components/common/Toast.tsx` to pass tests
+    - Add CSS animations for enter/exit
+    - _Requirements: 1.5, 3.4, 4.5, 5.5, 7.5_
+
+- [ ] 5. Implement Game List component (TDD)
+  - [ ] 5.1 Create GameList component with TDD
+    - Write tests for GameList in `src/components/GameList/__tests__/GameList.test.tsx`
+    - Test rendering with games, filtering logic, empty state, click handlers
+    - Create `src/components/GameList/GameList.tsx` to pass tests
+    - _Requirements: 1.1, 1.2, 1.3, 1.4, 3.1_
+  - [ ] 5.2 Style GameList with responsive layout
+    - Create `src/components/GameList/GameList.module.css`
+    - Implement card layout with grid/flexbox
+    - Add responsive breakpoints for mobile, tablet, desktop
+    - Style empty state message
+    - _Requirements: 1.4, 12.1, 12.2, 12.3, 12.4, 12.5_
+
+- [ ] 6. Implement Game Detail component (TDD)
+  - [ ] 6.1 Create GameDetail component with TDD
+    - Write tests for GameDetail in `src/components/GameDetail/__tests__/GameDetail.test.tsx`
+    - Test rendering game metadata, board SVG, player list, move history
+    - Test turn indicator highlighting
+    - Create `src/components/GameDetail/GameDetail.tsx` to pass tests
+    - _Requirements: 2.1, 2.2, 2.3, 2.4, 6.1, 6.2, 6.3, 8.1, 8.3, 8.4, 9.1, 9.2, 9.3_
+  - [ ] 6.2 Style GameDetail with responsive layout
+    - Create `src/components/GameDetail/GameDetail.module.css`
+    - Style board display area with proper sizing
+    - Style player list and move history sections
+    - Add responsive breakpoints
+    - _Requirements: 2.5, 6.5, 9.4, 9.5, 12.1, 12.2, 12.3, 12.4, 12.5_
+
+- [ ] 7. Implement Player Impersonation Panel (TDD)
+  - [ ] 7.1 Create PlayerPanel component with TDD
+    - Write tests for PlayerPanel in `src/components/PlayerPanel/__tests__/PlayerPanel.test.tsx`
+    - Test player list rendering, impersonate button clicks, add player form submission
+    - Test visual indicator for impersonated player
+    - Create `src/components/PlayerPanel/PlayerPanel.tsx` to pass tests
+    - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 11.1, 11.2, 11.3, 11.4, 11.5_
+  - [ ] 7.2 Style PlayerPanel component
+    - Create `src/components/PlayerPanel/PlayerPanel.module.css`
+    - Style player list items with impersonation state
+    - Style add player form
+    - Add responsive layout
+    - _Requirements: 10.5, 12.1, 12.2, 12.3, 12.4, 12.5_
+
+- [ ] 8. Implement Move Input component (TDD)
+  - [ ] 8.1 Create base MoveInput component with TDD
+    - Write tests for MoveInput in `src/components/MoveInput/__tests__/MoveInput.test.tsx`
+    - Test rendering, submit button, disabled state, loading state
+    - Create `src/components/MoveInput/MoveInput.tsx` to pass tests
+    - _Requirements: 6.4, 7.1, 7.2, 7.3, 7.4, 7.5_
+  - [ ] 8.2 Create Tic-Tac-Toe move input with TDD
+    - Write tests for TicTacToeMoveInput in `src/components/MoveInput/__tests__/TicTacToeMoveInput.test.tsx`
+    - Test grid rendering, cell clicks, disabled cells
+    - Create `src/components/MoveInput/TicTacToeMoveInput.tsx` to pass tests
+    - _Requirements: 7.2, 7.3_
+  - [ ] 8.3 Style MoveInput components
+    - Create `src/components/MoveInput/MoveInput.module.css`
+    - Style Tic-Tac-Toe grid with hover states
+    - Add responsive sizing
+    - _Requirements: 7.1, 12.1, 12.2, 12.3, 12.4, 12.5_
+
+- [ ] 9. Implement Admin View page (TDD)
+  - [ ] 9.1 Create AdminView component with TDD
+    - Write tests for AdminView in `src/views/__tests__/AdminView.test.tsx`
+    - Test rendering with AdminContext, game selection, filter changes, refresh
+    - Mock child components (GameList, GameDetail, PlayerPanel)
+    - Create `src/views/AdminView.tsx` to pass tests
+    - _Requirements: 1.1, 1.2, 1.3, 1.5, 2.1, 2.2, 2.5, 3.1, 3.2, 3.3, 11.1_
+  - [ ] 9.2 Style AdminView with responsive layout
+    - Create `src/views/AdminView.module.css`
+    - Implement two-column layout for desktop
+    - Implement single-column stacked layout for mobile/tablet
+    - Style header and controls
+    - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
+
+- [ ] 10. Implement Player View page (TDD)
+  - [ ] 10.1 Create PlayerView component with TDD
+    - Write tests for PlayerView in `src/views/__tests__/PlayerView.test.tsx`
+    - Test game setup screen, game view, move submission, optimistic locking retry
+    - Mock child components and PlayerContext
+    - Create `src/views/PlayerView.tsx` to pass tests
+    - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 5.1, 5.2, 5.3, 5.4, 5.5, 6.1, 6.2, 6.3, 6.4, 6.5, 7.3, 7.4, 7.5, 8.1, 8.2, 8.5, 9.1, 9.2, 9.3, 9.4, 9.5_
+  - [ ] 10.2 Style PlayerView with responsive layout
+    - Create `src/views/PlayerView.module.css`
+    - Style game setup forms
+    - Style game view layout
+    - Add responsive breakpoints
+    - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
+
+- [ ] 11. Set up routing and main App component (TDD)
+  - [ ] 11.1 Create App component with TDD
+    - Write tests for App in `src/__tests__/App.test.tsx`
+    - Test routing between Admin and Player views
+    - Test context provider wrapping
+    - Create `src/App.tsx` to pass tests
+    - _Requirements: 1.1, 4.1_
+  - [ ] 11.2 Create main entry point
+    - Create `src/main.tsx` to render App component
+    - Set up React root and strict mode
+    - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5_
+  - [ ] 11.3 Create global styles
+    - Create `src/styles/global.css` with CSS reset and base styles
+    - Create `src/styles/variables.css` with CSS custom properties for colors, spacing, breakpoints
+    - Ensure accessibility with focus styles and sufficient contrast
+    - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
+
+- [ ] 12. Integrate React app with Express server
+  - [ ] 12.1 Update Express server to serve static files
+    - Modify server startup code to serve `web-client/dist` as static files
+    - Add SPA fallback route to serve index.html for non-API routes
+    - Ensure API routes take precedence over static file serving
+    - _Requirements: 1.1, 4.1_
+  - [ ] 12.2 Add npm scripts for development and production
+    - Add script to run Vite dev server
+    - Add script to build React app for production
+    - Add script to run both Express and Vite in development
+    - Update main package.json with web client commands
+    - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5_
+  - [ ] 12.3 Create production build configuration
+    - Ensure Vite build outputs to correct directory
+    - Configure source maps for debugging
+    - Test production build served by Express
+    - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5_
+
+- [ ] 13. Manual testing and refinement
+  - [ ] 13.1 Test admin workflow for game testing
+    - Create a test game from admin view
+    - Add multiple players using the player panel
+    - Impersonate each player and make moves
+    - Verify board updates correctly after each move
+    - Test game completion flow
+    - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 11.1, 11.2, 11.3, 11.4, 11.5_
+  - [ ] 13.2 Test player workflow
+    - Create a game from player view
+    - Join a game with a second player (using different browser/incognito)
+    - Make moves and verify turn-based gameplay
+    - Test move validation and error handling
+    - Verify board rendering updates
+    - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 5.1, 5.2, 5.3, 5.4, 5.5, 6.1, 6.2, 6.3, 6.4, 6.5, 7.1, 7.2, 7.3, 7.4, 7.5_
+  - [ ] 13.3 Test error handling and edge cases
+    - Test network errors and API failures
+    - Test concurrent move attempts (optimistic locking)
+    - Test invalid moves and validation errors
+    - Test joining full games
+    - Test deleting games
+    - _Requirements: 1.5, 3.4, 4.5, 5.5, 7.5_
+  - [ ] 13.4 Test responsive design across devices
+    - Test on desktop (1024px+)
+    - Test on tablet (768px-1023px)
+    - Test on mobile (<768px)
+    - Verify all controls are accessible and usable
+    - Test keyboard navigation
+    - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
