@@ -24,18 +24,23 @@ describe('E2E: Complete Tic-Tac-Toe Game Flow', () => {
     repository = new InMemoryGameRepository();
     registry = new PluginRegistry();
     lockManager = new GameLockManager();
-    
+
     // Register Tic-Tac-Toe plugin
     const ticTacToeEngine = new TicTacToeEngine();
     registry.register(ticTacToeEngine);
-    
+
     gameManagerService = new GameManagerService(registry, repository);
     stateManagerService = new StateManagerService(repository, registry, lockManager);
     rendererService = new RendererService(registry, repository);
 
     // Create app with all routes
     app = createApp();
-    const gameRouter = createGameRoutes(gameManagerService, repository, stateManagerService, rendererService);
+    const gameRouter = createGameRoutes(
+      gameManagerService,
+      repository,
+      stateManagerService,
+      rendererService
+    );
     addApiRoutes(app, gameRouter);
     finalizeApp(app);
   });
@@ -65,9 +70,7 @@ describe('E2E: Complete Tic-Tac-Toe Game Flow', () => {
       let version = createResponse.body.version;
 
       // Step 2: Check initial game state via REST API
-      const initialStateResponse = await request(app)
-        .get(`/api/games/${gameId}/state`)
-        .expect(200);
+      const initialStateResponse = await request(app).get(`/api/games/${gameId}/state`).expect(200);
 
       expect(initialStateResponse.body.gameId).toBe(gameId);
       expect(initialStateResponse.body.lifecycle).toBe('active');
@@ -78,7 +81,7 @@ describe('E2E: Complete Tic-Tac-Toe Game Flow', () => {
       // Step 3: Make moves via REST API to create a winning scenario
       // Alice (X) will win with top row: (0,0), (0,1), (0,2)
       // Bob (O) will play: (1,0), (1,1)
-      
+
       // Move 1: Alice plays (0,0)
       const move1Response = await request(app)
         .post(`/api/games/${gameId}/moves`)
@@ -177,18 +180,14 @@ describe('E2E: Complete Tic-Tac-Toe Game Flow', () => {
       expect(move5Response.body.metadata.winner).toBe('alice');
 
       // Step 5: Check final game state via REST API
-      const finalStateResponse = await request(app)
-        .get(`/api/games/${gameId}/state`)
-        .expect(200);
+      const finalStateResponse = await request(app).get(`/api/games/${gameId}/state`).expect(200);
 
       expect(finalStateResponse.body.lifecycle).toBe('completed');
       expect(finalStateResponse.body.metadata.winner).toBe('alice');
       expect(finalStateResponse.body.moveHistory).toHaveLength(5);
 
       // Step 6: Verify move history via REST API
-      const movesResponse = await request(app)
-        .get(`/api/games/${gameId}/moves`)
-        .expect(200);
+      const movesResponse = await request(app).get(`/api/games/${gameId}/moves`).expect(200);
 
       expect(movesResponse.body).toHaveLength(5);
       expect(movesResponse.body[0].playerId).toBe('alice');
@@ -199,12 +198,14 @@ describe('E2E: Complete Tic-Tac-Toe Game Flow', () => {
       expect(movesResponse.body[4].parameters.col).toBe(2);
 
       // Step 7: Render board via REST API
-      const renderResponse = await request(app)
-        .get(`/api/games/${gameId}/board.svg`)
-        .expect(200);
+      const renderResponse = await request(app).get(`/api/games/${gameId}/board.svg`).expect(200);
 
       expect(renderResponse.headers['content-type']).toContain('image/svg+xml');
-      const svg = renderResponse.text || (Buffer.isBuffer(renderResponse.body) ? renderResponse.body.toString() : renderResponse.body);
+      const svg =
+        renderResponse.text ||
+        (Buffer.isBuffer(renderResponse.body)
+          ? renderResponse.body.toString()
+          : renderResponse.body);
       expect(svg).toContain('<svg');
       expect(svg).toContain('</svg>');
       expect(svg).toContain('tic-tac-toe');
@@ -236,7 +237,7 @@ describe('E2E: Complete Tic-Tac-Toe Game Flow', () => {
       // X | O | X
       // X | O | O
       // O | X | X
-      
+
       const drawMoves = [
         { playerId: 'player1', row: 0, col: 0 }, // X
         { playerId: 'player2', row: 0, col: 1 }, // O
@@ -267,7 +268,7 @@ describe('E2E: Complete Tic-Tac-Toe Game Flow', () => {
           .expect(200);
 
         version = lastResponse.body.version;
-        
+
         // Check that game is still active until the last move
         if (i < drawMoves.length - 1) {
           expect(lastResponse.body.lifecycle).toBe('active');
@@ -281,9 +282,7 @@ describe('E2E: Complete Tic-Tac-Toe Game Flow', () => {
       expect(lastResponse!.body.metadata.isDraw).toBe(true);
 
       // Step 4: Check final game state via REST API
-      const finalStateResponse = await request(app)
-        .get(`/api/games/${gameId}/state`)
-        .expect(200);
+      const finalStateResponse = await request(app).get(`/api/games/${gameId}/state`).expect(200);
 
       expect(finalStateResponse.body.lifecycle).toBe('completed');
       expect(finalStateResponse.body.metadata.winner).toBeNull();
@@ -291,12 +290,14 @@ describe('E2E: Complete Tic-Tac-Toe Game Flow', () => {
       expect(finalStateResponse.body.moveHistory).toHaveLength(9);
 
       // Step 5: Render final board via REST API
-      const renderResponse = await request(app)
-        .get(`/api/games/${gameId}/board.svg`)
-        .expect(200);
+      const renderResponse = await request(app).get(`/api/games/${gameId}/board.svg`).expect(200);
 
       expect(renderResponse.headers['content-type']).toContain('image/svg+xml');
-      const svg = renderResponse.text || (Buffer.isBuffer(renderResponse.body) ? renderResponse.body.toString() : renderResponse.body);
+      const svg =
+        renderResponse.text ||
+        (Buffer.isBuffer(renderResponse.body)
+          ? renderResponse.body.toString()
+          : renderResponse.body);
       expect(svg).toContain('<svg');
       expect(svg).toContain('</svg>');
     });
@@ -310,9 +311,7 @@ describe('E2E: Complete Tic-Tac-Toe Game Flow', () => {
         .send({
           gameType: 'tic-tac-toe',
           config: {
-            players: [
-              { id: 'player1', name: 'Player 1', joinedAt: new Date() },
-            ],
+            players: [{ id: 'player1', name: 'Player 1', joinedAt: new Date() }],
           },
         })
         .expect(201);
@@ -337,12 +336,10 @@ describe('E2E: Complete Tic-Tac-Toe Game Flow', () => {
       expect(joinResponse.body.lifecycle).toBe('active');
       expect(joinResponse.body.players).toHaveLength(2);
 
-      let version = joinResponse.body.version;
+      const version = joinResponse.body.version;
 
       // Step 3: Check game state via REST API
-      const stateResponse = await request(app)
-        .get(`/api/games/${gameId}/state`)
-        .expect(200);
+      const stateResponse = await request(app).get(`/api/games/${gameId}/state`).expect(200);
 
       expect(stateResponse.body.lifecycle).toBe('active');
       expect(stateResponse.body.players).toHaveLength(2);
@@ -366,12 +363,14 @@ describe('E2E: Complete Tic-Tac-Toe Game Flow', () => {
       expect(moveResponse.body.currentPlayerIndex).toBe(1);
 
       // Step 5: Render board via REST API
-      const renderResponse = await request(app)
-        .get(`/api/games/${gameId}/board.svg`)
-        .expect(200);
+      const renderResponse = await request(app).get(`/api/games/${gameId}/board.svg`).expect(200);
 
       expect(renderResponse.headers['content-type']).toContain('image/svg+xml');
-      const svg = renderResponse.text || (Buffer.isBuffer(renderResponse.body) ? renderResponse.body.toString() : renderResponse.body);
+      const svg =
+        renderResponse.text ||
+        (Buffer.isBuffer(renderResponse.body)
+          ? renderResponse.body.toString()
+          : renderResponse.body);
       expect(svg).toContain('<svg');
       expect(svg).toContain('</svg>');
     });

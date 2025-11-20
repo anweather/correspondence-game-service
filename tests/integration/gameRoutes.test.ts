@@ -23,11 +23,11 @@ describe('Game Management Routes Integration', () => {
     repository = new InMemoryGameRepository();
     registry = new PluginRegistry();
     lockManager = new GameLockManager();
-    
+
     // Register Tic-Tac-Toe plugin
     const ticTacToeEngine = new TicTacToeEngine();
     registry.register(ticTacToeEngine);
-    
+
     gameManagerService = new GameManagerService(registry, repository);
     stateManagerService = new StateManagerService(repository, registry, lockManager);
 
@@ -74,9 +74,7 @@ describe('Game Management Routes Integration', () => {
 
   describe('GET /api/games', () => {
     it('should return empty list when no games exist', async () => {
-      const response = await request(app)
-        .get('/api/games')
-        .expect(200);
+      const response = await request(app).get('/api/games').expect(200);
 
       expect(response.body.items).toEqual([]);
       expect(response.body.total).toBe(0);
@@ -96,9 +94,7 @@ describe('Game Management Routes Integration', () => {
           },
         });
 
-      const response = await request(app)
-        .get('/api/games')
-        .expect(200);
+      const response = await request(app).get('/api/games').expect(200);
 
       expect(response.body.items).toHaveLength(1);
       expect(response.body.total).toBe(1);
@@ -130,9 +126,7 @@ describe('Game Management Routes Integration', () => {
           },
         });
 
-      const response = await request(app)
-        .get('/api/games?playerId=player1')
-        .expect(200);
+      const response = await request(app).get('/api/games?playerId=player1').expect(200);
 
       expect(response.body.items).toHaveLength(1);
       expect(response.body.items[0].players.some((p: any) => p.id === 'player1')).toBe(true);
@@ -155,18 +149,14 @@ describe('Game Management Routes Integration', () => {
 
       const gameId = createResponse.body.gameId;
 
-      const response = await request(app)
-        .get(`/api/games/${gameId}`)
-        .expect(200);
+      const response = await request(app).get(`/api/games/${gameId}`).expect(200);
 
       expect(response.body.gameId).toBe(gameId);
       expect(response.body.gameType).toBe('tic-tac-toe');
     });
 
     it('should return 404 for non-existent game', async () => {
-      const response = await request(app)
-        .get('/api/games/nonexistent-id')
-        .expect(404);
+      const response = await request(app).get('/api/games/nonexistent-id').expect(404);
 
       expect(response.body.error.code).toBe('GAME_NOT_FOUND');
     });
@@ -180,9 +170,7 @@ describe('Game Management Routes Integration', () => {
         .send({
           gameType: 'tic-tac-toe',
           config: {
-            players: [
-              { id: 'player1', name: 'Alice', joinedAt: new Date() },
-            ],
+            players: [{ id: 'player1', name: 'Alice', joinedAt: new Date() }],
           },
         });
 
@@ -243,9 +231,7 @@ describe('Game Management Routes Integration', () => {
         .send({
           gameType: 'tic-tac-toe',
           config: {
-            players: [
-              { id: 'player1', name: 'Alice', joinedAt: new Date() },
-            ],
+            players: [{ id: 'player1', name: 'Alice', joinedAt: new Date() }],
           },
         });
 
@@ -285,22 +271,16 @@ describe('Game Management Routes Integration', () => {
       const gameId = createResponse.body.gameId;
 
       // Delete the game
-      await request(app)
-        .delete(`/api/games/${gameId}`)
-        .expect(204);
+      await request(app).delete(`/api/games/${gameId}`).expect(204);
 
       // Verify it's gone
-      await request(app)
-        .get(`/api/games/${gameId}`)
-        .expect(404);
+      await request(app).get(`/api/games/${gameId}`).expect(404);
     });
   });
 
   describe('GET /api/game-types', () => {
     it('should return list of available game types', async () => {
-      const response = await request(app)
-        .get('/api/game-types')
-        .expect(200);
+      const response = await request(app).get('/api/game-types').expect(200);
 
       expect(response.body).toHaveLength(1);
       expect(response.body[0].type).toBe('tic-tac-toe');
@@ -323,11 +303,11 @@ describe('Gameplay Routes Integration', () => {
     repository = new InMemoryGameRepository();
     registry = new PluginRegistry();
     lockManager = new GameLockManager();
-    
+
     // Register Tic-Tac-Toe plugin
     const ticTacToeEngine = new TicTacToeEngine();
     registry.register(ticTacToeEngine);
-    
+
     gameManagerService = new GameManagerService(registry, repository);
     stateManagerService = new StateManagerService(repository, registry, lockManager);
 
@@ -356,9 +336,7 @@ describe('Gameplay Routes Integration', () => {
       const gameId = createResponse.body.gameId;
 
       // Get game state
-      const response = await request(app)
-        .get(`/api/games/${gameId}/state`)
-        .expect(200);
+      const response = await request(app).get(`/api/games/${gameId}/state`).expect(200);
 
       expect(response.body.gameId).toBe(gameId);
       expect(response.body.gameType).toBe('tic-tac-toe');
@@ -369,9 +347,7 @@ describe('Gameplay Routes Integration', () => {
     });
 
     it('should return 404 for non-existent game', async () => {
-      const response = await request(app)
-        .get('/api/games/nonexistent-id/state')
-        .expect(404);
+      const response = await request(app).get('/api/games/nonexistent-id/state').expect(404);
 
       expect(response.body.error.code).toBe('GAME_NOT_FOUND');
     });
@@ -591,7 +567,7 @@ describe('Gameplay Routes Integration', () => {
       // Play a winning sequence for player1
       // Player1: (0,0), (0,1), (0,2) - top row
       // Player2: (1,0), (1,1)
-      
+
       const moves = [
         { playerId: 'player1', row: 0, col: 0 },
         { playerId: 'player2', row: 1, col: 0 },
@@ -615,7 +591,7 @@ describe('Gameplay Routes Integration', () => {
             version: version,
           })
           .expect(200);
-        
+
         version = response.body.version;
       }
 
@@ -672,9 +648,7 @@ describe('Gameplay Routes Integration', () => {
         });
 
       // Get move history
-      const response = await request(app)
-        .get(`/api/games/${gameId}/moves`)
-        .expect(200);
+      const response = await request(app).get(`/api/games/${gameId}/moves`).expect(200);
 
       expect(response.body).toHaveLength(2);
       expect(response.body[0].playerId).toBe('player1');
@@ -699,17 +673,13 @@ describe('Gameplay Routes Integration', () => {
       const gameId = createResponse.body.gameId;
 
       // Get move history
-      const response = await request(app)
-        .get(`/api/games/${gameId}/moves`)
-        .expect(200);
+      const response = await request(app).get(`/api/games/${gameId}/moves`).expect(200);
 
       expect(response.body).toEqual([]);
     });
 
     it('should return 404 for non-existent game', async () => {
-      const response = await request(app)
-        .get('/api/games/nonexistent-id/moves')
-        .expect(404);
+      const response = await request(app).get('/api/games/nonexistent-id/moves').expect(404);
 
       expect(response.body.error.code).toBe('GAME_NOT_FOUND');
     });
@@ -730,18 +700,23 @@ describe('Rendering Routes Integration', () => {
     repository = new InMemoryGameRepository();
     registry = new PluginRegistry();
     lockManager = new GameLockManager();
-    
+
     // Register Tic-Tac-Toe plugin
     const ticTacToeEngine = new TicTacToeEngine();
     registry.register(ticTacToeEngine);
-    
+
     gameManagerService = new GameManagerService(registry, repository);
     stateManagerService = new StateManagerService(repository, registry, lockManager);
     rendererService = new RendererService(registry, repository);
 
     // Create app with real routes including renderer
     app = createApp();
-    const gameRouter = createGameRoutes(gameManagerService, repository, stateManagerService, rendererService);
+    const gameRouter = createGameRoutes(
+      gameManagerService,
+      repository,
+      stateManagerService,
+      rendererService
+    );
     addApiRoutes(app, gameRouter);
     finalizeApp(app);
   });
@@ -764,15 +739,15 @@ describe('Rendering Routes Integration', () => {
       const gameId = createResponse.body.gameId;
 
       // Get SVG rendering
-      const response = await request(app)
-        .get(`/api/games/${gameId}/board.svg`)
-        .expect(200);
+      const response = await request(app).get(`/api/games/${gameId}/board.svg`).expect(200);
 
       // Check content-type header
       expect(response.headers['content-type']).toContain('image/svg+xml');
-      
+
       // Check that response is valid SVG
-      const svg = response.text || (Buffer.isBuffer(response.body) ? response.body.toString() : response.body);
+      const svg =
+        response.text ||
+        (Buffer.isBuffer(response.body) ? response.body.toString() : response.body);
       expect(svg).toContain('<svg');
       expect(svg).toContain('</svg>');
       expect(svg).toContain('xmlns="http://www.w3.org/2000/svg"');
@@ -793,7 +768,7 @@ describe('Rendering Routes Integration', () => {
         });
 
       const gameId = createResponse.body.gameId;
-      let version = createResponse.body.version;
+      const version = createResponse.body.version;
 
       // Make a move
       await request(app)
@@ -810,24 +785,22 @@ describe('Rendering Routes Integration', () => {
         });
 
       // Get SVG rendering
-      const response = await request(app)
-        .get(`/api/games/${gameId}/board.svg`)
-        .expect(200);
+      const response = await request(app).get(`/api/games/${gameId}/board.svg`).expect(200);
 
       // Check that SVG contains game metadata in frame layer
-      const svg = response.text || (Buffer.isBuffer(response.body) ? response.body.toString() : response.body);
+      const svg =
+        response.text ||
+        (Buffer.isBuffer(response.body) ? response.body.toString() : response.body);
       expect(svg).toContain('tic-tac-toe');
       expect(svg).toContain(gameId);
-      
+
       // Check that SVG has proper structure
       expect(svg).toContain('id="board"');
       expect(svg).toContain('id="frame"');
     });
 
     it('should return 404 for non-existent game', async () => {
-      const response = await request(app)
-        .get('/api/games/nonexistent-id/board.svg')
-        .expect(404);
+      const response = await request(app).get('/api/games/nonexistent-id/board.svg').expect(404);
 
       expect(response.body.error.code).toBe('GAME_NOT_FOUND');
     });
@@ -852,9 +825,7 @@ describe('Rendering Routes Integration', () => {
       registry.unregister('tic-tac-toe');
 
       // Try to render - should get error
-      const response = await request(app)
-        .get(`/api/games/${gameId}/board.svg`)
-        .expect(500);
+      const response = await request(app).get(`/api/games/${gameId}/board.svg`).expect(500);
 
       expect(response.body.error).toBeDefined();
       expect(response.body.error.message).toContain('plugin');

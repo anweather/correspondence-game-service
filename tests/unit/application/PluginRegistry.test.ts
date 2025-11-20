@@ -1,16 +1,7 @@
 import { PluginRegistry } from '@application/PluginRegistry';
 import { BaseGameEngine } from '@domain/interfaces';
-import {
-  GameState,
-  Player,
-  Move,
-  GameLifecycle,
-} from '@domain/models';
-import {
-  GameConfig,
-  ValidationResult,
-  BoardRenderData,
-} from '@domain/interfaces';
+import { GameState, Player, Move, GameLifecycle } from '@domain/models';
+import { GameConfig, ValidationResult, BoardRenderData } from '@domain/interfaces';
 
 // Mock game engine for testing
 class MockGameEngine extends BaseGameEngine {
@@ -56,11 +47,7 @@ class MockGameEngine extends BaseGameEngine {
     };
   }
 
-  validateMove(
-    _state: GameState,
-    _playerId: string,
-    _move: Move
-  ): ValidationResult {
+  validateMove(_state: GameState, _playerId: string, _move: Move): ValidationResult {
     return { valid: true };
   }
 
@@ -87,14 +74,14 @@ describe('PluginRegistry', () => {
   describe('register', () => {
     it('should register a new game plugin', () => {
       const plugin = new MockGameEngine('tic-tac-toe');
-      
+
       expect(() => registry.register(plugin)).not.toThrow();
     });
 
     it('should allow retrieving a registered plugin', () => {
       const plugin = new MockGameEngine('tic-tac-toe');
       registry.register(plugin);
-      
+
       const retrieved = registry.get('tic-tac-toe');
       expect(retrieved).toBe(plugin);
     });
@@ -102,9 +89,9 @@ describe('PluginRegistry', () => {
     it('should throw error when registering duplicate game type', () => {
       const plugin1 = new MockGameEngine('tic-tac-toe');
       const plugin2 = new MockGameEngine('tic-tac-toe');
-      
+
       registry.register(plugin1);
-      
+
       expect(() => registry.register(plugin2)).toThrow(
         'Game type "tic-tac-toe" is already registered'
       );
@@ -114,11 +101,11 @@ describe('PluginRegistry', () => {
       const plugin1 = new MockGameEngine('tic-tac-toe');
       const plugin2 = new MockGameEngine('chess');
       const plugin3 = new MockGameEngine('checkers');
-      
+
       registry.register(plugin1);
       registry.register(plugin2);
       registry.register(plugin3);
-      
+
       expect(registry.get('tic-tac-toe')).toBe(plugin1);
       expect(registry.get('chess')).toBe(plugin2);
       expect(registry.get('checkers')).toBe(plugin3);
@@ -134,7 +121,7 @@ describe('PluginRegistry', () => {
     it('should return the correct plugin for registered game type', () => {
       const plugin = new MockGameEngine('tic-tac-toe');
       registry.register(plugin);
-      
+
       const retrieved = registry.get('tic-tac-toe');
       expect(retrieved).toBe(plugin);
       expect(retrieved?.getGameType()).toBe('tic-tac-toe');
@@ -143,7 +130,7 @@ describe('PluginRegistry', () => {
     it('should be case-sensitive for game type names', () => {
       const plugin = new MockGameEngine('tic-tac-toe');
       registry.register(plugin);
-      
+
       expect(registry.get('tic-tac-toe')).toBe(plugin);
       expect(registry.get('Tic-Tac-Toe')).toBeNull();
       expect(registry.get('TIC-TAC-TOE')).toBeNull();
@@ -159,7 +146,7 @@ describe('PluginRegistry', () => {
     it('should return game type info for single registered plugin', () => {
       const plugin = new MockGameEngine('tic-tac-toe', 2, 2, 'Classic Tic-Tac-Toe');
       registry.register(plugin);
-      
+
       const list = registry.list();
       expect(list).toHaveLength(1);
       expect(list[0]).toEqual({
@@ -175,29 +162,29 @@ describe('PluginRegistry', () => {
       const plugin1 = new MockGameEngine('tic-tac-toe', 2, 2, 'Classic Tic-Tac-Toe');
       const plugin2 = new MockGameEngine('chess', 2, 2, 'Classic Chess');
       const plugin3 = new MockGameEngine('checkers', 2, 2, 'Classic Checkers');
-      
+
       registry.register(plugin1);
       registry.register(plugin2);
       registry.register(plugin3);
-      
+
       const list = registry.list();
       expect(list).toHaveLength(3);
-      
-      const types = list.map(info => info.type);
+
+      const types = list.map((info) => info.type);
       expect(types).toContain('tic-tac-toe');
       expect(types).toContain('chess');
       expect(types).toContain('checkers');
     });
 
     it('should include all metadata fields in game type info', () => {
-      const plugin = new MockGameEngine('poker', 2, 8, 'Texas Hold\'em Poker');
+      const plugin = new MockGameEngine('poker', 2, 8, "Texas Hold'em Poker");
       registry.register(plugin);
-      
+
       const list = registry.list();
       expect(list[0]).toEqual({
         type: 'poker',
         name: 'poker',
-        description: 'Texas Hold\'em Poker',
+        description: "Texas Hold'em Poker",
         minPlayers: 2,
         maxPlayers: 8,
       });
@@ -208,11 +195,11 @@ describe('PluginRegistry', () => {
     it('should remove a registered plugin', () => {
       const plugin = new MockGameEngine('tic-tac-toe');
       registry.register(plugin);
-      
+
       expect(registry.get('tic-tac-toe')).toBe(plugin);
-      
+
       registry.unregister('tic-tac-toe');
-      
+
       expect(registry.get('tic-tac-toe')).toBeNull();
     });
 
@@ -223,14 +210,14 @@ describe('PluginRegistry', () => {
     it('should remove plugin from list after unregistering', () => {
       const plugin1 = new MockGameEngine('tic-tac-toe');
       const plugin2 = new MockGameEngine('chess');
-      
+
       registry.register(plugin1);
       registry.register(plugin2);
-      
+
       expect(registry.list()).toHaveLength(2);
-      
+
       registry.unregister('tic-tac-toe');
-      
+
       const list = registry.list();
       expect(list).toHaveLength(1);
       expect(list[0].type).toBe('chess');
@@ -239,12 +226,12 @@ describe('PluginRegistry', () => {
     it('should allow re-registering after unregistering', () => {
       const plugin1 = new MockGameEngine('tic-tac-toe', 2, 2, 'Version 1');
       const plugin2 = new MockGameEngine('tic-tac-toe', 2, 4, 'Version 2');
-      
+
       registry.register(plugin1);
       registry.unregister('tic-tac-toe');
-      
+
       expect(() => registry.register(plugin2)).not.toThrow();
-      
+
       const retrieved = registry.get('tic-tac-toe');
       expect(retrieved?.getDescription()).toBe('Version 2');
       expect(retrieved?.getMaxPlayers()).toBe(4);
@@ -254,13 +241,13 @@ describe('PluginRegistry', () => {
       const plugin1 = new MockGameEngine('tic-tac-toe');
       const plugin2 = new MockGameEngine('chess');
       const plugin3 = new MockGameEngine('checkers');
-      
+
       registry.register(plugin1);
       registry.register(plugin2);
       registry.register(plugin3);
-      
+
       registry.unregister('chess');
-      
+
       expect(registry.get('tic-tac-toe')).toBe(plugin1);
       expect(registry.get('chess')).toBeNull();
       expect(registry.get('checkers')).toBe(plugin3);

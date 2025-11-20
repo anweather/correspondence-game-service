@@ -1,17 +1,9 @@
-import {
-  GameState,
-  Player,
-  Move,
-  Board,
-  Space,
-  Token,
-  GameLifecycle,
-} from '@domain/models';
+import { GameState, Player, Move, Board, Space, Token, GameLifecycle } from '@domain/models';
 
 /**
  * Builder class for creating GameState objects in tests.
  * Provides a fluent API for constructing test data with sensible defaults.
- * 
+ *
  * @example
  * const gameState = new GameStateBuilder()
  *   .withGameType('tic-tac-toe')

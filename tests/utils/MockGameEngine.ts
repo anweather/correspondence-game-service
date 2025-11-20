@@ -1,20 +1,11 @@
 import { BaseGameEngine } from '@domain/interfaces';
-import {
-  GameState,
-  Player,
-  Move,
-  GameLifecycle,
-} from '@domain/models';
-import {
-  GameConfig,
-  ValidationResult,
-  BoardRenderData,
-} from '@domain/interfaces';
+import { GameState, Player, Move, GameLifecycle } from '@domain/models';
+import { GameConfig, ValidationResult, BoardRenderData } from '@domain/interfaces';
 
 /**
  * Mock game engine for testing purposes.
  * Provides configurable behavior for all game engine methods.
- * 
+ *
  * @example
  * const mockEngine = new MockGameEngine('test-game')
  *   .withMinPlayers(2)
@@ -155,9 +146,10 @@ export class MockGameEngine extends BaseGameEngine {
     return {
       gameId: 'mock-game-id',
       gameType: this.gameType,
-      lifecycle: players.length >= this.minPlayers 
-        ? GameLifecycle.ACTIVE 
-        : GameLifecycle.WAITING_FOR_PLAYERS,
+      lifecycle:
+        players.length >= this.minPlayers
+          ? GameLifecycle.ACTIVE
+          : GameLifecycle.WAITING_FOR_PLAYERS,
       players,
       currentPlayerIndex: 0,
       phase: 'main',

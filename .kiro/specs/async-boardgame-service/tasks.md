@@ -284,7 +284,7 @@ Following Red-Green-Refactor TDD: Write failing tests first (Red), implement min
   - Document REST API endpoints with examples
   - _Requirements: 6.2, 6.4, 5.1_
 
-- [ ] 20. Set up development tooling
+- [x] 20. Set up development tooling
   - Configure ESLint for code quality
   - Configure Prettier for code formatting
   - Add npm scripts for dev, test, build, lint

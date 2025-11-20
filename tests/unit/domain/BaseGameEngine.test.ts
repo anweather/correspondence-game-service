@@ -1,15 +1,5 @@
-import {
-  GameState,
-  Player,
-  Move,
-  GameLifecycle,
-} from '@domain/models';
-import {
-  BaseGameEngine,
-  ValidationResult,
-  BoardRenderData,
-  GameConfig,
-} from '@domain/interfaces';
+import { GameState, Player, Move, GameLifecycle } from '@domain/models';
+import { BaseGameEngine, ValidationResult, BoardRenderData, GameConfig } from '@domain/interfaces';
 
 /**
  * Concrete test implementation of BaseGameEngine for testing
@@ -48,11 +38,7 @@ class TestGameEngine extends BaseGameEngine {
     };
   }
 
-  validateMove(
-    _state: GameState,
-    _playerId: string,
-    _move: Move
-  ): ValidationResult {
+  validateMove(_state: GameState, _playerId: string, _move: Move): ValidationResult {
     return { valid: true };
   }
 

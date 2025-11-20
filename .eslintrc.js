@@ -25,6 +25,9 @@ module.exports = {
     {
       // Relaxed rules for test files
       files: ['**/*.test.ts', '**/*.spec.ts', '**/tests/**/*.ts'],
+      parserOptions: {
+        project: './tsconfig.test.json'
+      },
       rules: {
         // Allow 'any' type in tests for mocks and test data
         '@typescript-eslint/no-explicit-any': 'off',

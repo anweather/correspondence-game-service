@@ -27,10 +27,7 @@ describe('Express App Initialization', () => {
 
       const testData = { message: 'test', value: 123 };
 
-      const response = await request(app)
-        .post('/test-json')
-        .send(testData)
-        .expect(200);
+      const response = await request(app).post('/test-json').send(testData).expect(200);
 
       expect(response.body).toEqual(testData);
     });
@@ -42,9 +39,7 @@ describe('Express App Initialization', () => {
       });
       finalizeApp(app);
 
-      const response = await request(app)
-        .get('/test-cors')
-        .expect(200);
+      const response = await request(app).get('/test-cors').expect(200);
 
       expect(response.headers['access-control-allow-origin']).toBeDefined();
     });
@@ -74,9 +69,7 @@ describe('Express App Initialization', () => {
       });
       finalizeApp(app);
 
-      const response = await request(app)
-        .get('/test-not-found')
-        .expect(404);
+      const response = await request(app).get('/test-not-found').expect(404);
 
       expect(response.body).toEqual({
         error: {
@@ -92,9 +85,7 @@ describe('Express App Initialization', () => {
       });
       finalizeApp(app);
 
-      const response = await request(app)
-        .post('/test-invalid-move')
-        .expect(400);
+      const response = await request(app).post('/test-invalid-move').expect(400);
 
       expect(response.body).toEqual({
         error: {
@@ -111,9 +102,7 @@ describe('Express App Initialization', () => {
       });
       finalizeApp(app);
 
-      const response = await request(app)
-        .post('/test-concurrency')
-        .expect(409);
+      const response = await request(app).post('/test-concurrency').expect(409);
 
       expect(response.body).toEqual({
         error: {
@@ -129,9 +118,7 @@ describe('Express App Initialization', () => {
       });
       finalizeApp(app);
 
-      const response = await request(app)
-        .post('/test-unauthorized')
-        .expect(403);
+      const response = await request(app).post('/test-unauthorized').expect(403);
 
       expect(response.body).toEqual({
         error: {
@@ -147,9 +134,7 @@ describe('Express App Initialization', () => {
       });
       finalizeApp(app);
 
-      const response = await request(app)
-        .post('/test-game-full')
-        .expect(409);
+      const response = await request(app).post('/test-game-full').expect(409);
 
       expect(response.body).toEqual({
         error: {
@@ -165,9 +150,7 @@ describe('Express App Initialization', () => {
       });
       finalizeApp(app);
 
-      const response = await request(app)
-        .get('/test-generic-error')
-        .expect(418);
+      const response = await request(app).get('/test-generic-error').expect(418);
 
       expect(response.body).toEqual({
         error: {
@@ -184,9 +167,7 @@ describe('Express App Initialization', () => {
       });
       finalizeApp(app);
 
-      const response = await request(app)
-        .get('/test-unknown-error')
-        .expect(500);
+      const response = await request(app).get('/test-unknown-error').expect(500);
 
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
       expect(response.body.error.message).toBeDefined();
@@ -203,9 +184,7 @@ describe('Express App Initialization', () => {
       });
       finalizeApp(app);
 
-      const response = await request(app)
-        .get('/test-production-error')
-        .expect(500);
+      const response = await request(app).get('/test-production-error').expect(500);
 
       expect(response.body.error.message).not.toContain('Sensitive error details');
       expect(response.body).toEqual({
@@ -223,9 +202,7 @@ describe('Express App Initialization', () => {
     it('should return 404 for undefined routes', async () => {
       finalizeApp(app);
 
-      const response = await request(app)
-        .get('/nonexistent-route')
-        .expect(404);
+      const response = await request(app).get('/nonexistent-route').expect(404);
 
       expect(response.body).toEqual({
         error: {

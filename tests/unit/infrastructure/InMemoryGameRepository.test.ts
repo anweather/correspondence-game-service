@@ -23,10 +23,7 @@ describe('InMemoryGameRepository', () => {
     gameId,
     gameType,
     lifecycle: GameLifecycle.ACTIVE,
-    players: [
-      createTestPlayer('player1', 'Alice'),
-      createTestPlayer('player2', 'Bob'),
-    ],
+    players: [createTestPlayer('player1', 'Alice'), createTestPlayer('player2', 'Bob')],
     currentPlayerIndex: 0,
     phase: 'main',
     board: {
@@ -89,10 +86,7 @@ describe('InMemoryGameRepository', () => {
       const game2 = createTestGameState('game-2');
       const game3: GameState = {
         ...createTestGameState('game-3'),
-        players: [
-          createTestPlayer('player1', 'Alice'),
-          createTestPlayer('player3', 'Charlie'),
-        ],
+        players: [createTestPlayer('player1', 'Alice'), createTestPlayer('player3', 'Charlie')],
       };
       const game4: GameState = {
         ...createTestGameState('game-4'),
@@ -214,17 +208,13 @@ describe('InMemoryGameRepository', () => {
         phase: 'updated',
       };
 
-      await expect(
-        repository.update('game-1', updatedState, 3)
-      ).rejects.toThrow(ConcurrencyError);
+      await expect(repository.update('game-1', updatedState, 3)).rejects.toThrow(ConcurrencyError);
     });
 
     it('should throw error when game not found', async () => {
       const gameState = createTestGameState('non-existent', 'test-game', 1);
 
-      await expect(
-        repository.update('non-existent', gameState, 1)
-      ).rejects.toThrow();
+      await expect(repository.update('non-existent', gameState, 1)).rejects.toThrow();
     });
   });
 

@@ -2,12 +2,7 @@ import { StateManagerService } from '@application/services/StateManagerService';
 import { GameLockManager } from '@application/GameLockManager';
 import { PluginRegistry } from '@application/PluginRegistry';
 import { InMemoryGameRepository } from '@infrastructure/persistence/InMemoryGameRepository';
-import {
-  GameState,
-  GameLifecycle,
-  Player,
-  Move,
-} from '@domain/models';
+import { GameState, GameLifecycle, Player, Move } from '@domain/models';
 import {
   GameNotFoundError,
   InvalidMoveError,
@@ -30,10 +25,7 @@ function createMockGameState(players: Player[]): GameState {
 
 // Helper function to create mock players
 function createMockPlayers(): Player[] {
-  return [
-    createPlayer('player1', 'Player 1'),
-    createPlayer('player2', 'Player 2'),
-  ];
+  return [createPlayer('player1', 'Player 1'), createPlayer('player2', 'Player 2')];
 }
 
 describe('StateManagerService', () => {
@@ -47,15 +39,10 @@ describe('StateManagerService', () => {
     repository = new InMemoryGameRepository();
     pluginRegistry = new PluginRegistry();
     lockManager = new GameLockManager();
-    mockEngine = new MockGameEngine('mock-game')
-      .withValidationResult({ valid: true });
+    mockEngine = new MockGameEngine('mock-game').withValidationResult({ valid: true });
     pluginRegistry.register(mockEngine);
 
-    stateManager = new StateManagerService(
-      repository,
-      pluginRegistry,
-      lockManager
-    );
+    stateManager = new StateManagerService(repository, pluginRegistry, lockManager);
   });
 
   describe('validateMove', () => {
@@ -73,11 +60,7 @@ describe('StateManagerService', () => {
       };
 
       // Act
-      const result = await stateManager.validateMove(
-        'test-game-1',
-        'player1',
-        move
-      );
+      const result = await stateManager.validateMove('test-game-1', 'player1', move);
 
       // Assert
       expect(result.valid).toBe(true);
@@ -100,11 +83,7 @@ describe('StateManagerService', () => {
       };
 
       // Act
-      const result = await stateManager.validateMove(
-        'test-game-1',
-        'player1',
-        move
-      );
+      const result = await stateManager.validateMove('test-game-1', 'player1', move);
 
       // Assert
       expect(result.valid).toBe(false);
@@ -121,9 +100,9 @@ describe('StateManagerService', () => {
       };
 
       // Act & Assert
-      await expect(
-        stateManager.validateMove('non-existent-game', 'player1', move)
-      ).rejects.toThrow(GameNotFoundError);
+      await expect(stateManager.validateMove('non-existent-game', 'player1', move)).rejects.toThrow(
+        GameNotFoundError
+      );
     });
   });
 
@@ -142,12 +121,7 @@ describe('StateManagerService', () => {
       };
 
       // Act
-      const updatedState = await stateManager.applyMove(
-        'test-game-1',
-        'player1',
-        move,
-        1
-      );
+      const updatedState = await stateManager.applyMove('test-game-1', 'player1', move, 1);
 
       // Assert
       expect(updatedState.moveHistory).toHaveLength(1);
@@ -174,7 +148,7 @@ describe('StateManagerService', () => {
       ).rejects.toThrow(UnauthorizedMoveError);
     });
 
-    it('should throw UnauthorizedMoveError when it is not the player\'s turn', async () => {
+    it("should throw UnauthorizedMoveError when it is not the player's turn", async () => {
       // Arrange
       const players = createMockPlayers();
       const gameState = createMockGameState(players);
@@ -188,9 +162,9 @@ describe('StateManagerService', () => {
       };
 
       // Act & Assert
-      await expect(
-        stateManager.applyMove('test-game-1', 'player2', move, 1)
-      ).rejects.toThrow(UnauthorizedMoveError);
+      await expect(stateManager.applyMove('test-game-1', 'player2', move, 1)).rejects.toThrow(
+        UnauthorizedMoveError
+      );
     });
 
     it('should throw InvalidMoveError when move validation fails', async () => {
@@ -210,9 +184,9 @@ describe('StateManagerService', () => {
       };
 
       // Act & Assert
-      await expect(
-        stateManager.applyMove('test-game-1', 'player1', move, 1)
-      ).rejects.toThrow(InvalidMoveError);
+      await expect(stateManager.applyMove('test-game-1', 'player1', move, 1)).rejects.toThrow(
+        InvalidMoveError
+      );
     });
 
     it('should throw ConcurrencyError when version mismatch occurs', async () => {
@@ -229,9 +203,9 @@ describe('StateManagerService', () => {
       };
 
       // Act & Assert
-      await expect(
-        stateManager.applyMove('test-game-1', 'player1', move, 999)
-      ).rejects.toThrow(ConcurrencyError);
+      await expect(stateManager.applyMove('test-game-1', 'player1', move, 999)).rejects.toThrow(
+        ConcurrencyError
+      );
     });
 
     it('should track move history correctly', async () => {
@@ -255,12 +229,7 @@ describe('StateManagerService', () => {
       };
 
       // Act
-      await stateManager.applyMove(
-        'test-game-1',
-        'player1',
-        move1,
-        1
-      );
+      await stateManager.applyMove('test-game-1', 'player1', move1, 1);
       const state2 = await stateManager.applyMove(
         'test-game-1',
         'player2', // Changed to player2 since turn advances
@@ -290,12 +259,7 @@ describe('StateManagerService', () => {
       };
 
       // Act
-      const updatedState = await stateManager.applyMove(
-        'test-game-1',
-        'player1',
-        move,
-        1
-      );
+      const updatedState = await stateManager.applyMove('test-game-1', 'player1', move, 1);
 
       // Assert
       expect(updatedState.lifecycle).toBe(GameLifecycle.COMPLETED);
@@ -368,14 +332,14 @@ describe('StateManagerService', () => {
 
       // Assert - One should succeed, one should fail due to version mismatch
       const results = await Promise.allSettled([promise1, promise2]);
-      
+
       // One should be fulfilled, one should be rejected
-      const fulfilled = results.filter(r => r.status === 'fulfilled');
-      const rejected = results.filter(r => r.status === 'rejected');
-      
+      const fulfilled = results.filter((r) => r.status === 'fulfilled');
+      const rejected = results.filter((r) => r.status === 'rejected');
+
       expect(fulfilled).toHaveLength(1);
       expect(rejected).toHaveLength(1);
-      
+
       // The rejected one should be a ConcurrencyError
       const rejectedResult = rejected[0] as PromiseRejectedResult;
       expect(rejectedResult.reason).toBeInstanceOf(ConcurrencyError);

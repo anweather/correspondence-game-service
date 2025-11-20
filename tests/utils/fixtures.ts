@@ -1,5 +1,11 @@
 import { Player, GameState, Move, GameLifecycle } from '@domain/models';
-import { GameStateBuilder, createPlayer, createMove, createSpace, createToken } from './GameStateBuilder';
+import {
+  GameStateBuilder,
+  createPlayer,
+  createMove,
+  createSpace,
+  createToken,
+} from './GameStateBuilder';
 
 /**
  * Common test fixtures for use across test suites.

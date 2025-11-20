@@ -39,9 +39,9 @@ describe('RendererService', () => {
     });
 
     it('should throw GameNotFoundError when game does not exist', async () => {
-      await expect(
-        rendererService.renderGame('non-existent-game')
-      ).rejects.toThrow(GameNotFoundError);
+      await expect(rendererService.renderGame('non-existent-game')).rejects.toThrow(
+        GameNotFoundError
+      );
     });
   });
 
@@ -230,273 +230,273 @@ describe('RendererService', () => {
   describe('SVG generation', () => {
     describe('RenderElement conversion', () => {
       it('should convert rect elements to SVG', async () => {
-      class MockGameEngine extends TicTacToeEngine {
-        renderBoard(_state: GameState): BoardRenderData {
-          return {
-            viewBox: { width: 300, height: 300 },
-            spaces: [],
-            layers: [
-              {
-                name: 'test',
-                zIndex: 0,
-                elements: [
-                  {
-                    type: 'rect',
-                    attributes: { x: 10, y: 20, width: 100, height: 50, fill: '#ff0000' },
-                  },
-                ],
-              },
-            ],
-          };
+        class MockGameEngine extends TicTacToeEngine {
+          renderBoard(_state: GameState): BoardRenderData {
+            return {
+              viewBox: { width: 300, height: 300 },
+              spaces: [],
+              layers: [
+                {
+                  name: 'test',
+                  zIndex: 0,
+                  elements: [
+                    {
+                      type: 'rect',
+                      attributes: { x: 10, y: 20, width: 100, height: 50, fill: '#ff0000' },
+                    },
+                  ],
+                },
+              ],
+            };
+          }
         }
-      }
 
-      const mockEngine = new MockGameEngine();
-      pluginRegistry.unregister('tic-tac-toe');
-      pluginRegistry.register(mockEngine);
+        const mockEngine = new MockGameEngine();
+        pluginRegistry.unregister('tic-tac-toe');
+        pluginRegistry.register(mockEngine);
 
-      const players: Player[] = [
-        { id: 'p1', name: 'Alice', joinedAt: new Date() },
-        { id: 'p2', name: 'Bob', joinedAt: new Date() },
-      ];
-      const gameState = mockEngine.initializeGame(players, {});
+        const players: Player[] = [
+          { id: 'p1', name: 'Alice', joinedAt: new Date() },
+          { id: 'p2', name: 'Bob', joinedAt: new Date() },
+        ];
+        const gameState = mockEngine.initializeGame(players, {});
 
-      const svg = await rendererService.renderState(gameState);
+        const svg = await rendererService.renderState(gameState);
 
-      expect(svg).toContain('<rect');
-      expect(svg).toContain('x="10"');
-      expect(svg).toContain('y="20"');
-      expect(svg).toContain('width="100"');
-      expect(svg).toContain('height="50"');
-      expect(svg).toContain('fill="#ff0000"');
-    });
+        expect(svg).toContain('<rect');
+        expect(svg).toContain('x="10"');
+        expect(svg).toContain('y="20"');
+        expect(svg).toContain('width="100"');
+        expect(svg).toContain('height="50"');
+        expect(svg).toContain('fill="#ff0000"');
+      });
 
-    it('should convert circle elements to SVG', async () => {
-      class MockGameEngine extends TicTacToeEngine {
-        renderBoard(_state: GameState): BoardRenderData {
-          return {
-            viewBox: { width: 300, height: 300 },
-            spaces: [],
-            layers: [
-              {
-                name: 'test',
-                zIndex: 0,
-                elements: [
-                  {
-                    type: 'circle',
-                    attributes: { cx: 150, cy: 150, r: 50, fill: '#00ff00' },
-                  },
-                ],
-              },
-            ],
-          };
+      it('should convert circle elements to SVG', async () => {
+        class MockGameEngine extends TicTacToeEngine {
+          renderBoard(_state: GameState): BoardRenderData {
+            return {
+              viewBox: { width: 300, height: 300 },
+              spaces: [],
+              layers: [
+                {
+                  name: 'test',
+                  zIndex: 0,
+                  elements: [
+                    {
+                      type: 'circle',
+                      attributes: { cx: 150, cy: 150, r: 50, fill: '#00ff00' },
+                    },
+                  ],
+                },
+              ],
+            };
+          }
         }
-      }
 
-      const mockEngine = new MockGameEngine();
-      pluginRegistry.unregister('tic-tac-toe');
-      pluginRegistry.register(mockEngine);
+        const mockEngine = new MockGameEngine();
+        pluginRegistry.unregister('tic-tac-toe');
+        pluginRegistry.register(mockEngine);
 
-      const players: Player[] = [
-        { id: 'p1', name: 'Alice', joinedAt: new Date() },
-        { id: 'p2', name: 'Bob', joinedAt: new Date() },
-      ];
-      const gameState = mockEngine.initializeGame(players, {});
+        const players: Player[] = [
+          { id: 'p1', name: 'Alice', joinedAt: new Date() },
+          { id: 'p2', name: 'Bob', joinedAt: new Date() },
+        ];
+        const gameState = mockEngine.initializeGame(players, {});
 
-      const svg = await rendererService.renderState(gameState);
+        const svg = await rendererService.renderState(gameState);
 
-      expect(svg).toContain('<circle');
-      expect(svg).toContain('cx="150"');
-      expect(svg).toContain('cy="150"');
-      expect(svg).toContain('r="50"');
-      expect(svg).toContain('fill="#00ff00"');
-    });
+        expect(svg).toContain('<circle');
+        expect(svg).toContain('cx="150"');
+        expect(svg).toContain('cy="150"');
+        expect(svg).toContain('r="50"');
+        expect(svg).toContain('fill="#00ff00"');
+      });
 
-    it('should convert path elements to SVG', async () => {
-      class MockGameEngine extends TicTacToeEngine {
-        renderBoard(_state: GameState): BoardRenderData {
-          return {
-            viewBox: { width: 300, height: 300 },
-            spaces: [],
-            layers: [
-              {
-                name: 'test',
-                zIndex: 0,
-                elements: [
-                  {
-                    type: 'path',
-                    attributes: { d: 'M 10 10 L 100 100', stroke: '#0000ff', 'stroke-width': 2 },
-                  },
-                ],
-              },
-            ],
-          };
+      it('should convert path elements to SVG', async () => {
+        class MockGameEngine extends TicTacToeEngine {
+          renderBoard(_state: GameState): BoardRenderData {
+            return {
+              viewBox: { width: 300, height: 300 },
+              spaces: [],
+              layers: [
+                {
+                  name: 'test',
+                  zIndex: 0,
+                  elements: [
+                    {
+                      type: 'path',
+                      attributes: { d: 'M 10 10 L 100 100', stroke: '#0000ff', 'stroke-width': 2 },
+                    },
+                  ],
+                },
+              ],
+            };
+          }
         }
-      }
 
-      const mockEngine = new MockGameEngine();
-      pluginRegistry.unregister('tic-tac-toe');
-      pluginRegistry.register(mockEngine);
+        const mockEngine = new MockGameEngine();
+        pluginRegistry.unregister('tic-tac-toe');
+        pluginRegistry.register(mockEngine);
 
-      const players: Player[] = [
-        { id: 'p1', name: 'Alice', joinedAt: new Date() },
-        { id: 'p2', name: 'Bob', joinedAt: new Date() },
-      ];
-      const gameState = mockEngine.initializeGame(players, {});
+        const players: Player[] = [
+          { id: 'p1', name: 'Alice', joinedAt: new Date() },
+          { id: 'p2', name: 'Bob', joinedAt: new Date() },
+        ];
+        const gameState = mockEngine.initializeGame(players, {});
 
-      const svg = await rendererService.renderState(gameState);
+        const svg = await rendererService.renderState(gameState);
 
-      expect(svg).toContain('<path');
-      expect(svg).toContain('d="M 10 10 L 100 100"');
-      expect(svg).toContain('stroke="#0000ff"');
-    });
+        expect(svg).toContain('<path');
+        expect(svg).toContain('d="M 10 10 L 100 100"');
+        expect(svg).toContain('stroke="#0000ff"');
+      });
 
-    it('should convert text elements to SVG', async () => {
-      class MockGameEngine extends TicTacToeEngine {
-        renderBoard(_state: GameState): BoardRenderData {
-          return {
-            viewBox: { width: 300, height: 300 },
-            spaces: [],
-            layers: [
-              {
-                name: 'test',
-                zIndex: 0,
-                elements: [
-                  {
-                    type: 'text',
-                    attributes: { x: 50, y: 50, 'font-size': 20, fill: '#000000', text: 'Hello' },
-                  },
-                ],
-              },
-            ],
-          };
+      it('should convert text elements to SVG', async () => {
+        class MockGameEngine extends TicTacToeEngine {
+          renderBoard(_state: GameState): BoardRenderData {
+            return {
+              viewBox: { width: 300, height: 300 },
+              spaces: [],
+              layers: [
+                {
+                  name: 'test',
+                  zIndex: 0,
+                  elements: [
+                    {
+                      type: 'text',
+                      attributes: { x: 50, y: 50, 'font-size': 20, fill: '#000000', text: 'Hello' },
+                    },
+                  ],
+                },
+              ],
+            };
+          }
         }
-      }
 
-      const mockEngine = new MockGameEngine();
-      pluginRegistry.unregister('tic-tac-toe');
-      pluginRegistry.register(mockEngine);
+        const mockEngine = new MockGameEngine();
+        pluginRegistry.unregister('tic-tac-toe');
+        pluginRegistry.register(mockEngine);
 
-      const players: Player[] = [
-        { id: 'p1', name: 'Alice', joinedAt: new Date() },
-        { id: 'p2', name: 'Bob', joinedAt: new Date() },
-      ];
-      const gameState = mockEngine.initializeGame(players, {});
+        const players: Player[] = [
+          { id: 'p1', name: 'Alice', joinedAt: new Date() },
+          { id: 'p2', name: 'Bob', joinedAt: new Date() },
+        ];
+        const gameState = mockEngine.initializeGame(players, {});
 
-      const svg = await rendererService.renderState(gameState);
+        const svg = await rendererService.renderState(gameState);
 
-      expect(svg).toContain('<text');
-      expect(svg).toContain('x="50"');
-      expect(svg).toContain('y="50"');
-      expect(svg).toContain('Hello');
-    });
+        expect(svg).toContain('<text');
+        expect(svg).toContain('x="50"');
+        expect(svg).toContain('y="50"');
+        expect(svg).toContain('Hello');
+      });
 
-    it('should convert image elements to SVG', async () => {
-      class MockGameEngine extends TicTacToeEngine {
-        renderBoard(_state: GameState): BoardRenderData {
-          return {
-            viewBox: { width: 300, height: 300 },
-            spaces: [],
-            layers: [
-              {
-                name: 'test',
-                zIndex: 0,
-                elements: [
-                  {
-                    type: 'image',
-                    attributes: { x: 10, y: 10, width: 50, height: 50, href: 'image.png' },
-                  },
-                ],
-              },
-            ],
-          };
+      it('should convert image elements to SVG', async () => {
+        class MockGameEngine extends TicTacToeEngine {
+          renderBoard(_state: GameState): BoardRenderData {
+            return {
+              viewBox: { width: 300, height: 300 },
+              spaces: [],
+              layers: [
+                {
+                  name: 'test',
+                  zIndex: 0,
+                  elements: [
+                    {
+                      type: 'image',
+                      attributes: { x: 10, y: 10, width: 50, height: 50, href: 'image.png' },
+                    },
+                  ],
+                },
+              ],
+            };
+          }
         }
-      }
 
-      const mockEngine = new MockGameEngine();
-      pluginRegistry.unregister('tic-tac-toe');
-      pluginRegistry.register(mockEngine);
+        const mockEngine = new MockGameEngine();
+        pluginRegistry.unregister('tic-tac-toe');
+        pluginRegistry.register(mockEngine);
 
-      const players: Player[] = [
-        { id: 'p1', name: 'Alice', joinedAt: new Date() },
-        { id: 'p2', name: 'Bob', joinedAt: new Date() },
-      ];
-      const gameState = mockEngine.initializeGame(players, {});
+        const players: Player[] = [
+          { id: 'p1', name: 'Alice', joinedAt: new Date() },
+          { id: 'p2', name: 'Bob', joinedAt: new Date() },
+        ];
+        const gameState = mockEngine.initializeGame(players, {});
 
-      const svg = await rendererService.renderState(gameState);
+        const svg = await rendererService.renderState(gameState);
 
-      expect(svg).toContain('<image');
-      expect(svg).toContain('href="image.png"');
+        expect(svg).toContain('<image');
+        expect(svg).toContain('href="image.png"');
+      });
     });
-  });
 
-  describe('viewBox and dimensions', () => {
-    it('should set viewBox from BoardRenderData', async () => {
-      class MockGameEngine extends TicTacToeEngine {
-        renderBoard(_state: GameState): BoardRenderData {
-          return {
-            viewBox: { width: 500, height: 400 },
-            spaces: [],
-            layers: [],
-          };
+    describe('viewBox and dimensions', () => {
+      it('should set viewBox from BoardRenderData', async () => {
+        class MockGameEngine extends TicTacToeEngine {
+          renderBoard(_state: GameState): BoardRenderData {
+            return {
+              viewBox: { width: 500, height: 400 },
+              spaces: [],
+              layers: [],
+            };
+          }
         }
-      }
 
-      const mockEngine = new MockGameEngine();
-      pluginRegistry.unregister('tic-tac-toe');
-      pluginRegistry.register(mockEngine);
+        const mockEngine = new MockGameEngine();
+        pluginRegistry.unregister('tic-tac-toe');
+        pluginRegistry.register(mockEngine);
 
-      const players: Player[] = [
-        { id: 'p1', name: 'Alice', joinedAt: new Date() },
-        { id: 'p2', name: 'Bob', joinedAt: new Date() },
-      ];
-      const gameState = mockEngine.initializeGame(players, {});
+        const players: Player[] = [
+          { id: 'p1', name: 'Alice', joinedAt: new Date() },
+          { id: 'p2', name: 'Bob', joinedAt: new Date() },
+        ];
+        const gameState = mockEngine.initializeGame(players, {});
 
-      const svg = await rendererService.renderState(gameState);
+        const svg = await rendererService.renderState(gameState);
 
-      // ViewBox now includes frame padding (40px added to height)
-      expect(svg).toContain('viewBox="0 0 500 440"');
-    });
+        // ViewBox now includes frame padding (40px added to height)
+        expect(svg).toContain('viewBox="0 0 500 440"');
+      });
 
-    it('should set width and height attributes', async () => {
-      const players: Player[] = [
-        { id: 'p1', name: 'Alice', joinedAt: new Date() },
-        { id: 'p2', name: 'Bob', joinedAt: new Date() },
-      ];
-      const gameState = ticTacToeEngine.initializeGame(players, {});
+      it('should set width and height attributes', async () => {
+        const players: Player[] = [
+          { id: 'p1', name: 'Alice', joinedAt: new Date() },
+          { id: 'p2', name: 'Bob', joinedAt: new Date() },
+        ];
+        const gameState = ticTacToeEngine.initializeGame(players, {});
 
-      const svg = await rendererService.renderState(gameState);
+        const svg = await rendererService.renderState(gameState);
 
-      expect(svg).toContain('width=');
-      expect(svg).toContain('height=');
-    });
+        expect(svg).toContain('width=');
+        expect(svg).toContain('height=');
+      });
 
-    it('should apply backgroundColor if provided', async () => {
-      class MockGameEngine extends TicTacToeEngine {
-        renderBoard(_state: GameState): BoardRenderData {
-          return {
-            viewBox: { width: 300, height: 300 },
-            backgroundColor: '#f0f0f0',
-            spaces: [],
-            layers: [],
-          };
+      it('should apply backgroundColor if provided', async () => {
+        class MockGameEngine extends TicTacToeEngine {
+          renderBoard(_state: GameState): BoardRenderData {
+            return {
+              viewBox: { width: 300, height: 300 },
+              backgroundColor: '#f0f0f0',
+              spaces: [],
+              layers: [],
+            };
+          }
         }
-      }
 
-      const mockEngine = new MockGameEngine();
-      pluginRegistry.unregister('tic-tac-toe');
-      pluginRegistry.register(mockEngine);
+        const mockEngine = new MockGameEngine();
+        pluginRegistry.unregister('tic-tac-toe');
+        pluginRegistry.register(mockEngine);
 
-      const players: Player[] = [
-        { id: 'p1', name: 'Alice', joinedAt: new Date() },
-        { id: 'p2', name: 'Bob', joinedAt: new Date() },
-      ];
-      const gameState = mockEngine.initializeGame(players, {});
+        const players: Player[] = [
+          { id: 'p1', name: 'Alice', joinedAt: new Date() },
+          { id: 'p2', name: 'Bob', joinedAt: new Date() },
+        ];
+        const gameState = mockEngine.initializeGame(players, {});
 
-      const svg = await rendererService.renderState(gameState);
+        const svg = await rendererService.renderState(gameState);
 
-      expect(svg).toContain('#f0f0f0');
+        expect(svg).toContain('#f0f0f0');
+      });
     });
-  });
   });
 });

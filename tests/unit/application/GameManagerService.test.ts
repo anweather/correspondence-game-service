@@ -1,11 +1,7 @@
 import { GameManagerService } from '@application/services/GameManagerService';
 import { PluginRegistry } from '@application/PluginRegistry';
 import { InMemoryGameRepository } from '@infrastructure/persistence/InMemoryGameRepository';
-import {
-  Player,
-  GameState,
-  GameLifecycle,
-} from '@domain/models';
+import { Player, GameState, GameLifecycle } from '@domain/models';
 import { GameNotFoundError, GameFullError } from '@domain/errors';
 import { MockGameEngine, createPlayer } from '../../utils';
 
@@ -22,9 +18,7 @@ describe('GameManagerService', () => {
 
   describe('createGame', () => {
     it('should create a game with CREATED lifecycle when no players provided', async () => {
-      const plugin = new MockGameEngine('tic-tac-toe')
-        .withMinPlayers(2)
-        .withMaxPlayers(2);
+      const plugin = new MockGameEngine('tic-tac-toe').withMinPlayers(2).withMaxPlayers(2);
       registry.register(plugin);
 
       const game = await service.createGame('tic-tac-toe', {});
@@ -37,9 +31,7 @@ describe('GameManagerService', () => {
     });
 
     it('should create a game with WAITING_FOR_PLAYERS lifecycle when fewer than minimum players', async () => {
-      const plugin = new MockGameEngine('poker')
-        .withMinPlayers(2)
-        .withMaxPlayers(8);
+      const plugin = new MockGameEngine('poker').withMinPlayers(2).withMaxPlayers(8);
       registry.register(plugin);
 
       const player1 = createPlayer('player1', 'Alice');
@@ -54,9 +46,7 @@ describe('GameManagerService', () => {
     });
 
     it('should create a game with ACTIVE lifecycle when minimum players provided', async () => {
-      const plugin = new MockGameEngine('tic-tac-toe')
-        .withMinPlayers(2)
-        .withMaxPlayers(2);
+      const plugin = new MockGameEngine('tic-tac-toe').withMinPlayers(2).withMaxPlayers(2);
       registry.register(plugin);
 
       const player1 = createPlayer('player1', 'Alice');
@@ -72,15 +62,13 @@ describe('GameManagerService', () => {
     });
 
     it('should throw error when game type is not supported', async () => {
-      await expect(
-        service.createGame('nonexistent-game', {})
-      ).rejects.toThrow('Game type "nonexistent-game" is not supported');
+      await expect(service.createGame('nonexistent-game', {})).rejects.toThrow(
+        'Game type "nonexistent-game" is not supported'
+      );
     });
 
     it('should generate unique game IDs for multiple games', async () => {
-      const plugin = new MockGameEngine('tic-tac-toe')
-        .withMinPlayers(2)
-        .withMaxPlayers(2);
+      const plugin = new MockGameEngine('tic-tac-toe').withMinPlayers(2).withMaxPlayers(2);
       registry.register(plugin);
 
       const game1 = await service.createGame('tic-tac-toe', {});
@@ -90,9 +78,7 @@ describe('GameManagerService', () => {
     });
 
     it('should save the created game to repository', async () => {
-      const plugin = new MockGameEngine('tic-tac-toe')
-        .withMinPlayers(2)
-        .withMaxPlayers(2);
+      const plugin = new MockGameEngine('tic-tac-toe').withMinPlayers(2).withMaxPlayers(2);
       registry.register(plugin);
 
       const game = await service.createGame('tic-tac-toe', {});
@@ -103,9 +89,7 @@ describe('GameManagerService', () => {
     });
 
     it('should pass custom settings to game engine', async () => {
-      const plugin = new MockGameEngine('tic-tac-toe')
-        .withMinPlayers(2)
-        .withMaxPlayers(2);
+      const plugin = new MockGameEngine('tic-tac-toe').withMinPlayers(2).withMaxPlayers(2);
       registry.register(plugin);
 
       const customSettings = { boardSize: 5, winCondition: 4 };
@@ -119,9 +103,7 @@ describe('GameManagerService', () => {
 
   describe('getGame', () => {
     it('should return game when it exists', async () => {
-      const plugin = new MockGameEngine('tic-tac-toe')
-        .withMinPlayers(2)
-        .withMaxPlayers(2);
+      const plugin = new MockGameEngine('tic-tac-toe').withMinPlayers(2).withMaxPlayers(2);
       registry.register(plugin);
 
       const created = await service.createGame('tic-tac-toe', {});
@@ -140,9 +122,7 @@ describe('GameManagerService', () => {
 
   describe('joinGame', () => {
     it('should add player to game in WAITING_FOR_PLAYERS state', async () => {
-      const plugin = new MockGameEngine('poker')
-        .withMinPlayers(2)
-        .withMaxPlayers(8);
+      const plugin = new MockGameEngine('poker').withMinPlayers(2).withMaxPlayers(8);
       registry.register(plugin);
 
       const player1 = createPlayer('player1', 'Alice');
@@ -164,9 +144,7 @@ describe('GameManagerService', () => {
     });
 
     it('should transition to ACTIVE when minimum players reached', async () => {
-      const plugin = new MockGameEngine('tic-tac-toe')
-        .withMinPlayers(2)
-        .withMaxPlayers(2);
+      const plugin = new MockGameEngine('tic-tac-toe').withMinPlayers(2).withMaxPlayers(2);
       registry.register(plugin);
 
       const player1 = createPlayer('player1', 'Alice');
@@ -186,9 +164,7 @@ describe('GameManagerService', () => {
     });
 
     it('should throw error when joining game not in joinable state', async () => {
-      const plugin = new MockGameEngine('poker')
-        .withMinPlayers(2)
-        .withMaxPlayers(8);
+      const plugin = new MockGameEngine('poker').withMinPlayers(2).withMaxPlayers(8);
       registry.register(plugin);
 
       const player1 = createPlayer('player1', 'Alice');
@@ -209,15 +185,13 @@ describe('GameManagerService', () => {
 
       const player3 = createPlayer('player3', 'Charlie');
 
-      await expect(
-        service.joinGame(game.gameId, player3)
-      ).rejects.toThrow('Cannot join game in lifecycle state: completed');
+      await expect(service.joinGame(game.gameId, player3)).rejects.toThrow(
+        'Cannot join game in lifecycle state: completed'
+      );
     });
 
     it('should throw error when player already in game', async () => {
-      const plugin = new MockGameEngine('poker')
-        .withMinPlayers(2)
-        .withMaxPlayers(8);
+      const plugin = new MockGameEngine('poker').withMinPlayers(2).withMaxPlayers(8);
       registry.register(plugin);
 
       const player1 = createPlayer('player1', 'Alice');
@@ -226,15 +200,13 @@ describe('GameManagerService', () => {
         players: [player1],
       });
 
-      await expect(
-        service.joinGame(game.gameId, player1)
-      ).rejects.toThrow('Player player1 is already in the game');
+      await expect(service.joinGame(game.gameId, player1)).rejects.toThrow(
+        'Player player1 is already in the game'
+      );
     });
 
     it('should throw GameFullError when game is at maximum capacity', async () => {
-      const plugin = new MockGameEngine('tic-tac-toe')
-        .withMinPlayers(2)
-        .withMaxPlayers(2);
+      const plugin = new MockGameEngine('tic-tac-toe').withMinPlayers(2).withMaxPlayers(2);
       registry.register(plugin);
 
       const player1 = createPlayer('player1', 'Alice');
@@ -249,23 +221,17 @@ describe('GameManagerService', () => {
       await service.joinGame(game2.gameId, player2);
 
       // Now try to add a 3rd player
-      await expect(
-        service.joinGame(game2.gameId, player3)
-      ).rejects.toThrow(GameFullError);
+      await expect(service.joinGame(game2.gameId, player3)).rejects.toThrow(GameFullError);
     });
 
     it('should throw GameNotFoundError when game does not exist', async () => {
       const player = createPlayer('player1', 'Alice');
 
-      await expect(
-        service.joinGame('nonexistent-game', player)
-      ).rejects.toThrow(GameNotFoundError);
+      await expect(service.joinGame('nonexistent-game', player)).rejects.toThrow(GameNotFoundError);
     });
 
     it('should allow joining game in CREATED state', async () => {
-      const plugin = new MockGameEngine('poker')
-        .withMinPlayers(2)
-        .withMaxPlayers(8);
+      const plugin = new MockGameEngine('poker').withMinPlayers(2).withMaxPlayers(8);
       registry.register(plugin);
 
       const game = await service.createGame('poker', {});
@@ -289,9 +255,7 @@ describe('GameManagerService', () => {
     });
 
     it('should return all games when no filters applied', async () => {
-      const plugin = new MockGameEngine('tic-tac-toe')
-        .withMinPlayers(2)
-        .withMaxPlayers(2);
+      const plugin = new MockGameEngine('tic-tac-toe').withMinPlayers(2).withMaxPlayers(2);
       registry.register(plugin);
 
       await service.createGame('tic-tac-toe', {});
@@ -304,9 +268,7 @@ describe('GameManagerService', () => {
     });
 
     it('should filter games by playerId', async () => {
-      const plugin = new MockGameEngine('tic-tac-toe')
-        .withMinPlayers(2)
-        .withMaxPlayers(2);
+      const plugin = new MockGameEngine('tic-tac-toe').withMinPlayers(2).withMaxPlayers(2);
       registry.register(plugin);
 
       const player1 = createPlayer('player1', 'Alice');
@@ -326,9 +288,7 @@ describe('GameManagerService', () => {
     });
 
     it('should filter games by lifecycle state', async () => {
-      const plugin = new MockGameEngine('tic-tac-toe')
-        .withMinPlayers(2)
-        .withMaxPlayers(2);
+      const plugin = new MockGameEngine('tic-tac-toe').withMinPlayers(2).withMaxPlayers(2);
       registry.register(plugin);
 
       const player1 = createPlayer('player1', 'Alice');
@@ -345,12 +305,8 @@ describe('GameManagerService', () => {
     });
 
     it('should filter games by game type', async () => {
-      const plugin1 = new MockGameEngine('tic-tac-toe')
-        .withMinPlayers(2)
-        .withMaxPlayers(2);
-      const plugin2 = new MockGameEngine('chess')
-        .withMinPlayers(2)
-        .withMaxPlayers(2);
+      const plugin1 = new MockGameEngine('tic-tac-toe').withMinPlayers(2).withMaxPlayers(2);
+      const plugin2 = new MockGameEngine('chess').withMinPlayers(2).withMaxPlayers(2);
       registry.register(plugin1);
       registry.register(plugin2);
 
@@ -367,9 +323,7 @@ describe('GameManagerService', () => {
     });
 
     it('should support pagination', async () => {
-      const plugin = new MockGameEngine('tic-tac-toe')
-        .withMinPlayers(2)
-        .withMaxPlayers(2);
+      const plugin = new MockGameEngine('tic-tac-toe').withMinPlayers(2).withMaxPlayers(2);
       registry.register(plugin);
 
       // Create 5 games
@@ -394,9 +348,7 @@ describe('GameManagerService', () => {
     });
 
     it('should combine multiple filters', async () => {
-      const plugin = new MockGameEngine('tic-tac-toe')
-        .withMinPlayers(2)
-        .withMaxPlayers(2);
+      const plugin = new MockGameEngine('tic-tac-toe').withMinPlayers(2).withMaxPlayers(2);
       registry.register(plugin);
 
       const player1 = createPlayer('player1', 'Alice');
@@ -446,7 +398,7 @@ describe('GameManagerService', () => {
       const plugin = new MockGameEngine('poker')
         .withMinPlayers(2)
         .withMaxPlayers(8)
-        .withDescription('Texas Hold\'em Poker');
+        .withDescription("Texas Hold'em Poker");
       registry.register(plugin);
 
       const result = service.listAvailableGameTypes();
@@ -455,7 +407,7 @@ describe('GameManagerService', () => {
       expect(result[0]).toEqual({
         type: 'poker',
         name: 'poker',
-        description: 'Texas Hold\'em Poker',
+        description: "Texas Hold'em Poker",
         minPlayers: 2,
         maxPlayers: 8,
       });

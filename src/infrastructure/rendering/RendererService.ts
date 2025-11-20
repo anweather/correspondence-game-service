@@ -228,7 +228,8 @@ export class RendererService {
    */
   private renderText(attributes: Record<string, any>): string {
     const text = attributes.text || '';
-    const { text: _, ...otherAttrs } = attributes;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { text: _text, ...otherAttrs } = attributes;
     const attrs = this.buildAttributeString(otherAttrs);
     return `<text ${attrs}>${this.escapeXml(text)}</text>`;
   }

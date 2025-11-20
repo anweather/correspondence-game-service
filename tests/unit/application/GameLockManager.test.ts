@@ -15,14 +15,14 @@ describe('GameLockManager', () => {
       // Create three operations that should execute sequentially
       const operation1 = lockManager.withLock(gameId, async () => {
         executionOrder.push(1);
-        await new Promise(resolve => setTimeout(resolve, 50));
+        await new Promise((resolve) => setTimeout(resolve, 50));
         executionOrder.push(2);
         return 'result1';
       });
 
       const operation2 = lockManager.withLock(gameId, async () => {
         executionOrder.push(3);
-        await new Promise(resolve => setTimeout(resolve, 50));
+        await new Promise((resolve) => setTimeout(resolve, 50));
         executionOrder.push(4);
         return 'result2';
       });
@@ -65,16 +65,12 @@ describe('GameLockManager', () => {
       const increment = () =>
         lockManager.withLock(gameId, async () => {
           const current = counter;
-          await new Promise(resolve => setTimeout(resolve, 10));
+          await new Promise((resolve) => setTimeout(resolve, 10));
           counter = current + 1;
           return counter;
         });
 
-      const results = await Promise.all([
-        increment(),
-        increment(),
-        increment(),
-      ]);
+      const results = await Promise.all([increment(), increment(), increment()]);
 
       expect(results).toEqual([1, 2, 3]);
       expect(counter).toBe(3);
@@ -90,14 +86,14 @@ describe('GameLockManager', () => {
 
       const operation1 = lockManager.withLock(game1, async () => {
         startTimes[game1] = Date.now();
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
         endTimes[game1] = Date.now();
         return 'result1';
       });
 
       const operation2 = lockManager.withLock(game2, async () => {
         startTimes[game2] = Date.now();
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
         endTimes[game2] = Date.now();
         return 'result2';
       });
@@ -105,7 +101,7 @@ describe('GameLockManager', () => {
       const results = await Promise.all([operation1, operation2]);
 
       expect(results).toEqual(['result1', 'result2']);
-      
+
       // Both operations should have started around the same time (within 50ms)
       const timeDiff = Math.abs(startTimes[game1] - startTimes[game2]);
       expect(timeDiff).toBeLessThan(50);
@@ -118,7 +114,7 @@ describe('GameLockManager', () => {
         return Array.from({ length: count }, (_, i) =>
           lockManager.withLock(gameId, async () => {
             executionLog.push(`${gameId}-op${i}-start`);
-            await new Promise(resolve => setTimeout(resolve, 10));
+            await new Promise((resolve) => setTimeout(resolve, 10));
             executionLog.push(`${gameId}-op${i}-end`);
             return `${gameId}-${i}`;
           })
@@ -132,7 +128,7 @@ describe('GameLockManager', () => {
       await Promise.all([...game1Ops, ...game2Ops, ...game3Ops]);
 
       // Verify each game's operations were sequential
-      const game1Log = executionLog.filter(log => log.startsWith('game-1'));
+      const game1Log = executionLog.filter((log) => log.startsWith('game-1'));
       expect(game1Log).toEqual([
         'game-1-op0-start',
         'game-1-op0-end',
@@ -142,7 +138,7 @@ describe('GameLockManager', () => {
         'game-1-op2-end',
       ]);
 
-      const game2Log = executionLog.filter(log => log.startsWith('game-2'));
+      const game2Log = executionLog.filter((log) => log.startsWith('game-2'));
       expect(game2Log).toEqual([
         'game-2-op0-start',
         'game-2-op0-end',
@@ -212,7 +208,7 @@ describe('GameLockManager', () => {
 
       // Start operation on game1
       const op1 = lockManager.withLock(game1, async () => {
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
         return 'game1-result';
       });
 
@@ -248,7 +244,10 @@ describe('GameLockManager', () => {
       const gameId = 'game-2';
 
       class CustomError extends Error {
-        constructor(message: string, public code: string) {
+        constructor(
+          message: string,
+          public code: string
+        ) {
           super(message);
           this.name = 'CustomError';
         }
@@ -334,7 +333,7 @@ describe('GameLockManager', () => {
         try {
           return await lockManager.withLock(gameId, async () => {
             const current = counter;
-            await new Promise(resolve => setTimeout(resolve, 10));
+            await new Promise((resolve) => setTimeout(resolve, 10));
             if (shouldFail) {
               throw new Error('Intentional failure');
             }
@@ -348,7 +347,7 @@ describe('GameLockManager', () => {
 
       const results = await Promise.all([
         increment(false), // Should succeed: counter = 1
-        increment(true),  // Should fail: counter stays 1
+        increment(true), // Should fail: counter stays 1
         increment(false), // Should succeed: counter = 2
       ]);
 
