@@ -1,0 +1,200 @@
+/* GameList component with responsive layout */
+
+.gameList {
+  display: grid;
+  gap: 1rem;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+/* Desktop: Grid layout with multiple columns */
+@media (min-width: 1024px) {
+  .gameList {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+/* Tablet: Two columns */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .gameList {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+}
+
+/* Mobile: Single column */
+@media (max-width: 767px) {
+  .gameList {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+}
+
+.emptyState {
+  grid-column: 1 / -1;
+  padding: 3rem 2rem;
+  text-align: center;
+  color: #6c757d;
+  font-size: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 2px dashed #dee2e6;
+}
+
+.emptyState p {
+  margin: 0;
+}
+
+.gameCard {
+  padding: 1.25rem;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #ffffff;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.gameCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #007bff;
+  transform: translateY(-2px);
+}
+
+.gameCard:focus-within {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+.gameHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  gap: 0.5rem;
+}
+
+.gameId {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #212529;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.deleteButton {
+  padding: 0.375rem 0.75rem;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  flex-shrink: 0;
+}
+
+.deleteButton:hover {
+  background: #c82333;
+}
+
+.deleteButton:focus {
+  outline: 2px solid #dc3545;
+  outline-offset: 2px;
+}
+
+.deleteButton:active {
+  background: #bd2130;
+}
+
+.gameInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.infoRow {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.label {
+  font-weight: 600;
+  color: #6c757d;
+  min-width: 4rem;
+  flex-shrink: 0;
+}
+
+.value {
+  color: #212529;
+  flex: 1;
+}
+
+/* Mobile optimizations */
+@media (max-width: 767px) {
+  .gameCard {
+    padding: 1rem;
+  }
+
+  .gameId {
+    font-size: 1rem;
+  }
+
+  .deleteButton {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8125rem;
+  }
+
+  .infoRow {
+    font-size: 0.8125rem;
+  }
+
+  .label {
+    min-width: 3.5rem;
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .gameCard {
+    padding: 1rem;
+  }
+
+  .gameId {
+    font-size: 1rem;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .gameCard {
+    transition: none;
+  }
+
+  .gameCard:hover {
+    transform: none;
+  }
+
+  .deleteButton {
+    transition: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .gameCard {
+    border-width: 2px;
+  }
+
+  .deleteButton {
+    border: 2px solid currentColor;
+  }
+}
