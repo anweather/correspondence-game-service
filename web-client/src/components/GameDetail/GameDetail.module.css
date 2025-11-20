@@ -1,0 +1,344 @@
+/* Main container */
+.gameDetail {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 100%;
+  padding: 1rem;
+}
+
+/* Metadata section */
+.metadata {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.metadata h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #1f2937;
+}
+
+.metadataGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+.metadataItem {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+}
+
+.label {
+  font-weight: 600;
+  color: #374151;
+  min-width: 4rem;
+}
+
+.value {
+  color: #6b7280;
+  word-break: break-word;
+}
+
+.turnIndicator {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  text-align: center;
+  font-weight: 500;
+}
+
+.yourTurn {
+  color: #059669;
+  background-color: #d1fae5;
+  display: block;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+}
+
+.waiting {
+  color: #d97706;
+  background-color: #fef3c7;
+  display: block;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+}
+
+.refreshButton {
+  align-self: flex-start;
+  padding: 0.5rem 1rem;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.refreshButton:hover {
+  background-color: #2563eb;
+}
+
+.refreshButton:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Board display */
+.boardContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.5rem;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  min-height: 200px;
+}
+
+.boardImage {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.375rem;
+}
+
+/* Player list */
+.playerList,
+.moveHistory {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.playerList h3,
+.moveHistory h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.125rem;
+  color: #1f2937;
+}
+
+.players,
+.moves {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.player {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  background-color: #f9fafb;
+  align-items: center;
+  transition: background-color 0.2s;
+}
+
+.player.currentTurn {
+  background-color: #dbeafe;
+  border: 2px solid #3b82f6;
+  font-weight: 500;
+}
+
+.playerNumber {
+  font-weight: 600;
+  color: #6b7280;
+  min-width: 1.5rem;
+}
+
+.playerName {
+  font-weight: 500;
+  color: #1f2937;
+  flex: 1;
+}
+
+.playerId {
+  color: #9ca3af;
+  font-size: 0.875rem;
+  font-family: monospace;
+}
+
+/* Move history */
+.move {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  background-color: #f9fafb;
+  flex-wrap: wrap;
+  align-items: baseline;
+}
+
+.moveNumber {
+  font-weight: 600;
+  color: #6b7280;
+  min-width: 4rem;
+}
+
+.movePlayer {
+  color: #3b82f6;
+  font-weight: 500;
+  min-width: 5rem;
+}
+
+.moveAction {
+  font-style: italic;
+  color: #374151;
+}
+
+.moveParameters {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-left: auto;
+}
+
+.moveParameters span {
+  margin-right: 0.5rem;
+}
+
+/* Empty states */
+.emptyState {
+  color: #9ca3af;
+  font-style: italic;
+  text-align: center;
+  padding: 2rem;
+}
+
+/* Admin controls */
+.adminControls {
+  padding: 1rem;
+  background-color: #fef3c7;
+  border-radius: 0.5rem;
+  border: 1px solid #fbbf24;
+}
+
+.adminControls h3 {
+  margin: 0 0 0.5rem 0;
+  color: #92400e;
+}
+
+/* Responsive breakpoints */
+
+/* Tablet (768px - 1023px) */
+@media (min-width: 768px) {
+  .gameDetail {
+    padding: 1.5rem;
+  }
+
+  .metadata h2 {
+    font-size: 1.75rem;
+  }
+
+  .metadataGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .boardContainer {
+    padding: 2rem;
+    min-height: 300px;
+  }
+
+  .playerList,
+  .moveHistory {
+    padding: 1.5rem;
+  }
+
+  .move {
+    flex-wrap: nowrap;
+  }
+}
+
+/* Desktop (1024px+) */
+@media (min-width: 1024px) {
+  .gameDetail {
+    padding: 2rem;
+    gap: 2rem;
+  }
+
+  .metadata h2 {
+    font-size: 2rem;
+  }
+
+  .metadataGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .boardContainer {
+    padding: 2.5rem;
+    min-height: 400px;
+  }
+
+  .boardImage {
+    max-width: 600px;
+  }
+
+  .playerList,
+  .moveHistory {
+    padding: 2rem;
+  }
+
+  .playerList h3,
+  .moveHistory h3 {
+    font-size: 1.25rem;
+  }
+}
+
+/* Mobile optimization (<768px) */
+@media (max-width: 767px) {
+  .gameDetail {
+    padding: 0.75rem;
+    gap: 1rem;
+  }
+
+  .metadata {
+    padding: 0.75rem;
+  }
+
+  .metadata h2 {
+    font-size: 1.25rem;
+  }
+
+  .boardContainer {
+    padding: 1rem;
+    min-height: 150px;
+  }
+
+  .playerList,
+  .moveHistory {
+    padding: 0.75rem;
+  }
+
+  .player,
+  .move {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .moveParameters {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 0.25rem;
+  }
+
+  .playerId {
+    font-size: 0.75rem;
+  }
+}

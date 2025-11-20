@@ -69,27 +69,27 @@
     - Add CSS animations for enter/exit
     - _Requirements: 1.5, 3.4, 4.5, 5.5, 7.5_
 
-- [ ] 5. Implement Game List component (TDD)
-  - [ ] 5.1 Create GameList component with TDD
+- [x] 5. Implement Game List component (TDD)
+  - [x] 5.1 Create GameList component with TDD
     - Write tests for GameList in `src/components/GameList/__tests__/GameList.test.tsx`
     - Test rendering with games, filtering logic, empty state, click handlers
     - Create `src/components/GameList/GameList.tsx` to pass tests
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 3.1_
-  - [ ] 5.2 Style GameList with responsive layout
+  - [x] 5.2 Style GameList with responsive layout
     - Create `src/components/GameList/GameList.module.css`
     - Implement card layout with grid/flexbox
     - Add responsive breakpoints for mobile, tablet, desktop
     - Style empty state message
     - _Requirements: 1.4, 12.1, 12.2, 12.3, 12.4, 12.5_
 
-- [ ] 6. Implement Game Detail component (TDD)
-  - [ ] 6.1 Create GameDetail component with TDD
+- [x] 6. Implement Game Detail component (TDD)
+  - [x] 6.1 Create GameDetail component with TDD
     - Write tests for GameDetail in `src/components/GameDetail/__tests__/GameDetail.test.tsx`
     - Test rendering game metadata, board SVG, player list, move history
     - Test turn indicator highlighting
     - Create `src/components/GameDetail/GameDetail.tsx` to pass tests
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 6.1, 6.2, 6.3, 8.1, 8.3, 8.4, 9.1, 9.2, 9.3_
-  - [ ] 6.2 Style GameDetail with responsive layout
+  - [x] 6.2 Style GameDetail with responsive layout
     - Create `src/components/GameDetail/GameDetail.module.css`
     - Style board display area with proper sizing
     - Style player list and move history sections
