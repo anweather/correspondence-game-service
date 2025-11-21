@@ -3,9 +3,9 @@ import {
   useContext,
   useState,
   useCallback,
-  ReactNode,
   useMemo,
 } from 'react';
+import type { ReactNode } from 'react';
 import { GameClient } from '../api/gameClient';
 import type { GameState } from '../types/game';
 

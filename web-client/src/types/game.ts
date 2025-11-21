@@ -67,6 +67,14 @@ export interface Move<TParameters = Record<string, any>> {
 }
 
 /**
+ * Move input from UI (before playerId and timestamp are added)
+ */
+export interface MoveInput<TParameters = Record<string, any>> {
+  action: string;
+  parameters: TParameters;
+}
+
+/**
  * Complete game state
  */
 export interface GameState<TMetadata = Record<string, any>> {

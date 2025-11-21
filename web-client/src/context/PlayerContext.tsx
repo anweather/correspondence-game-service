@@ -8,7 +8,7 @@ import {
 import type { ReactNode } from 'react';
 import { GameClient } from '../api/gameClient';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import type { GameState, Move } from '../types/game';
+import type { GameState, MoveInput } from '../types/game';
 
 /**
  * Player context state
@@ -28,7 +28,7 @@ interface PlayerContextActions {
   createGame: (gameType: string, playerName: string) => Promise<void>;
   joinGame: (gameId: string, playerName: string) => Promise<void>;
   loadGame: (gameId: string) => Promise<void>;
-  submitMove: (move: Move) => Promise<void>;
+  submitMove: (move: MoveInput) => Promise<void>;
   refreshGame: () => Promise<void>;
 }
 
@@ -160,7 +160,7 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
    * Submit a move for the current player
    */
   const submitMove = useCallback(
-    async (move: Move) => {
+    async (move: MoveInput) => {
       if (!currentGame) {
         setError('No game loaded');
         return;

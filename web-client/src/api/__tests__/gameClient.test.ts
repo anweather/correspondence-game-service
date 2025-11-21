@@ -8,7 +8,7 @@ describe('GameClient', () => {
 
   beforeEach(() => {
     mockFetch = vi.fn();
-    global.fetch = mockFetch;
+    globalThis.fetch = mockFetch as any;
     client = new GameClient('/api');
   });
 

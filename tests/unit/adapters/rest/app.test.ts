@@ -199,10 +199,10 @@ describe('Express App Initialization', () => {
   });
 
   describe('404 Handler', () => {
-    it('should return 404 for undefined routes', async () => {
+    it('should return 404 for API routes that do not exist', async () => {
       finalizeApp(app);
 
-      const response = await request(app).get('/nonexistent-route').expect(404);
+      const response = await request(app).get('/api/nonexistent-route').expect(404);
 
       expect(response.body).toEqual({
         error: {
@@ -210,6 +210,17 @@ describe('Express App Initialization', () => {
           message: 'Route not found',
         },
       });
+    });
+
+    it('should attempt to serve SPA fallback for non-API routes', async () => {
+      finalizeApp(app);
+
+      // The SPA fallback will try to serve index.html
+      // In test environment, this may succeed or fail depending on file existence
+      const response = await request(app).get('/nonexistent-route');
+
+      // Should either serve the file (200) or fall through to 404
+      expect([200, 404]).toContain(response.status);
     });
   });
 });

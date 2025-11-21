@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import type { GameState, Move } from '../../types/game';
+import type { GameState, MoveInput } from '../../types/game';
 import styles from './MoveInput.module.css';
 
 export interface TicTacToeMoveInputProps {
   gameState: GameState;
-  onMoveChange: (move: Move) => void;
+  onMoveChange: (move: MoveInput) => void;
 }
 
 export function TicTacToeMoveInput({ gameState, onMoveChange }: TicTacToeMoveInputProps) {
@@ -13,9 +13,7 @@ export function TicTacToeMoveInput({ gameState, onMoveChange }: TicTacToeMoveInp
   const handleCellClick = (x: number, y: number) => {
     setSelectedCell({ x, y });
     
-    const move: Move = {
-      playerId: '',
-      timestamp: new Date().toISOString(),
+    const move: MoveInput = {
       action: 'place',
       parameters: { x, y }
     };

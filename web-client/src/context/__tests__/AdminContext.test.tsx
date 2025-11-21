@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { AdminProvider, useAdmin } from '../AdminContext';
-import type { GameState, GameType } from '../../types/game';
+import type { GameState } from '../../types/game';
 
 // Create mock functions that will be shared across all tests
 const mockGetGameTypes = vi.fn();

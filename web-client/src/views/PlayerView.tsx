@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { usePlayer } from '../context/PlayerContext';
 import { GameDetail } from '../components/GameDetail/GameDetail';
 import { MoveInput } from '../components/MoveInput/MoveInput';
-import type { Move } from '../types/game';
+import type { MoveInput as MoveInputType } from '../types/game';
 import styles from './PlayerView.module.css';
 
 /**
@@ -39,7 +39,7 @@ export function PlayerView() {
     }
   };
 
-  const handleSubmitMove = async (move: Move) => {
+  const handleSubmitMove = async (move: MoveInputType) => {
     await submitMove(move);
   };
 
@@ -133,8 +133,9 @@ export function PlayerView() {
   }
 
   // Show game view if game is loaded
-  const isPlayerTurn =
-    playerId && currentGame.players[currentGame.currentPlayerIndex]?.id === playerId;
+  const isPlayerTurn = Boolean(
+    playerId && currentGame.players[currentGame.currentPlayerIndex]?.id === playerId
+  );
 
   return (
     <div className={styles.playerView}>

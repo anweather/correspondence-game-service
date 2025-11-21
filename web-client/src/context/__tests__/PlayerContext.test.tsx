@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { PlayerProvider, usePlayer } from '../PlayerContext';
 import type { GameState } from '../../types/game';
 

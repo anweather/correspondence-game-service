@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { GameState, Move } from '../../types/game';
+import type { GameState, MoveInput as MoveInputType } from '../../types/game';
 import { Button } from '../common/Button';
 import { TicTacToeMoveInput } from './TicTacToeMoveInput';
 import styles from './MoveInput.module.css';
@@ -9,17 +9,17 @@ export interface MoveInputProps {
   gameState: GameState;
   playerId: string;
   enabled: boolean;
-  onSubmit: (move: Move) => Promise<void>;
+  onSubmit: (move: MoveInputType) => Promise<void>;
 }
 
 export function MoveInput({
   gameType,
   gameState,
-  playerId,
+  playerId: _playerId,
   enabled,
   onSubmit
 }: MoveInputProps) {
-  const [pendingMove, setPendingMove] = useState<Move | null>(null);
+  const [pendingMove, setPendingMove] = useState<MoveInputType | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async () => {
@@ -34,7 +34,7 @@ export function MoveInput({
     }
   };
 
-  const handleMoveChange = (move: Move) => {
+  const handleMoveChange = (move: MoveInputType) => {
     setPendingMove(move);
   };
 

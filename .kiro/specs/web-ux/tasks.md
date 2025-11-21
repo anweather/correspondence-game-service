@@ -172,19 +172,19 @@
     - Ensure accessibility with focus styles and sufficient contrast
     - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
 
-- [ ] 12. Integrate React app with Express server
-  - [ ] 12.1 Update Express server to serve static files
+- [x] 12. Integrate React app with Express server
+  - [x] 12.1 Update Express server to serve static files
     - Modify server startup code to serve `web-client/dist` as static files
     - Add SPA fallback route to serve index.html for non-API routes
     - Ensure API routes take precedence over static file serving
     - _Requirements: 1.1, 4.1_
-  - [ ] 12.2 Add npm scripts for development and production
+  - [x] 12.2 Add npm scripts for development and production
     - Add script to run Vite dev server
     - Add script to build React app for production
     - Add script to run both Express and Vite in development
     - Update main package.json with web client commands
     - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5_
-  - [ ] 12.3 Create production build configuration
+  - [x] 12.3 Create production build configuration
     - Ensure Vite build outputs to correct directory
     - Configure source maps for debugging
     - Test production build served by Express

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, waitFor } from '../../../test/test-utils';
 import { TicTacToeMoveInput } from '../TicTacToeMoveInput';
-import { GameState } from '../../../types/game';
+import type { GameState } from '../../../types/game';
 
 const mockGameState: GameState = {
   gameId: 'game-123',

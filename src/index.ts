@@ -3,7 +3,7 @@
  * Entry point for the application
  */
 
-import { createApp, addApiRoutes, finalizeApp } from './adapters/rest/app';
+import { createApp, addApiRoutes, addStaticFileServing, finalizeApp } from './adapters/rest/app';
 import { createGameRoutes } from './adapters/rest/gameRoutes';
 import { PluginRegistry } from './application/PluginRegistry';
 import { GameLockManager } from './application/GameLockManager';
@@ -45,6 +45,9 @@ const apiRouter = createGameRoutes(
   rendererService
 );
 addApiRoutes(app, apiRouter);
+
+// Add static file serving for React web client
+addStaticFileServing(app);
 
 // Finalize app with error handlers
 finalizeApp(app);

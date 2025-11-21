@@ -3,6 +3,7 @@ import type {
   GameType,
   Player,
   Move,
+  MoveInput,
   GameConfig,
   GameFilters,
   GameListResponse,
@@ -13,7 +14,11 @@ import type {
  * Wraps all REST API calls with consistent error handling
  */
 export class GameClient {
-  constructor(private baseUrl: string = '/api') {}
+  private baseUrl: string;
+  
+  constructor(baseUrl: string = '/api') {
+    this.baseUrl = baseUrl;
+  }
 
   /**
    * Get all available game types
@@ -75,7 +80,7 @@ export class GameClient {
   async makeMove(
     gameId: string,
     playerId: string,
-    move: Move,
+    move: MoveInput,
     version: number
   ): Promise<GameState> {
     return this.request<GameState>(`${this.baseUrl}/games/${gameId}/moves`, {
