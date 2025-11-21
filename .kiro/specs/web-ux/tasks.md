@@ -155,18 +155,18 @@
     - Add responsive breakpoints
     - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
 
-- [ ] 11. Set up routing and main App component (TDD)
-  - [ ] 11.1 Create App component with TDD
+- [x] 11. Set up routing and main App component (TDD)
+  - [x] 11.1 Create App component with TDD
     - Write tests for App in `src/__tests__/App.test.tsx`
     - Test routing between Admin and Player views
     - Test context provider wrapping
     - Create `src/App.tsx` to pass tests
     - _Requirements: 1.1, 4.1_
-  - [ ] 11.2 Create main entry point
+  - [x] 11.2 Create main entry point
     - Create `src/main.tsx` to render App component
     - Set up React root and strict mode
     - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5_
-  - [ ] 11.3 Create global styles
+  - [x] 11.3 Create global styles
     - Create `src/styles/global.css` with CSS reset and base styles
     - Create `src/styles/variables.css` with CSS custom properties for colors, spacing, breakpoints
     - Ensure accessibility with focus styles and sufficient contrast
