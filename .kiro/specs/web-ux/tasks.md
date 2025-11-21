@@ -141,14 +141,14 @@
     - Style header and controls
     - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
 
-- [ ] 10. Implement Player View page (TDD)
-  - [ ] 10.1 Create PlayerView component with TDD
+- [x] 10. Implement Player View page (TDD)
+  - [x] 10.1 Create PlayerView component with TDD
     - Write tests for PlayerView in `src/views/__tests__/PlayerView.test.tsx`
     - Test game setup screen, game view, move submission, optimistic locking retry
     - Mock child components and PlayerContext
     - Create `src/views/PlayerView.tsx` to pass tests
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 5.1, 5.2, 5.3, 5.4, 5.5, 6.1, 6.2, 6.3, 6.4, 6.5, 7.3, 7.4, 7.5, 8.1, 8.2, 8.5, 9.1, 9.2, 9.3, 9.4, 9.5_
-  - [ ] 10.2 Style PlayerView with responsive layout
+  - [x] 10.2 Style PlayerView with responsive layout
     - Create `src/views/PlayerView.module.css`
     - Style game setup forms
     - Style game view layout
