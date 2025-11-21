@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { GameState, Move } from '../../types/game';
+import type { GameState, Move } from '../../types/game';
 import { Button } from '../common/Button';
 import { TicTacToeMoveInput } from './TicTacToeMoveInput';
 import styles from './MoveInput.module.css';
