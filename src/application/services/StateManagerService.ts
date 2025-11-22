@@ -72,9 +72,15 @@ export class StateManagerService {
         throw new Error(`Game type "${game.gameType}" is not supported`);
       }
 
-      // Check if game is already completed
+      // Check if game is in a playable state
       if (game.lifecycle === GameLifecycle.COMPLETED) {
         throw new InvalidMoveError('Game is already completed');
+      }
+
+      if (game.lifecycle !== GameLifecycle.ACTIVE) {
+        throw new InvalidMoveError(
+          `Game must be active to make moves. Current state: ${game.lifecycle}`
+        );
       }
 
       // Authorization checks

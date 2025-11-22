@@ -356,6 +356,8 @@ export function PlayerView() {
   const isPlayerTurn = Boolean(
     playerId && currentGame.players[currentGame.currentPlayerIndex]?.id === playerId
   );
+  
+  const canMakeMove = isPlayerTurn && currentGame.lifecycle === 'active';
 
   // Generate shareable link
   const shareLink = `${window.location.origin}${window.location.pathname}#/player?gameId=${currentGame.gameId}`;
@@ -411,13 +413,27 @@ export function PlayerView() {
           onRefresh={handleRefresh}
           currentPlayerId={playerId || undefined}
         />
-        <MoveInput
-          gameType={currentGame.gameType}
-          gameState={currentGame}
-          playerId={playerId || ''}
-          enabled={isPlayerTurn}
-          onSubmit={handleSubmitMove}
-        />
+        {currentGame.lifecycle === 'active' ? (
+          <MoveInput
+            gameType={currentGame.gameType}
+            gameState={currentGame}
+            playerId={playerId || ''}
+            enabled={canMakeMove}
+            onSubmit={handleSubmitMove}
+          />
+        ) : (
+          <div className={styles.gameStatus}>
+            {currentGame.lifecycle === 'waiting_for_players' && (
+              <p>Waiting for more players to join before the game can start...</p>
+            )}
+            {currentGame.lifecycle === 'created' && (
+              <p>Game created. Waiting for players to join...</p>
+            )}
+            {currentGame.lifecycle === 'completed' && (
+              <p>Game completed!</p>
+            )}
+          </div>
+        )}
       </main>
     </div>
   );
