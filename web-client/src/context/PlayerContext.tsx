@@ -25,8 +25,10 @@ interface PlayerContextState {
  * Player context actions
  */
 interface PlayerContextActions {
-  createGame: (gameType: string, playerName: string) => Promise<void>;
-  joinGame: (gameId: string, playerName: string) => Promise<void>;
+  login: (name: string) => void;
+  logout: () => void;
+  createGame: (gameType: string) => Promise<void>;
+  joinGame: (gameId: string) => Promise<void>;
   loadGame: (gameId: string) => Promise<void>;
   submitMove: (move: MoveInput) => Promise<void>;
   refreshGame: () => Promise<void>;
@@ -67,10 +69,42 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
   const client = useMemo(() => new GameClient(), []);
 
   /**
+   * Login with a player name (simple session-based identity)
+   */
+  const login = useCallback(
+    (name: string) => {
+      const trimmedName = name.trim();
+      if (!trimmedName) {
+        setError('Player name cannot be empty');
+        return;
+      }
+      setPlayerName(trimmedName);
+      setError(null);
+    },
+    [setPlayerName]
+  );
+
+  /**
+   * Logout and clear player session
+   */
+  const logout = useCallback(() => {
+    setPlayerName(null);
+    setPlayerId(null);
+    setCurrentGame(null);
+    setCurrentGameId(null);
+    setError(null);
+  }, [setPlayerName, setPlayerId, setCurrentGameId]);
+
+  /**
    * Create a new game and join as the first player
    */
   const createGame = useCallback(
-    async (gameType: string, name: string) => {
+    async (gameType: string) => {
+      if (!playerName) {
+        setError('Please login first');
+        return;
+      }
+
       setLoading(true);
       setError(null);
       try {
@@ -78,21 +112,20 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
         const newGame = await client.createGame(gameType, {});
 
         // Generate unique player ID
-        const playerId = `player-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        const newPlayerId = `player-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         
         // Join as the first player
         const joinedGame = await client.joinGame(newGame.gameId, {
-          id: playerId,
-          name,
+          id: newPlayerId,
+          name: playerName,
           joinedAt: new Date().toISOString(),
         });
 
         // Find the player that was just added
-        const player = joinedGame.players.find((p) => p.id === playerId);
+        const player = joinedGame.players.find((p) => p.id === newPlayerId);
 
         if (player) {
           setPlayerId(player.id);
-          setPlayerName(name);
           setCurrentGameId(joinedGame.gameId);
           setCurrentGame(joinedGame);
         }
@@ -103,31 +136,35 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
         setLoading(false);
       }
     },
-    [client, setPlayerId, setPlayerName, setCurrentGameId]
+    [client, playerName, setPlayerId, setCurrentGameId]
   );
 
   /**
    * Join an existing game
    */
   const joinGame = useCallback(
-    async (gameId: string, name: string) => {
+    async (gameId: string) => {
+      if (!playerName) {
+        setError('Please login first');
+        return;
+      }
+
       setLoading(true);
       setError(null);
       try {
         // Generate unique player ID
-        const playerId = `player-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        const newPlayerId = `player-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         const joinedGame = await client.joinGame(gameId, {
-          id: playerId,
-          name,
+          id: newPlayerId,
+          name: playerName,
           joinedAt: new Date().toISOString(),
         });
 
         // Find the player that was just added
-        const player = joinedGame.players.find((p) => p.id === playerId);
+        const player = joinedGame.players.find((p) => p.id === newPlayerId);
 
         if (player) {
           setPlayerId(player.id);
-          setPlayerName(name);
           setCurrentGameId(joinedGame.gameId);
           setCurrentGame(joinedGame);
         }
@@ -138,7 +175,7 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
         setLoading(false);
       }
     },
-    [client, setPlayerId, setPlayerName, setCurrentGameId]
+    [client, playerName, setPlayerId, setCurrentGameId]
   );
 
   /**
@@ -239,6 +276,8 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
     playerName,
     loading,
     error,
+    login,
+    logout,
     createGame,
     joinGame,
     loadGame,

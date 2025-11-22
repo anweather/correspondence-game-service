@@ -198,7 +198,7 @@
     - Verify board updates correctly after each move
     - Test game completion flow
     - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 11.1, 11.2, 11.3, 11.4, 11.5_
-  - [ ] 13.2 Test player workflow
+  - [x] 13.2 Test player workflow
     - Create a game from player view
     - Join a game with a second player (using different browser/incognito)
     - Make moves and verify turn-based gameplay

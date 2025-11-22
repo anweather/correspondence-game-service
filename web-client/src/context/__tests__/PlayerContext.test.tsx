@@ -69,6 +69,37 @@ describe('PlayerContext', () => {
     });
   });
 
+  describe('login/logout', () => {
+    it('should login with a player name', () => {
+      const { result } = renderHook(() => usePlayer(), { wrapper });
+
+      act(() => {
+        result.current.login('Alice');
+      });
+
+      expect(result.current.playerName).toBe('Alice');
+      expect(localStorage.getItem('player.name')).toBe(JSON.stringify('Alice'));
+    });
+
+    it('should logout and clear session', () => {
+      localStorage.setItem('player.id', JSON.stringify('player-123'));
+      localStorage.setItem('player.name', JSON.stringify('Alice'));
+      localStorage.setItem('player.currentGame', JSON.stringify('game-456'));
+
+      const { result } = renderHook(() => usePlayer(), { wrapper });
+
+      act(() => {
+        result.current.logout();
+      });
+
+      expect(result.current.playerName).toBeNull();
+      expect(result.current.playerId).toBeNull();
+      expect(result.current.currentGame).toBeNull();
+      expect(localStorage.getItem('player.name')).toBe('null');
+      expect(localStorage.getItem('player.id')).toBe('null');
+    });
+  });
+
   describe('createGame', () => {
     it('should create a new game and join as first player', async () => {
       const mockGame: GameState = {
@@ -93,8 +124,13 @@ describe('PlayerContext', () => {
 
       const { result } = renderHook(() => usePlayer(), { wrapper });
 
+      // Login first
+      act(() => {
+        result.current.login('Alice');
+      });
+
       await act(async () => {
-        await result.current.createGame('tic-tac-toe', 'Alice');
+        await result.current.createGame('tic-tac-toe');
       });
 
       await waitFor(() => {
@@ -115,13 +151,30 @@ describe('PlayerContext', () => {
 
       const { result } = renderHook(() => usePlayer(), { wrapper });
 
+      // Login first
+      act(() => {
+        result.current.login('Alice');
+      });
+
       await act(async () => {
-        await result.current.createGame('tic-tac-toe', 'Alice');
+        await result.current.createGame('tic-tac-toe');
       });
 
       await waitFor(() => {
         expect(result.current.error).toBe(errorMessage);
         expect(result.current.currentGame).toBeNull();
+      });
+    });
+
+    it('should require login before creating game', async () => {
+      const { result } = renderHook(() => usePlayer(), { wrapper });
+
+      await act(async () => {
+        await result.current.createGame('tic-tac-toe');
+      });
+
+      await waitFor(() => {
+        expect(result.current.error).toBe('Please login first');
       });
     });
   });
@@ -150,8 +203,13 @@ describe('PlayerContext', () => {
 
       const { result } = renderHook(() => usePlayer(), { wrapper });
 
+      // Login first
+      act(() => {
+        result.current.login('Bob');
+      });
+
       await act(async () => {
-        await result.current.joinGame('existing-game', 'Bob');
+        await result.current.joinGame('existing-game');
       });
 
       await waitFor(() => {
@@ -172,13 +230,30 @@ describe('PlayerContext', () => {
 
       const { result } = renderHook(() => usePlayer(), { wrapper });
 
+      // Login first
+      act(() => {
+        result.current.login('Charlie');
+      });
+
       await act(async () => {
-        await result.current.joinGame('full-game', 'Charlie');
+        await result.current.joinGame('full-game');
       });
 
       await waitFor(() => {
         expect(result.current.error).toBe(errorMessage);
         expect(result.current.currentGame).toBeNull();
+      });
+    });
+
+    it('should require login before joining game', async () => {
+      const { result } = renderHook(() => usePlayer(), { wrapper });
+
+      await act(async () => {
+        await result.current.joinGame('existing-game');
+      });
+
+      await waitFor(() => {
+        expect(result.current.error).toBe('Please login first');
       });
     });
   });

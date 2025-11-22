@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { usePlayer } from '../context/PlayerContext';
 import { GameDetail } from '../components/GameDetail/GameDetail';
 import { MoveInput } from '../components/MoveInput/MoveInput';
@@ -16,8 +16,11 @@ export function PlayerView() {
     playerName,
     loading,
     error,
+    login,
+    logout,
     createGame,
     joinGame,
+    loadGame,
     submitMove,
     refreshGame,
     listAvailableGames,
@@ -27,6 +30,52 @@ export function PlayerView() {
   const [gameId, setGameId] = useState('');
   const [availableGames, setAvailableGames] = useState<GameState[]>([]);
   const [loadingGames, setLoadingGames] = useState(false);
+  const isInitialMount = useRef(true);
+
+  // Update URL when game changes (for bookmarking and refresh)
+  useEffect(() => {
+    // Skip URL updates on initial mount to preserve deep link
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
+    if (currentGame) {
+      // Add gameId to hash when a game is loaded
+      // Format: /#/player?gameId=abc123
+      const newHash = `#/player?gameId=${currentGame.gameId}`;
+      window.history.replaceState({}, '', `${window.location.pathname}${newHash}`);
+    } else {
+      // Clear gameId from hash when no game is loaded
+      const newHash = '#/player';
+      window.history.replaceState({}, '', `${window.location.pathname}${newHash}`);
+    }
+  }, [currentGame]);
+
+  // Handle deep linking - check URL hash parameters
+  useEffect(() => {
+    // Only attempt to load from URL if logged in and no game loaded
+    if (!playerName || currentGame) {
+      return;
+    }
+
+    // Parse query params from hash (after #/player)
+    const hash = window.location.hash;
+    const queryStart = hash.indexOf('?');
+    
+    if (queryStart === -1) {
+      return; // No query params in hash
+    }
+
+    const queryString = hash.substring(queryStart + 1);
+    const params = new URLSearchParams(queryString);
+    const gameIdParam = params.get('gameId');
+    
+    if (gameIdParam) {
+      // Auto-load game from URL
+      loadGame(gameIdParam);
+    }
+  }, [playerName, currentGame, loadGame]);
 
   // Load available games when component mounts
   useEffect(() => {
@@ -39,17 +88,61 @@ export function PlayerView() {
     loadGames();
   }, [listAvailableGames]);
 
-  const handleCreateGame = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (name.trim()) {
-      await createGame('tic-tac-toe', name.trim());
+      login(name.trim());
+      setName('');
     }
+  };
+
+  const handleLogout = () => {
+    logout();
+    // Clear URL parameters from hash
+    window.history.replaceState({}, '', `${window.location.pathname}#/player`);
+  };
+
+  const handleCreateGame = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await createGame('tic-tac-toe');
   };
 
   const handleJoinGame = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (name.trim() && gameId.trim()) {
-      await joinGame(gameId.trim(), name.trim());
+    if (gameId.trim()) {
+      // Extract gameId from URL if a full URL was pasted
+      let extractedGameId = gameId.trim();
+      
+      // Check if it's a URL with gameId parameter
+      if (extractedGameId.includes('gameId=')) {
+        try {
+          // Handle both regular query params and hash-based params
+          if (extractedGameId.includes('#')) {
+            // Hash-based URL: /#/player?gameId=abc123
+            const hashPart = extractedGameId.split('#')[1];
+            if (hashPart && hashPart.includes('?')) {
+              const queryString = hashPart.split('?')[1];
+              const params = new URLSearchParams(queryString);
+              const paramGameId = params.get('gameId');
+              if (paramGameId) {
+                extractedGameId = paramGameId;
+              }
+            }
+          } else {
+            // Regular query params: ?gameId=abc123
+            const url = new URL(extractedGameId.startsWith('http') ? extractedGameId : `http://localhost${extractedGameId}`);
+            const params = new URLSearchParams(url.search);
+            const paramGameId = params.get('gameId');
+            if (paramGameId) {
+              extractedGameId = paramGameId;
+            }
+          }
+        } catch {
+          // If URL parsing fails, use the original value
+        }
+      }
+      
+      await joinGame(extractedGameId);
     }
   };
 
@@ -61,12 +154,67 @@ export function PlayerView() {
     refreshGame();
   };
 
+  // Show login screen if not logged in
+  if (!playerName) {
+    return (
+      <div className={styles.playerView}>
+        <header className={styles.header}>
+          <h1>Welcome to Async Boardgame</h1>
+        </header>
+
+        {error && (
+          <div className={styles.error} role="alert">
+            {error}
+          </div>
+        )}
+
+        <div className={styles.loginContainer}>
+          <div className={styles.loginSection}>
+            <h2>Enter Your Name</h2>
+            <p className={styles.loginDescription}>
+              Your name will be saved for this browser session
+            </p>
+            <form onSubmit={handleLogin} className={styles.form}>
+              <div className={styles.formGroup}>
+                <label htmlFor="login-name">Your Name</label>
+                <input
+                  id="login-name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Enter your name"
+                  disabled={loading}
+                  required
+                  autoFocus
+                />
+              </div>
+              <button
+                type="submit"
+                className={styles.button}
+                disabled={loading || !name.trim()}
+              >
+                Continue
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Show game setup screen if no game is loaded
   if (!currentGame) {
     return (
       <div className={styles.playerView}>
         <header className={styles.header}>
-          <h1>Player View</h1>
+          <h1>Welcome, {playerName}</h1>
+          <button
+            className={styles.logoutButton}
+            onClick={handleLogout}
+            aria-label="Logout"
+          >
+            Logout
+          </button>
         </header>
 
         {error && (
@@ -79,24 +227,12 @@ export function PlayerView() {
           <div className={styles.setupSection}>
             <h2>Create New Game</h2>
             <form onSubmit={handleCreateGame} className={styles.form}>
-              <div className={styles.formGroup}>
-                <label htmlFor="create-name">Your Name</label>
-                <input
-                  id="create-name"
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Enter your name"
-                  disabled={loading}
-                  required
-                />
-              </div>
               <button
                 type="submit"
                 className={styles.button}
-                disabled={loading || !name.trim()}
+                disabled={loading}
               >
-                Create Game
+                Create Tic-Tac-Toe Game
               </button>
             </form>
           </div>
@@ -108,18 +244,6 @@ export function PlayerView() {
           <div className={styles.setupSection}>
             <h2>Join Existing Game</h2>
             <form onSubmit={handleJoinGame} className={styles.form}>
-              <div className={styles.formGroup}>
-                <label htmlFor="join-name">Your Name</label>
-                <input
-                  id="join-name"
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Enter your name"
-                  disabled={loading}
-                  required
-                />
-              </div>
               <div className={styles.formGroup}>
                 <label htmlFor="join-game-select">Select Game</label>
                 <select
@@ -144,14 +268,14 @@ export function PlayerView() {
                   type="text"
                   value={gameId}
                   onChange={(e) => setGameId(e.target.value)}
-                  placeholder="Enter game ID"
+                  placeholder="Enter game ID or paste share link"
                   disabled={loading}
                 />
               </div>
               <button
                 type="submit"
                 className={styles.button}
-                disabled={loading || !name.trim() || !gameId.trim()}
+                disabled={loading || !gameId.trim()}
               >
                 Join Game
               </button>
@@ -167,18 +291,45 @@ export function PlayerView() {
     playerId && currentGame.players[currentGame.currentPlayerIndex]?.id === playerId
   );
 
+  // Generate shareable link
+  const shareLink = `${window.location.origin}${window.location.pathname}#/player?gameId=${currentGame.gameId}`;
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(shareLink);
+    // Could add a toast notification here
+  };
+
   return (
     <div className={styles.playerView}>
       <header className={styles.header}>
-        <h1>Welcome, {playerName}</h1>
-        <button
-          className={styles.refreshButton}
-          onClick={handleRefresh}
-          disabled={loading}
-          aria-label="Refresh"
-        >
-          Refresh
-        </button>
+        <div className={styles.headerLeft}>
+          <h1>Welcome, {playerName}</h1>
+          <button
+            className={styles.logoutButton}
+            onClick={handleLogout}
+            aria-label="Logout"
+          >
+            Logout
+          </button>
+        </div>
+        <div className={styles.headerRight}>
+          <button
+            className={styles.shareButton}
+            onClick={handleCopyLink}
+            aria-label="Copy share link"
+            title="Copy shareable link"
+          >
+            📋 Share Link
+          </button>
+          <button
+            className={styles.refreshButton}
+            onClick={handleRefresh}
+            disabled={loading}
+            aria-label="Refresh"
+          >
+            Refresh
+          </button>
+        </div>
       </header>
 
       {error && (
