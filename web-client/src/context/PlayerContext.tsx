@@ -25,14 +25,16 @@ interface PlayerContextState {
  * Player context actions
  */
 interface PlayerContextActions {
-  login: (name: string) => void;
+  login: (name: string) => Promise<void>;
   logout: () => void;
+  getKnownPlayerNames: () => Promise<string[]>;
   createGame: (gameType: string) => Promise<void>;
   joinGame: (gameId: string) => Promise<void>;
   loadGame: (gameId: string) => Promise<void>;
   submitMove: (move: MoveInput) => Promise<void>;
   refreshGame: () => Promise<void>;
   listAvailableGames: () => Promise<GameState[]>;
+  listMyGames: () => Promise<GameState[]>;
 }
 
 /**
@@ -69,19 +71,31 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
   const client = useMemo(() => new GameClient(), []);
 
   /**
-   * Login with a player name (simple session-based identity)
+   * Login with a player name (gets or creates player identity from backend)
    */
   const login = useCallback(
-    (name: string) => {
+    async (name: string) => {
       const trimmedName = name.trim();
       if (!trimmedName) {
         setError('Player name cannot be empty');
         return;
       }
-      setPlayerName(trimmedName);
+
+      setLoading(true);
       setError(null);
+      try {
+        // Get or create player identity from backend
+        const identity = await client.getOrCreatePlayerIdentity(trimmedName);
+        setPlayerName(identity.name);
+        setPlayerId(identity.id);
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to login';
+        setError(errorMessage);
+      } finally {
+        setLoading(false);
+      }
     },
-    [setPlayerName]
+    [client, setPlayerName, setPlayerId]
   );
 
   /**
@@ -96,11 +110,24 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
   }, [setPlayerName, setPlayerId, setCurrentGameId]);
 
   /**
+   * Get list of known player names from backend
+   */
+  const getKnownPlayerNames = useCallback(async (): Promise<string[]> => {
+    try {
+      const response = await client.getKnownPlayers();
+      return response.players.map(p => p.name);
+    } catch (err) {
+      console.error('Failed to get known players:', err);
+      return [];
+    }
+  }, [client]);
+
+  /**
    * Create a new game and join as the first player
    */
   const createGame = useCallback(
     async (gameType: string) => {
-      if (!playerName) {
+      if (!playerName || !playerId) {
         setError('Please login first');
         return;
       }
@@ -110,25 +137,16 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
       try {
         // Create the game
         const newGame = await client.createGame(gameType, {});
-
-        // Generate unique player ID
-        const newPlayerId = `player-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         
-        // Join as the first player
+        // Join as the first player using existing player ID
         const joinedGame = await client.joinGame(newGame.gameId, {
-          id: newPlayerId,
+          id: playerId,
           name: playerName,
           joinedAt: new Date().toISOString(),
         });
 
-        // Find the player that was just added
-        const player = joinedGame.players.find((p) => p.id === newPlayerId);
-
-        if (player) {
-          setPlayerId(player.id);
-          setCurrentGameId(joinedGame.gameId);
-          setCurrentGame(joinedGame);
-        }
+        setCurrentGameId(joinedGame.gameId);
+        setCurrentGame(joinedGame);
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Failed to create game';
         setError(errorMessage);
@@ -136,7 +154,7 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
         setLoading(false);
       }
     },
-    [client, playerName, setPlayerId, setCurrentGameId]
+    [client, playerName, playerId, setCurrentGameId]
   );
 
   /**
@@ -144,7 +162,7 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
    */
   const joinGame = useCallback(
     async (gameId: string) => {
-      if (!playerName) {
+      if (!playerName || !playerId) {
         setError('Please login first');
         return;
       }
@@ -152,22 +170,15 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
       setLoading(true);
       setError(null);
       try {
-        // Generate unique player ID
-        const newPlayerId = `player-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        // Join using existing player ID
         const joinedGame = await client.joinGame(gameId, {
-          id: newPlayerId,
+          id: playerId,
           name: playerName,
           joinedAt: new Date().toISOString(),
         });
 
-        // Find the player that was just added
-        const player = joinedGame.players.find((p) => p.id === newPlayerId);
-
-        if (player) {
-          setPlayerId(player.id);
-          setCurrentGameId(joinedGame.gameId);
-          setCurrentGame(joinedGame);
-        }
+        setCurrentGameId(joinedGame.gameId);
+        setCurrentGame(joinedGame);
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Failed to join game';
         setError(errorMessage);
@@ -175,7 +186,7 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
         setLoading(false);
       }
     },
-    [client, playerName, setPlayerId, setCurrentGameId]
+    [client, playerName, playerId, setCurrentGameId]
   );
 
   /**
@@ -270,6 +281,22 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
     }
   }, [client]);
 
+  /**
+   * List games for the current player
+   */
+  const listMyGames = useCallback(async (): Promise<GameState[]> => {
+    if (!playerId) {
+      return [];
+    }
+    try {
+      const response = await client.listGames({ playerId });
+      return response.items;
+    } catch (err) {
+      console.error('Failed to list my games:', err);
+      return [];
+    }
+  }, [client, playerId]);
+
   const value: PlayerContextType = {
     currentGame,
     playerId,
@@ -278,12 +305,14 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
     error,
     login,
     logout,
+    getKnownPlayerNames,
     createGame,
     joinGame,
     loadGame,
     submitMove,
     refreshGame,
     listAvailableGames,
+    listMyGames,
   };
 
   return <PlayerContext.Provider value={value}>{children}</PlayerContext.Provider>;

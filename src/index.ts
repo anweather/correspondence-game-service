@@ -3,13 +3,15 @@
  * Entry point for the application
  */
 
-import { createApp, addApiRoutes, addStaticFileServing, finalizeApp } from './adapters/rest/app';
+import { createApp, addStaticFileServing, finalizeApp } from './adapters/rest/app';
 import { createGameRoutes } from './adapters/rest/gameRoutes';
+import { createPlayerRoutes } from './adapters/rest/playerRoutes';
 import { PluginRegistry } from './application/PluginRegistry';
 import { GameLockManager } from './application/GameLockManager';
 import { GameManagerService } from './application/services/GameManagerService';
 import { StateManagerService } from './application/services/StateManagerService';
 import { InMemoryGameRepository } from './infrastructure/persistence/InMemoryGameRepository';
+import { InMemoryPlayerIdentityRepository } from './infrastructure/persistence/InMemoryPlayerIdentityRepository';
 import { RendererService } from './infrastructure/rendering/RendererService';
 import { TicTacToeEngine } from './adapters/plugins/tic-tac-toe/TicTacToeEngine';
 
@@ -18,6 +20,7 @@ console.log('Async Boardgame Service - Starting...');
 // Initialize dependencies
 const pluginRegistry = new PluginRegistry();
 const gameRepository = new InMemoryGameRepository();
+const playerIdentityRepository = new InMemoryPlayerIdentityRepository();
 const gameLockManager = new GameLockManager();
 const rendererService = new RendererService(pluginRegistry, gameRepository);
 
@@ -37,14 +40,18 @@ const stateManagerService = new StateManagerService(
 // Create Express app
 const app = createApp();
 
-// Create and add API routes
-const apiRouter = createGameRoutes(
+// Create API routes
+const gameRouter = createGameRoutes(
   gameManagerService,
   gameRepository,
   stateManagerService,
   rendererService
 );
-addApiRoutes(app, apiRouter);
+const playerRouter = createPlayerRoutes(playerIdentityRepository);
+
+// Add routes to app
+app.use('/api', gameRouter);
+app.use('/api', playerRouter);
 
 // Add static file serving for React web client
 addStaticFileServing(app);

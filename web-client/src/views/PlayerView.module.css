@@ -157,11 +157,101 @@
 /* Setup Container (Create/Join Game) */
 .setupContainer {
   display: flex;
+  flex-direction: column;
   gap: 2rem;
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
   width: 100%;
+}
+
+/* My Games Section */
+.myGamesSection {
+  background-color: var(--color-surface, #ffffff);
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--color-border, #e0e0e0);
+}
+
+.myGamesSection h2 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #333333);
+}
+
+.gamesList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.gameCard {
+  padding: 1rem;
+  border: 1px solid var(--color-border, #e0e0e0);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background-color: var(--color-background, #f5f5f5);
+}
+
+.gameCard:hover {
+  border-color: var(--color-primary, #007bff);
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.gameCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.gameStatus {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  background-color: var(--color-primary, #007bff);
+  color: white;
+  text-transform: capitalize;
+}
+
+.gameCardBody {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #666666);
+}
+
+.gameCardBody > div {
+  margin-bottom: 0.25rem;
+}
+
+.gameId {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary, #999999);
+}
+
+/* Create/Join sections side by side */
+.setupContainer > .setupSection {
+  flex: 1;
+}
+
+.setupContainer > .divider {
+  align-self: center;
+}
+
+@media (min-width: 768px) {
+  .setupContainer {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .myGamesSection {
+    flex-basis: 100%;
+  }
 }
 
 .setupSection {

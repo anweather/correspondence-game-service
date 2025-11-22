@@ -18,18 +18,22 @@ export function PlayerView() {
     error,
     login,
     logout,
+    getKnownPlayerNames,
     createGame,
     joinGame,
     loadGame,
     submitMove,
     refreshGame,
     listAvailableGames,
+    listMyGames,
   } = usePlayer();
 
   const [name, setName] = useState('');
   const [gameId, setGameId] = useState('');
   const [availableGames, setAvailableGames] = useState<GameState[]>([]);
+  const [myGames, setMyGames] = useState<GameState[]>([]);
   const [loadingGames, setLoadingGames] = useState(false);
+  const [knownPlayers, setKnownPlayers] = useState<string[]>([]);
   const isInitialMount = useRef(true);
 
   // Update URL when game changes (for bookmarking and refresh)
@@ -77,21 +81,38 @@ export function PlayerView() {
     }
   }, [playerName, currentGame, loadGame]);
 
-  // Load available games when component mounts
+  // Load available games and my games when logged in
   useEffect(() => {
-    const loadGames = async () => {
-      setLoadingGames(true);
-      const games = await listAvailableGames();
-      setAvailableGames(games);
-      setLoadingGames(false);
-    };
-    loadGames();
-  }, [listAvailableGames]);
+    if (playerName && !currentGame) {
+      const loadGames = async () => {
+        setLoadingGames(true);
+        const [available, mine] = await Promise.all([
+          listAvailableGames(),
+          listMyGames(),
+        ]);
+        setAvailableGames(available);
+        setMyGames(mine);
+        setLoadingGames(false);
+      };
+      loadGames();
+    }
+  }, [playerName, currentGame, listAvailableGames, listMyGames]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  // Load known player names when login screen is shown
+  useEffect(() => {
+    if (!playerName) {
+      const loadKnownPlayers = async () => {
+        const players = await getKnownPlayerNames();
+        setKnownPlayers(players);
+      };
+      loadKnownPlayers();
+    }
+  }, [playerName, getKnownPlayerNames]);
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (name.trim()) {
-      login(name.trim());
+      await login(name.trim());
       setName('');
     }
   };
@@ -172,11 +193,32 @@ export function PlayerView() {
           <div className={styles.loginSection}>
             <h2>Enter Your Name</h2>
             <p className={styles.loginDescription}>
-              Your name will be saved for this browser session
+              Your identity will be saved across sessions
             </p>
             <form onSubmit={handleLogin} className={styles.form}>
+              {knownPlayers.length > 0 && (
+                <div className={styles.formGroup}>
+                  <label htmlFor="known-players">Select Previous Name</label>
+                  <select
+                    id="known-players"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    disabled={loading}
+                    className={styles.select}
+                  >
+                    <option value="">-- Select a name --</option>
+                    {knownPlayers.map((playerName) => (
+                      <option key={playerName} value={playerName}>
+                        {playerName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
               <div className={styles.formGroup}>
-                <label htmlFor="login-name">Your Name</label>
+                <label htmlFor="login-name">
+                  {knownPlayers.length > 0 ? 'Or Enter New Name' : 'Your Name'}
+                </label>
                 <input
                   id="login-name"
                   type="text"
@@ -185,7 +227,7 @@ export function PlayerView() {
                   placeholder="Enter your name"
                   disabled={loading}
                   required
-                  autoFocus
+                  autoFocus={knownPlayers.length === 0}
                 />
               </div>
               <button
@@ -193,7 +235,7 @@ export function PlayerView() {
                 className={styles.button}
                 disabled={loading || !name.trim()}
               >
-                Continue
+                {loading ? 'Loading...' : 'Continue'}
               </button>
             </form>
           </div>
@@ -224,6 +266,30 @@ export function PlayerView() {
         )}
 
         <div className={styles.setupContainer}>
+          {myGames.length > 0 && (
+            <div className={styles.myGamesSection}>
+              <h2>My Games</h2>
+              <div className={styles.gamesList}>
+                {myGames.map((game) => (
+                  <div
+                    key={game.gameId}
+                    className={styles.gameCard}
+                    onClick={() => loadGame(game.gameId)}
+                  >
+                    <div className={styles.gameCardHeader}>
+                      <strong>{game.gameType}</strong>
+                      <span className={styles.gameStatus}>{game.lifecycle}</span>
+                    </div>
+                    <div className={styles.gameCardBody}>
+                      <div>Players: {game.players.map(p => p.name).join(', ')}</div>
+                      <div className={styles.gameId}>ID: {game.gameId.substring(0, 8)}...</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className={styles.setupSection}>
             <h2>Create New Game</h2>
             <form onSubmit={handleCreateGame} className={styles.form}>
@@ -256,7 +322,7 @@ export function PlayerView() {
                   <option value="">-- Select a game --</option>
                   {availableGames.map((game) => (
                     <option key={game.gameId} value={game.gameId}>
-                      {game.gameId} ({game.gameType}, {game.players.length} players, {game.lifecycle})
+                      {game.gameId.substring(0, 8)}... ({game.gameType}, {game.players.length} players, {game.lifecycle})
                     </option>
                   ))}
                 </select>

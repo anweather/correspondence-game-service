@@ -105,6 +105,26 @@ export class GameClient {
   }
 
   /**
+   * Get or create player identity by name
+   */
+  async getOrCreatePlayerIdentity(name: string): Promise<{ id: string; name: string }> {
+    return this.request<{ id: string; name: string }>(`${this.baseUrl}/players/identity`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name }),
+    });
+  }
+
+  /**
+   * Get list of known player names
+   */
+  async getKnownPlayers(): Promise<{ players: Array<{ name: string; lastUsed: string }> }> {
+    return this.request<{ players: Array<{ name: string; lastUsed: string }> }>(
+      `${this.baseUrl}/players/known`
+    );
+  }
+
+  /**
    * Generic request handler with error handling
    */
   private async request<T>(url: string, options?: RequestInit): Promise<T> {
