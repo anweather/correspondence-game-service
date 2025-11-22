@@ -4,6 +4,83 @@ import path from 'path';
 import { GameError } from '@domain/errors';
 
 /**
+ * In-flight request tracker for graceful shutdown
+ */
+class InFlightRequestTracker {
+  private inFlightCount = 0;
+  private isShuttingDown = false;
+
+  /**
+   * Middleware to track in-flight requests
+   */
+  middleware = (_req: Request, res: Response, next: NextFunction): void => {
+    // Reject new requests during shutdown
+    if (this.isShuttingDown) {
+      res.status(503).json({
+        error: {
+          code: 'SERVICE_UNAVAILABLE',
+          message: 'Server is shutting down',
+        },
+      });
+      return;
+    }
+
+    // Increment counter
+    this.inFlightCount++;
+
+    // Decrement counter when response finishes
+    res.on('finish', () => {
+      this.inFlightCount--;
+    });
+
+    next();
+  };
+
+  /**
+   * Mark that shutdown has started (reject new requests)
+   */
+  startShutdown(): void {
+    this.isShuttingDown = true;
+  }
+
+  /**
+   * Get current number of in-flight requests
+   */
+  getInFlightCount(): number {
+    return this.inFlightCount;
+  }
+
+  /**
+   * Wait for all in-flight requests to complete
+   * @param timeoutMs - Maximum time to wait in milliseconds
+   * @returns Promise that resolves when all requests complete or timeout occurs
+   */
+  async waitForCompletion(timeoutMs: number): Promise<void> {
+    const startTime = Date.now();
+
+    return new Promise((resolve) => {
+      const checkInterval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+
+        if (this.inFlightCount === 0) {
+          clearInterval(checkInterval);
+          resolve();
+        } else if (elapsed >= timeoutMs) {
+          clearInterval(checkInterval);
+          console.warn(
+            `Shutdown timeout reached with ${this.inFlightCount} requests still in-flight`
+          );
+          resolve();
+        }
+      }, 100); // Check every 100ms
+    });
+  }
+}
+
+// Export singleton instance
+export const inFlightTracker = new InFlightRequestTracker();
+
+/**
  * Error handling middleware that converts errors to JSON responses
  */
 export function errorHandler(err: Error, _req: Request, res: Response, _next: NextFunction): void {
@@ -61,6 +138,9 @@ export function createApp(): Express {
   // Middleware setup
   app.use(express.json());
   app.use(cors());
+
+  // Track in-flight requests for graceful shutdown
+  app.use(inFlightTracker.middleware);
 
   // Routes will be added here by route modules
   // This is just the base app setup

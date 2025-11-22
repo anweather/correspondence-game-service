@@ -278,4 +278,10 @@ export interface GameRepository {
    * Delete a game by its ID
    */
   delete(gameId: string): Promise<void>;
+
+  /**
+   * Performs a health check on the repository
+   * @returns true if repository is healthy, false otherwise
+   */
+  healthCheck(): Promise<boolean>;
 }

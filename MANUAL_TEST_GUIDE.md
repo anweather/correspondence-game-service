@@ -849,3 +849,424 @@ Once you have completed all steps and verified all checklist items, the player w
 _________________________________________________________________
 _________________________________________________________________
 _________________________________________________________________
+
+
+---
+
+# Graceful Shutdown Manual Testing Guide
+
+## Overview
+This guide walks you through testing the graceful shutdown functionality of the server, ensuring that in-flight requests complete before the service stops and that new requests are properly rejected during shutdown.
+
+## Prerequisites
+- Server source code is available
+- Node.js and npm are installed
+- Terminal access to send signals to the server process
+
+## Test Scripts
+
+Three test scripts are provided in the `scripts/` directory:
+
+1. **test-graceful-shutdown.sh** - Basic shutdown test with no in-flight requests
+2. **test-graceful-shutdown-with-requests.sh** - Shutdown test with active requests
+3. **test-shutdown-rejection.sh** - Tests that new requests are rejected during shutdown
+
+---
+
+## Test Scenario 1: Basic Graceful Shutdown
+
+### Objective
+Verify that the server shuts down gracefully when receiving SIGTERM with no active requests.
+
+### Steps
+
+1. **Run the test script:**
+   ```bash
+   ./scripts/test-graceful-shutdown.sh
+   ```
+
+2. **Observe the output**
+
+**Expected Result:**
+```
+Testing graceful shutdown...
+
+Starting server...
+Waiting for server to start...
+✓ Server started (PID: XXXXX)
+
+Test 1: Shutdown with no in-flight requests
+Sending SIGTERM...
+✓ Server shut down gracefully
+
+Shutdown log:
+SIGTERM received, starting graceful shutdown...
+Step 1/4: Stopping acceptance of new requests...
+✓ New requests will be rejected with 503 Service Unavailable
+Step 2/4: Closing HTTP server...
+✓ HTTP server closed
+Step 3/4: No in-flight requests to wait for
+Step 4/4: Closing database connections...
+✓ Graceful shutdown completed in Xms
+
+Test completed!
+```
+
+### Verification Checklist
+- [ ] Server starts successfully
+- [ ] SIGTERM signal is received
+- [ ] All 4 shutdown steps are logged
+- [ ] Server stops accepting new requests
+- [ ] HTTP server closes
+- [ ] Database connections close
+- [ ] Server exits with code 0
+- [ ] Shutdown completes in under 1 second (no requests)
+
+---
+
+## Test Scenario 2: Shutdown with In-Flight Requests
+
+### Objective
+Verify that the server waits for in-flight requests to complete before shutting down.
+
+### Steps
+
+1. **Run the test script:**
+   ```bash
+   ./scripts/test-graceful-shutdown-with-requests.sh
+   ```
+
+2. **Observe the output**
+
+**Expected Result:**
+```
+Testing graceful shutdown with in-flight requests...
+
+Starting server...
+Waiting for server to start...
+✓ Server started (PID: XXXXX)
+
+Test: Shutdown with in-flight request
+Making a request to /health endpoint...
+Sending SIGTERM while request is in progress...
+✓ Server shut down gracefully
+
+Shutdown log:
+SIGTERM received, starting graceful shutdown...
+Step 1/4: Stopping acceptance of new requests...
+✓ New requests will be rejected with 503 Service Unavailable
+Step 2/4: Closing HTTP server...
+✓ HTTP server closed
+Step 3/4: No in-flight requests to wait for
+Step 4/4: Closing database connections...
+✓ Graceful shutdown completed in Xms
+
+Test completed!
+```
+
+### Verification Checklist
+- [ ] Server starts successfully
+- [ ] Request is initiated before shutdown
+- [ ] SIGTERM signal is received during request
+- [ ] Server waits for request to complete
+- [ ] All 4 shutdown steps are logged
+- [ ] Database connections close after requests complete
+- [ ] Server exits gracefully
+
+---
+
+## Test Scenario 3: Request Rejection During Shutdown
+
+### Objective
+Verify that new requests are rejected with 503 Service Unavailable during the shutdown process.
+
+### Steps
+
+1. **Run the test script:**
+   ```bash
+   ./scripts/test-shutdown-rejection.sh
+   ```
+
+2. **Observe the output**
+
+**Expected Result:**
+```
+Testing request rejection during shutdown...
+
+Starting server...
+Waiting for server to start...
+✓ Server started (PID: XXXXX)
+
+Test 1: Making request before shutdown...
+✓ Request succeeded with status 200
+
+Test 2: Initiating shutdown and attempting new request...
+Attempting request during shutdown...
+✓ Request correctly rejected with 503 Service Unavailable
+✓ Server shut down successfully
+
+Test completed!
+```
+
+### Verification Checklist
+- [ ] Server starts successfully
+- [ ] Initial request succeeds with 200 OK
+- [ ] Shutdown is initiated
+- [ ] New request during shutdown is rejected
+- [ ] Rejection returns 503 Service Unavailable OR connection refused
+- [ ] Server completes shutdown successfully
+
+---
+
+## Test Scenario 4: Manual Shutdown Test
+
+### Objective
+Manually test graceful shutdown with interactive control.
+
+### Steps
+
+1. **Start the server in development mode:**
+   ```bash
+   npm run dev
+   ```
+
+2. **Wait for server to start** (you should see startup messages)
+
+3. **In another terminal, make a request:**
+   ```bash
+   curl http://localhost:3000/health
+   ```
+
+   **Expected Result:** Request succeeds with 200 OK
+
+4. **Send SIGTERM to the server:**
+   ```bash
+   # Find the process ID
+   ps aux | grep "ts-node"
+   
+   # Send SIGTERM (replace XXXXX with actual PID)
+   kill -TERM XXXXX
+   ```
+
+   **Alternative:** Press `Ctrl+C` in the terminal running the server
+
+5. **Observe the shutdown logs in the server terminal**
+
+**Expected Result:**
+```
+SIGTERM received, starting graceful shutdown...
+Step 1/4: Stopping acceptance of new requests...
+✓ New requests will be rejected with 503 Service Unavailable
+Step 2/4: Closing HTTP server...
+✓ HTTP server closed
+Step 3/4: No in-flight requests to wait for
+Step 4/4: Closing database connections...
+✓ Database connection closed
+✓ Repository connection pool closed
+
+✓ Graceful shutdown completed in Xms
+```
+
+### Verification Checklist
+- [ ] Server receives SIGTERM signal
+- [ ] Shutdown process logs all 4 steps
+- [ ] New request acceptance stops
+- [ ] HTTP server closes
+- [ ] Database connections close cleanly
+- [ ] Process exits with code 0
+
+---
+
+## Test Scenario 5: Shutdown Timeout Test
+
+### Objective
+Verify that the server respects the 30-second timeout for in-flight requests.
+
+### Manual Test Steps
+
+1. **Modify a route to simulate a slow request** (temporary test code):
+   
+   Add to `src/adapters/rest/healthRoutes.ts`:
+   ```typescript
+   router.get('/slow', async (_req, res) => {
+     // Simulate a 35-second request (longer than timeout)
+     await new Promise(resolve => setTimeout(resolve, 35000));
+     res.json({ message: 'slow response' });
+   });
+   ```
+
+2. **Start the server:**
+   ```bash
+   npm run dev
+   ```
+
+3. **In another terminal, make a slow request:**
+   ```bash
+   curl http://localhost:3000/slow &
+   ```
+
+4. **Immediately send SIGTERM:**
+   ```bash
+   kill -TERM <server-pid>
+   ```
+
+5. **Observe the shutdown logs**
+
+**Expected Result:**
+```
+SIGTERM received, starting graceful shutdown...
+Step 1/4: Stopping acceptance of new requests...
+✓ New requests will be rejected with 503 Service Unavailable
+Step 2/4: Closing HTTP server...
+✓ HTTP server closed
+Step 3/4: Waiting for 1 in-flight request(s) to complete (30s timeout)...
+⚠ Timeout reached, 1 request(s) still in-flight
+Step 4/4: Closing database connections...
+✓ Database connection closed
+
+✓ Graceful shutdown completed in ~30000ms
+```
+
+### Verification Checklist
+- [ ] Server waits for in-flight requests
+- [ ] Timeout is enforced (30 seconds)
+- [ ] Warning is logged when timeout is reached
+- [ ] Server continues shutdown after timeout
+- [ ] Database connections close even with timeout
+- [ ] Process exits successfully
+
+**Note:** Remove the test code after completing this test.
+
+---
+
+## Test Scenario 6: Docker Container Shutdown
+
+### Objective
+Verify graceful shutdown works correctly in a Docker container environment.
+
+### Prerequisites
+- Docker is installed
+- Dockerfile is created (from task 8)
+- Docker image is built
+
+### Steps
+
+1. **Build the Docker image:**
+   ```bash
+   docker build -t async-boardgame-service .
+   ```
+
+2. **Run the container:**
+   ```bash
+   docker run -d --name test-shutdown -p 3000:3000 async-boardgame-service
+   ```
+
+3. **Verify server is running:**
+   ```bash
+   curl http://localhost:3000/health
+   ```
+
+4. **Send SIGTERM via Docker:**
+   ```bash
+   docker stop test-shutdown
+   ```
+
+5. **Check container logs:**
+   ```bash
+   docker logs test-shutdown
+   ```
+
+**Expected Result in Logs:**
+```
+SIGTERM received, starting graceful shutdown...
+Step 1/4: Stopping acceptance of new requests...
+✓ New requests will be rejected with 503 Service Unavailable
+Step 2/4: Closing HTTP server...
+✓ HTTP server closed
+Step 3/4: No in-flight requests to wait for
+Step 4/4: Closing database connections...
+✓ Graceful shutdown completed in Xms
+```
+
+6. **Verify container stopped gracefully:**
+   ```bash
+   docker ps -a | grep test-shutdown
+   ```
+
+   **Expected:** Container status shows "Exited (0)"
+
+7. **Clean up:**
+   ```bash
+   docker rm test-shutdown
+   ```
+
+### Verification Checklist
+- [ ] Container starts successfully
+- [ ] Health check responds
+- [ ] Docker stop sends SIGTERM
+- [ ] Graceful shutdown logs appear
+- [ ] Container exits with code 0
+- [ ] No forced termination (SIGKILL)
+
+---
+
+## Requirements Coverage
+
+This testing guide covers the following requirements:
+
+- **10.1**: Application stops accepting new requests on SIGTERM
+- **10.2**: Backend waits for in-flight requests with 30-second timeout
+- **10.3**: Database connections close cleanly during shutdown
+- **10.4**: Shutdown progress and completion are logged
+- **10.5**: Docker sends SIGTERM and waits for graceful shutdown
+
+---
+
+## Common Issues and Troubleshooting
+
+### Issue: Server doesn't respond to SIGTERM
+**Solution:**
+- Verify the process is running: `ps aux | grep node`
+- Ensure you're sending the signal to the correct PID
+- Check that signal handlers are registered in code
+
+### Issue: Database connections don't close
+**Solution:**
+- Verify database connection exists before shutdown
+- Check that `close()` methods are implemented
+- Review error logs for connection issues
+
+### Issue: Timeout not working correctly
+**Solution:**
+- Verify timeout value is set to 30000ms (30 seconds)
+- Check that `waitForCompletion()` method is called
+- Ensure in-flight request counter is working
+
+### Issue: New requests not rejected during shutdown
+**Solution:**
+- Verify `inFlightTracker.startShutdown()` is called
+- Check middleware is registered in app
+- Test with curl to see actual response code
+
+### Issue: Test scripts fail to start server
+**Solution:**
+- Run `npm install` to ensure dependencies are installed
+- Check that PORT 3001 is not already in use
+- Verify `npm run dev` works manually
+- Check for TypeScript compilation errors
+
+---
+
+## Test Completion
+
+Once you have completed all test scenarios and verified all checklist items, the graceful shutdown testing is complete.
+
+**Test Date:** _________________
+**Tester:** _________________
+**Environment:** ☐ Development ☐ Docker ☐ Production
+**Result:** ☐ Pass ☐ Fail (with notes)
+
+**Notes:**
+_________________________________________________________________
+_________________________________________________________________
+_________________________________________________________________

@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { Express } from 'express';
-import { createApp, finalizeApp } from '@adapters/rest/app';
+import { createApp, finalizeApp, inFlightTracker } from '@adapters/rest/app';
 import {
   GameError,
   GameNotFoundError,
@@ -221,6 +221,91 @@ describe('Express App Initialization', () => {
 
       // Should either serve the file (200) or fall through to 404
       expect([200, 404]).toContain(response.status);
+    });
+  });
+
+  describe('In-Flight Request Tracking', () => {
+    beforeEach(() => {
+      // Reset tracker state before each test
+      // Note: This is a workaround since we're using a singleton
+      // In a real scenario, we might want to make the tracker injectable
+      (inFlightTracker as any).isShuttingDown = false;
+      (inFlightTracker as any).inFlightCount = 0;
+    });
+
+    it('should track in-flight requests', async () => {
+      app.get('/test-tracking', async (_req, res) => {
+        // Check count during request processing
+        const count = inFlightTracker.getInFlightCount();
+        expect(count).toBeGreaterThan(0);
+        res.json({ count });
+      });
+      finalizeApp(app);
+
+      await request(app).get('/test-tracking').expect(200);
+
+      // After request completes, count should be back to 0
+      expect(inFlightTracker.getInFlightCount()).toBe(0);
+    });
+
+    it('should reject new requests during shutdown', async () => {
+      app.get('/test-shutdown', (_req, res) => {
+        res.json({ ok: true });
+      });
+      finalizeApp(app);
+
+      // Start shutdown
+      inFlightTracker.startShutdown();
+
+      const response = await request(app).get('/test-shutdown').expect(503);
+
+      expect(response.body).toEqual({
+        error: {
+          code: 'SERVICE_UNAVAILABLE',
+          message: 'Server is shutting down',
+        },
+      });
+    });
+
+    it('should wait for in-flight requests to complete with immediate resolution', async () => {
+      // Test the waitForCompletion method when no requests are in-flight
+      const startTime = Date.now();
+      await inFlightTracker.waitForCompletion(1000);
+      const elapsed = Date.now() - startTime;
+
+      // Should resolve immediately when no requests are in-flight
+      expect(elapsed).toBeLessThan(200);
+      expect(inFlightTracker.getInFlightCount()).toBe(0);
+    });
+
+    it('should timeout if requests take too long', async () => {
+      // Manually increment the counter to simulate an in-flight request
+      (inFlightTracker as any).inFlightCount = 1;
+
+      const startTime = Date.now();
+      await inFlightTracker.waitForCompletion(200);
+      const elapsed = Date.now() - startTime;
+
+      // Should timeout around 200ms
+      expect(elapsed).toBeGreaterThanOrEqual(200);
+      expect(elapsed).toBeLessThan(300);
+
+      // Reset counter
+      (inFlightTracker as any).inFlightCount = 0;
+    });
+
+    it('should decrement counter when request completes', async () => {
+      app.get('/test-decrement', (_req, res) => {
+        // Check that counter was incremented
+        expect(inFlightTracker.getInFlightCount()).toBe(1);
+        res.json({ ok: true });
+      });
+      finalizeApp(app);
+
+      await request(app).get('/test-decrement').expect(200);
+
+      // After request completes, counter should be back to 0
+      expect(inFlightTracker.getInFlightCount()).toBe(0);
     });
   });
 });

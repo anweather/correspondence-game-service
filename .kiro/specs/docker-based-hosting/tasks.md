@@ -15,8 +15,8 @@
   - Add migration execution to application bootstrap
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
 
-- [ ] 3. Implement PostgresGameRepository with TDD
-- [ ] 3.1 Write tests and implement basic repository structure
+- [x] 3. Implement PostgresGameRepository with TDD
+- [x] 3.1 Write tests and implement basic repository structure
   - Write tests for PostgresGameRepository constructor and connection initialization
   - Write tests for serialization/deserialization of GameState to/from JSONB
   - Write tests for Date object conversion in serialization
@@ -24,7 +24,7 @@
   - Verify all tests pass
   - _Requirements: 2.1, 2.2, 2.5_
 
-- [ ] 3.2 Write tests and implement core CRUD operations
+- [x] 3.2 Write tests and implement core CRUD operations
   - Write tests for save() method (insert new game)
   - Write tests for findById() method (found and not found cases)
   - Write tests for delete() method
@@ -33,7 +33,7 @@
   - Verify all tests pass
   - _Requirements: 2.1, 2.2_
 
-- [ ] 3.3 Write tests and implement query operations with filtering and pagination
+- [x] 3.3 Write tests and implement query operations with filtering and pagination
   - Write tests for findAll() with no filters
   - Write tests for findAll() with lifecycle and gameType filters
   - Write tests for findByPlayer() with player ID query
@@ -42,7 +42,7 @@
   - Verify all tests pass
   - _Requirements: 2.4_
 
-- [ ] 3.4 Write tests and implement optimistic locking for updates
+- [x] 3.4 Write tests and implement optimistic locking for updates
   - Write tests for successful update with correct version
   - Write tests for ConcurrencyError when version mismatch
   - Write tests for GameNotFoundError when game doesn't exist
@@ -51,7 +51,7 @@
   - Verify all tests pass
   - _Requirements: 2.3_
 
-- [ ] 3.5 Write tests and implement connection management methods
+- [x] 3.5 Write tests and implement connection management methods
   - Write tests for healthCheck() method (success and failure cases)
   - Write tests for close() method
   - Write tests for connection retry logic
@@ -59,14 +59,14 @@
   - Verify all tests pass
   - _Requirements: 7.2, 10.3_
 
-- [ ] 4. Replace InMemoryGameRepository with PostgresGameRepository
+- [x] 4. Replace InMemoryGameRepository with PostgresGameRepository
   - Update src/index.ts to instantiate PostgresGameRepository instead of InMemoryGameRepository
   - Pass database configuration from config service to repository
-  - Remove InMemoryGameRepository instantiation
+  - Remove InMemoryGameRepository instantiation, but keep implementation in code
   - Ensure application starts only after database connection is established
   - _Requirements: 8.1, 8.2, 8.3, 8.4_
 
-- [ ] 5. Implement health check endpoint
+- [x] 5. Implement health check endpoint
   - Create healthRoutes.ts with GET /health endpoint
   - Include service status, uptime, timestamp, and version in response
   - Call repository.healthCheck() to verify database connectivity
@@ -74,7 +74,7 @@
   - Add health routes to Express app
   - _Requirements: 7.1, 7.2, 7.3, 7.4_
 
-- [ ] 6. Implement graceful shutdown
+- [x] 6. Implement graceful shutdown
   - Add SIGTERM signal handler to application
   - Stop accepting new HTTP requests on shutdown signal
   - Track in-flight requests with middleware counter

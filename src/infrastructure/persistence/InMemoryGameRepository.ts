@@ -130,4 +130,12 @@ export class InMemoryGameRepository implements GameRepository {
   async delete(gameId: string): Promise<void> {
     this.games.delete(gameId);
   }
+
+  /**
+   * Performs a health check on the repository
+   * In-memory repository is always healthy
+   */
+  async healthCheck(): Promise<boolean> {
+    return true;
+  }
 }
