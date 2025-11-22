@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { GameState, MoveInput as MoveInputType } from '../../types/game';
 import { Button } from '../common/Button';
-import { TicTacToeMoveInput } from './TicTacToeMoveInput';
+import { getGameComponent } from '../games';
 import styles from './MoveInput.module.css';
 
 export interface MoveInputProps {
@@ -49,17 +49,18 @@ export function MoveInput({
 
   // Render game-specific input component based on gameType
   const renderGameInput = () => {
-    switch (gameType) {
-      case 'tic-tac-toe':
-        return (
-          <TicTacToeMoveInput
-            gameState={gameState}
-            onMoveChange={handleMoveChange}
-          />
-        );
-      default:
-        return <p>Game type "{gameType}" is not supported yet.</p>;
+    const GameComponent = getGameComponent(gameType);
+    
+    if (!GameComponent) {
+      return <p>Game type "{gameType}" is not supported yet.</p>;
     }
+    
+    return (
+      <GameComponent
+        gameState={gameState}
+        onMoveChange={handleMoveChange}
+      />
+    );
   };
 
   return (

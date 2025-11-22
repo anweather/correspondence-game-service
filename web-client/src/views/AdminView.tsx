@@ -60,7 +60,10 @@ export function AdminView() {
   };
 
   const handleCreateGame = async () => {
-    await createTestGame('tic-tac-toe');
+    // Use first available game type, or default to tic-tac-toe
+    const availableTypes = Array.from(gameTypes.keys());
+    const gameType = availableTypes.length > 0 ? availableTypes[0] : 'tic-tac-toe';
+    await createTestGame(gameType);
   };
 
   const handleSelectGame = async (gameId: string) => {

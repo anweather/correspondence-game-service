@@ -19,6 +19,7 @@ export function PlayerView() {
     login,
     logout,
     getKnownPlayerNames,
+    getAvailableGameTypes,
     createGame,
     joinGame,
     loadGame,
@@ -30,8 +31,10 @@ export function PlayerView() {
 
   const [name, setName] = useState('');
   const [gameId, setGameId] = useState('');
+  const [selectedGameType, setSelectedGameType] = useState('');
   const [availableGames, setAvailableGames] = useState<GameState[]>([]);
   const [myGames, setMyGames] = useState<GameState[]>([]);
+  const [gameTypes, setGameTypes] = useState<Array<{ type: string; name: string; description: string }>>([]);
   const [loadingGames, setLoadingGames] = useState(false);
   const [knownPlayers, setKnownPlayers] = useState<string[]>([]);
   const isInitialMount = useRef(true);
@@ -81,22 +84,28 @@ export function PlayerView() {
     }
   }, [playerName, currentGame, loadGame]);
 
-  // Load available games and my games when logged in
+  // Load available games, my games, and game types when logged in
   useEffect(() => {
     if (playerName && !currentGame) {
       const loadGames = async () => {
         setLoadingGames(true);
-        const [available, mine] = await Promise.all([
+        const [available, mine, types] = await Promise.all([
           listAvailableGames(),
           listMyGames(),
+          getAvailableGameTypes(),
         ]);
         setAvailableGames(available);
         setMyGames(mine);
+        setGameTypes(types);
+        // Set default game type to first available
+        if (types.length > 0 && !selectedGameType) {
+          setSelectedGameType(types[0].type);
+        }
         setLoadingGames(false);
       };
       loadGames();
     }
-  }, [playerName, currentGame, listAvailableGames, listMyGames]);
+  }, [playerName, currentGame, listAvailableGames, listMyGames, getAvailableGameTypes, selectedGameType]);
 
   // Load known player names when login screen is shown
   useEffect(() => {
@@ -125,7 +134,9 @@ export function PlayerView() {
 
   const handleCreateGame = async (e: React.FormEvent) => {
     e.preventDefault();
-    await createGame('tic-tac-toe');
+    if (selectedGameType) {
+      await createGame(selectedGameType);
+    }
   };
 
   const handleJoinGame = async (e: React.FormEvent) => {
@@ -293,12 +304,33 @@ export function PlayerView() {
           <div className={styles.setupSection}>
             <h2>Create New Game</h2>
             <form onSubmit={handleCreateGame} className={styles.form}>
+              <div className={styles.formGroup}>
+                <label htmlFor="game-type-select">Game Type</label>
+                <select
+                  id="game-type-select"
+                  value={selectedGameType}
+                  onChange={(e) => setSelectedGameType(e.target.value)}
+                  disabled={loading || loadingGames}
+                  className={styles.select}
+                >
+                  {gameTypes.map((type) => (
+                    <option key={type.type} value={type.type}>
+                      {type.name}
+                    </option>
+                  ))}
+                </select>
+                {gameTypes.find(t => t.type === selectedGameType)?.description && (
+                  <p className={styles.gameDescription}>
+                    {gameTypes.find(t => t.type === selectedGameType)?.description}
+                  </p>
+                )}
+              </div>
               <button
                 type="submit"
                 className={styles.button}
-                disabled={loading}
+                disabled={loading || !selectedGameType}
               >
-                Create Tic-Tac-Toe Game
+                Create Game
               </button>
             </form>
           </div>

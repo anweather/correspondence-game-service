@@ -28,6 +28,7 @@ interface PlayerContextActions {
   login: (name: string) => Promise<void>;
   logout: () => void;
   getKnownPlayerNames: () => Promise<string[]>;
+  getAvailableGameTypes: () => Promise<Array<{ type: string; name: string; description: string }>>;
   createGame: (gameType: string) => Promise<void>;
   joinGame: (gameId: string) => Promise<void>;
   loadGame: (gameId: string) => Promise<void>;
@@ -118,6 +119,18 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
       return response.players.map(p => p.name);
     } catch (err) {
       console.error('Failed to get known players:', err);
+      return [];
+    }
+  }, [client]);
+
+  /**
+   * Get available game types from backend
+   */
+  const getAvailableGameTypes = useCallback(async () => {
+    try {
+      return await client.getGameTypes();
+    } catch (err) {
+      console.error('Failed to get game types:', err);
       return [];
     }
   }, [client]);
@@ -306,6 +319,7 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
     login,
     logout,
     getKnownPlayerNames,
+    getAvailableGameTypes,
     createGame,
     joinGame,
     loadGame,

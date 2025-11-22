@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, waitFor } from '../../../test/test-utils';
-import { TicTacToeMoveInput } from '../TicTacToeMoveInput';
+import { TicTacToeMoveInput } from './TicTacToeMoveInput';
 import type { GameState } from '../../../types/game';
 
 const mockGameState: GameState = {

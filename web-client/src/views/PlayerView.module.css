@@ -519,6 +519,14 @@
   font-size: 1rem;
 }
 
+/* Game Description */
+.gameDescription {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #666666);
+  font-style: italic;
+}
+
 /* Accessibility Enhancements */
 @media (prefers-reduced-motion: reduce) {
   .button,
