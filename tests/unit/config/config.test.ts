@@ -52,10 +52,12 @@ describe('Configuration Service', () => {
       expect(config.logging.format).toBe('pretty'); // development mode
     });
 
-    it('should throw error when DATABASE_URL is missing', () => {
+    it('should allow missing DATABASE_URL (falls back to in-memory storage)', () => {
       delete process.env.DATABASE_URL;
 
-      expect(() => loadConfig()).toThrow('DATABASE_URL is required');
+      const config = loadConfig();
+
+      expect(config.database.url).toBeNull();
     });
 
     it('should throw error when DATABASE_URL has invalid format', () => {
@@ -176,12 +178,12 @@ describe('Configuration Service', () => {
     });
 
     it('should exit process when configuration is invalid', () => {
-      delete process.env.DATABASE_URL;
+      process.env.PORT = 'invalid';
 
       expect(() => validateAndLogConfig()).toThrow('process.exit called');
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         'Configuration Error:',
-        expect.stringContaining('DATABASE_URL is required')
+        expect.stringContaining('Invalid PORT')
       );
     });
   });

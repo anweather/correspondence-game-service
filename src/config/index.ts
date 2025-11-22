@@ -3,7 +3,7 @@
  */
 
 export interface DatabaseConfig {
-  url: string;
+  url: string | null;
   poolSize: number;
 }
 
@@ -47,16 +47,15 @@ export function loadConfig(): AppConfig {
     );
   }
 
-  // Validate and load DATABASE_URL (required)
-  const databaseUrl = process.env.DATABASE_URL;
-  if (!databaseUrl) {
-    throw new ConfigurationError(
-      'DATABASE_URL is required. Please set the DATABASE_URL environment variable.'
-    );
-  }
+  // Validate and load DATABASE_URL (optional - falls back to in-memory storage)
+  const databaseUrl = process.env.DATABASE_URL || null;
 
-  // Validate DATABASE_URL format (basic check)
-  if (!databaseUrl.startsWith('postgresql://') && !databaseUrl.startsWith('postgres://')) {
+  // Validate DATABASE_URL format if provided (basic check)
+  if (
+    databaseUrl &&
+    !databaseUrl.startsWith('postgresql://') &&
+    !databaseUrl.startsWith('postgres://')
+  ) {
     throw new ConfigurationError(
       `Invalid DATABASE_URL format: ${databaseUrl}. Must start with 'postgresql://' or 'postgres://'.`
     );
@@ -104,7 +103,9 @@ export function validateAndLogConfig(): AppConfig {
     const config = loadConfig();
 
     // Log configuration (mask sensitive parts of DATABASE_URL)
-    const maskedDbUrl = config.database.url.replace(/(:\/\/)([^:]+):([^@]+)(@)/, '$1$2:****$4');
+    const maskedDbUrl = config.database.url
+      ? config.database.url.replace(/(:\/\/)([^:]+):([^@]+)(@)/, '$1$2:****$4')
+      : 'not configured (using in-memory storage)';
 
     console.log('Configuration loaded successfully:');
     console.log(`  PORT: ${config.port}`);

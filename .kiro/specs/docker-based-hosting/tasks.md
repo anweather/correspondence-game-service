@@ -7,7 +7,7 @@
   - Implement health check function for database connectivity
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-- [ ] 2. Implement database schema and migrations
+- [x] 2. Implement database schema and migrations
   - Create SQL migration file for initial schema (games table with JSONB state column)
   - Create schema_migrations tracking table
   - Add indexes on game_id, game_type, lifecycle, created_at, and GIN index on players
