@@ -4,10 +4,11 @@ import {
   useState,
   useCallback,
   useMemo,
+  useEffect,
 } from 'react';
 import type { ReactNode } from 'react';
 import { GameClient } from '../api/gameClient';
-import type { GameState } from '../types/game';
+import type { GameState, MoveInput } from '../types/game';
 
 /**
  * Filter options for game list
@@ -24,6 +25,7 @@ interface AdminContextState {
   filter: GameFilter;
   loading: boolean;
   error: string | null;
+  gameTypes: Map<string, { maxPlayers: number }>;
 }
 
 /**
@@ -35,6 +37,7 @@ interface AdminContextActions {
   createTestGame: (gameType: string) => Promise<void>;
   addTestPlayer: (playerName: string) => Promise<void>;
   impersonatePlayer: (playerId: string | null) => void;
+  submitMove: (move: MoveInput) => Promise<void>;
   deleteGame: (gameId: string) => Promise<void>;
   setFilter: (filter: GameFilter) => void;
 }
@@ -64,8 +67,27 @@ export function AdminProvider({ children }: AdminProviderProps) {
   const [filter, setFilter] = useState<GameFilter>('all');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [gameTypes, setGameTypes] = useState<Map<string, { maxPlayers: number }>>(new Map());
 
   const client = useMemo(() => new GameClient(), []);
+
+  /**
+   * Load game types on mount
+   */
+  useEffect(() => {
+    const loadGameTypes = async () => {
+      try {
+        const types = await client.getGameTypes();
+        const typesMap = new Map(
+          types.map((type) => [type.type, { maxPlayers: type.maxPlayers }])
+        );
+        setGameTypes(typesMap);
+      } catch (err) {
+        console.error('Failed to load game types:', err);
+      }
+    };
+    loadGameTypes();
+  }, [client]);
 
   /**
    * Load all games from the API
@@ -117,8 +139,9 @@ export function AdminProvider({ children }: AdminProviderProps) {
         const newGame = await client.createGame(gameType, {});
 
         // Join as the first player (Admin)
+        const playerId = `player-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         const joinedGame = await client.joinGame(newGame.gameId, {
-          id: '', // Server will generate
+          id: playerId,
           name: 'Admin',
           joinedAt: new Date().toISOString(),
         });
@@ -150,13 +173,18 @@ export function AdminProvider({ children }: AdminProviderProps) {
       setLoading(true);
       setError(null);
       try {
+        // Generate unique player ID
+        const playerId = `player-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         const updatedGame = await client.joinGame(selectedGame.gameId, {
-          id: '', // Server will generate
+          id: playerId,
           name: playerName,
           joinedAt: new Date().toISOString(),
         });
 
         setSelectedGame(updatedGame);
+        
+        // Refresh the games list to show updated player count
+        await loadGames();
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Failed to add player';
         setError(errorMessage);
@@ -164,7 +192,7 @@ export function AdminProvider({ children }: AdminProviderProps) {
         setLoading(false);
       }
     },
-    [client, selectedGame]
+    [client, selectedGame, loadGames]
   );
 
   /**
@@ -173,6 +201,42 @@ export function AdminProvider({ children }: AdminProviderProps) {
   const impersonatePlayer = useCallback((playerId: string | null) => {
     setImpersonatedPlayer(playerId);
   }, []);
+
+  /**
+   * Submit a move as the impersonated player
+   */
+  const submitMove = useCallback(
+    async (move: MoveInput) => {
+      if (!selectedGame) {
+        setError('No game selected');
+        return;
+      }
+
+      if (!impersonatedPlayer) {
+        setError('No player impersonated');
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
+      try {
+        const updatedGame = await client.makeMove(
+          selectedGame.gameId,
+          impersonatedPlayer,
+          move,
+          selectedGame.version
+        );
+
+        setSelectedGame(updatedGame);
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to submit move';
+        setError(errorMessage);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [client, selectedGame, impersonatedPlayer]
+  );
 
   /**
    * Delete a game
@@ -216,11 +280,13 @@ export function AdminProvider({ children }: AdminProviderProps) {
     filter,
     loading,
     error,
+    gameTypes,
     loadGames,
     selectGame,
     createTestGame,
     addTestPlayer,
     impersonatePlayer,
+    submitMove,
     deleteGame,
     setFilter: handleSetFilter,
   };

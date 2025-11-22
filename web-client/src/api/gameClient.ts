@@ -137,7 +137,21 @@ export class GameClient {
     
     try {
       const errorData = await response.json();
-      errorMessage = errorData.message || errorData.error || response.statusText || 'Request failed';
+      
+      // Handle different error response formats
+      if (errorData.error && typeof errorData.error === 'object') {
+        // Format: { error: { code: "...", message: "..." } }
+        errorMessage = errorData.error.message || errorData.error.code || 'Request failed';
+      } else if (errorData.error && typeof errorData.error === 'string') {
+        // Format: { error: "..." }
+        errorMessage = errorData.error;
+      } else if (errorData.message) {
+        // Format: { message: "..." }
+        errorMessage = errorData.message;
+      } else {
+        // Fallback
+        errorMessage = response.statusText || 'Request failed';
+      }
     } catch {
       // If JSON parsing fails, use statusText
       errorMessage = response.statusText || 'Request failed';

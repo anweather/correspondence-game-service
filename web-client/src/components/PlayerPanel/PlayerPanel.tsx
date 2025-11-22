@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import type { GameState } from '../../types/game';
+import type { GameState, MoveInput } from '../../types/game';
+import { MoveInput as MoveInputComponent } from '../MoveInput/MoveInput';
 import styles from './PlayerPanel.module.css';
 
 /**
@@ -10,6 +11,8 @@ export interface PlayerPanelProps {
   impersonatedPlayer: string | null;
   onImpersonate: (playerId: string) => void;
   onAddPlayer: (playerName: string) => Promise<void>;
+  onSubmitMove: (move: MoveInput) => Promise<void>;
+  maxPlayers?: number;
 }
 
 /**
@@ -21,9 +24,15 @@ export function PlayerPanel({
   impersonatedPlayer,
   onImpersonate,
   onAddPlayer,
+  onSubmitMove,
+  maxPlayers,
 }: PlayerPanelProps) {
   const [newPlayerName, setNewPlayerName] = useState('');
   const [isAdding, setIsAdding] = useState(false);
+
+  // Use provided maxPlayers or default to 2 if not available
+  const effectiveMaxPlayers = maxPlayers ?? 2;
+  const isGameFull = game.players.length >= effectiveMaxPlayers;
 
   const handleAddPlayer = async () => {
     const trimmedName = newPlayerName.trim();
@@ -80,24 +89,47 @@ export function PlayerPanel({
         </ul>
       )}
 
-      <div className={styles.addPlayerForm}>
-        <input
-          type="text"
-          className={styles.playerInput}
-          value={newPlayerName}
-          onChange={(e) => setNewPlayerName(e.target.value)}
-          placeholder="New player name"
-          disabled={isAdding}
-        />
-        <button
-          className={styles.addButton}
-          onClick={handleAddPlayer}
-          disabled={isAdding}
-          aria-label="Add player"
-        >
-          {isAdding ? 'Adding...' : 'Add Player'}
-        </button>
-      </div>
+      {!isGameFull && (
+        <div className={styles.addPlayerForm}>
+          <input
+            type="text"
+            className={styles.playerInput}
+            value={newPlayerName}
+            onChange={(e) => setNewPlayerName(e.target.value)}
+            placeholder="New player name"
+            disabled={isAdding}
+          />
+          <button
+            className={styles.addButton}
+            onClick={handleAddPlayer}
+            disabled={isAdding}
+            aria-label="Add player"
+          >
+            {isAdding ? 'Adding...' : 'Add Player'}
+          </button>
+        </div>
+      )}
+
+      {isGameFull && game.lifecycle !== 'completed' && (
+        <p className={styles.gameFull}>Game is full ({game.players.length}/{effectiveMaxPlayers} players)</p>
+      )}
+
+      {impersonatedPlayer && (
+        <div className={styles.moveInputSection}>
+          <h4>Make Move as {game.players.find(p => p.id === impersonatedPlayer)?.name}</h4>
+          {game.lifecycle === 'completed' ? (
+            <p className={styles.gameCompleted}>Game is completed. No more moves allowed.</p>
+          ) : (
+            <MoveInputComponent
+              gameType={game.gameType}
+              gameState={game}
+              playerId={impersonatedPlayer}
+              enabled={game.players[game.currentPlayerIndex]?.id === impersonatedPlayer}
+              onSubmit={onSubmitMove}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -15,7 +15,7 @@ export function TicTacToeMoveInput({ gameState, onMoveChange }: TicTacToeMoveInp
     
     const move: MoveInput = {
       action: 'place',
-      parameters: { x, y }
+      parameters: { row: y, col: x }
     };
     
     onMoveChange(move);

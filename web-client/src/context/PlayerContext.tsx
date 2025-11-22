@@ -30,6 +30,7 @@ interface PlayerContextActions {
   loadGame: (gameId: string) => Promise<void>;
   submitMove: (move: MoveInput) => Promise<void>;
   refreshGame: () => Promise<void>;
+  listAvailableGames: () => Promise<GameState[]>;
 }
 
 /**
@@ -76,15 +77,18 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
         // Create the game
         const newGame = await client.createGame(gameType, {});
 
+        // Generate unique player ID
+        const playerId = `player-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        
         // Join as the first player
         const joinedGame = await client.joinGame(newGame.gameId, {
-          id: '', // Server will generate
+          id: playerId,
           name,
           joinedAt: new Date().toISOString(),
         });
 
-        // Find the player that was just added (should be the last one)
-        const player = joinedGame.players.find((p) => p.name === name);
+        // Find the player that was just added
+        const player = joinedGame.players.find((p) => p.id === playerId);
 
         if (player) {
           setPlayerId(player.id);
@@ -110,14 +114,16 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
       setLoading(true);
       setError(null);
       try {
+        // Generate unique player ID
+        const playerId = `player-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         const joinedGame = await client.joinGame(gameId, {
-          id: '', // Server will generate
+          id: playerId,
           name,
           joinedAt: new Date().toISOString(),
         });
 
-        // Find the player that was just added (should be the last one)
-        const player = joinedGame.players.find((p) => p.name === name);
+        // Find the player that was just added
+        const player = joinedGame.players.find((p) => p.id === playerId);
 
         if (player) {
           setPlayerId(player.id);
@@ -214,6 +220,19 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
     }
   }, [client, currentGame]);
 
+  /**
+   * List available games that can be joined
+   */
+  const listAvailableGames = useCallback(async (): Promise<GameState[]> => {
+    try {
+      const response = await client.listGames();
+      return response.items;
+    } catch (err) {
+      console.error('Failed to list games:', err);
+      return [];
+    }
+  }, [client]);
+
   const value: PlayerContextType = {
     currentGame,
     playerId,
@@ -225,6 +244,7 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
     loadGame,
     submitMove,
     refreshGame,
+    listAvailableGames,
   };
 
   return <PlayerContext.Provider value={value}>{children}</PlayerContext.Provider>;

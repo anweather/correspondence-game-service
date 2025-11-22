@@ -39,7 +39,8 @@ describe('GameClient', () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 500,
-        json: async () => ({ error: 'Internal Server Error', message: 'Server error' }),
+        statusText: 'Internal Server Error',
+        json: async () => ({ error: { code: 'INTERNAL_ERROR', message: 'Server error' } }),
       });
 
       await expect(client.getGameTypes()).rejects.toThrow('Server error');
@@ -114,7 +115,8 @@ describe('GameClient', () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 404,
-        json: async () => ({ error: 'NotFound', message: 'Game not found' }),
+        statusText: 'Not Found',
+        json: async () => ({ error: { code: 'NOT_FOUND', message: 'Game not found' } }),
       });
 
       await expect(client.getGame('invalid-id')).rejects.toThrow('Game not found');
@@ -219,7 +221,8 @@ describe('GameClient', () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 404,
-        json: async () => ({ error: 'NotFound', message: 'Game not found' }),
+        statusText: 'Not Found',
+        json: async () => ({ error: { code: 'NOT_FOUND', message: 'Game not found' } }),
       });
 
       await expect(client.deleteGame('invalid-id')).rejects.toThrow('Game not found');
@@ -269,7 +272,8 @@ describe('GameClient', () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 409,
-        json: async () => ({ error: 'ConcurrencyError', message: 'Game state changed' }),
+        statusText: 'Conflict',
+        json: async () => ({ error: { code: 'CONCURRENCY_ERROR', message: 'Game state changed' } }),
       });
 
       const move: Move = {

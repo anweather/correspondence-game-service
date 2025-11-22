@@ -191,7 +191,7 @@
     - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5_
 
 - [ ] 13. Manual testing and refinement
-  - [ ] 13.1 Test admin workflow for game testing
+  - [x] 13.1 Test admin workflow for game testing
     - Create a test game from admin view
     - Add multiple players using the player panel
     - Impersonate each player and make moves

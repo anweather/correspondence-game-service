@@ -72,6 +72,11 @@ export class StateManagerService {
         throw new Error(`Game type "${game.gameType}" is not supported`);
       }
 
+      // Check if game is already completed
+      if (game.lifecycle === GameLifecycle.COMPLETED) {
+        throw new InvalidMoveError('Game is already completed');
+      }
+
       // Authorization checks
       // 1. Check if player is in the game
       const playerInGame = game.players.some((p) => p.id === playerId);
@@ -96,8 +101,15 @@ export class StateManagerService {
         throw new InvalidMoveError(validationResult.reason || 'Move validation failed');
       }
 
+      // Enrich move with playerId and timestamp
+      const enrichedMove: Move = {
+        ...move,
+        playerId,
+        timestamp: new Date(),
+      };
+
       // Apply move
-      let updatedState = plugin.applyMove(game, playerId, move);
+      let updatedState = plugin.applyMove(game, playerId, enrichedMove);
 
       // Advance turn if game is not over
       if (!plugin.isGameOver(updatedState)) {

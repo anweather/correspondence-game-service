@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePlayer } from '../context/PlayerContext';
 import { GameDetail } from '../components/GameDetail/GameDetail';
 import { MoveInput } from '../components/MoveInput/MoveInput';
-import type { MoveInput as MoveInputType } from '../types/game';
+import type { MoveInput as MoveInputType, GameState } from '../types/game';
 import styles from './PlayerView.module.css';
 
 /**
@@ -20,10 +20,24 @@ export function PlayerView() {
     joinGame,
     submitMove,
     refreshGame,
+    listAvailableGames,
   } = usePlayer();
 
   const [name, setName] = useState('');
   const [gameId, setGameId] = useState('');
+  const [availableGames, setAvailableGames] = useState<GameState[]>([]);
+  const [loadingGames, setLoadingGames] = useState(false);
+
+  // Load available games when component mounts
+  useEffect(() => {
+    const loadGames = async () => {
+      setLoadingGames(true);
+      const games = await listAvailableGames();
+      setAvailableGames(games);
+      setLoadingGames(false);
+    };
+    loadGames();
+  }, [listAvailableGames]);
 
   const handleCreateGame = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,7 +121,24 @@ export function PlayerView() {
                 />
               </div>
               <div className={styles.formGroup}>
-                <label htmlFor="join-game-id">Game ID</label>
+                <label htmlFor="join-game-select">Select Game</label>
+                <select
+                  id="join-game-select"
+                  value={gameId}
+                  onChange={(e) => setGameId(e.target.value)}
+                  disabled={loading || loadingGames}
+                  className={styles.select}
+                >
+                  <option value="">-- Select a game --</option>
+                  {availableGames.map((game) => (
+                    <option key={game.gameId} value={game.gameId}>
+                      {game.gameId} ({game.gameType}, {game.players.length} players, {game.lifecycle})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className={styles.formGroup}>
+                <label htmlFor="join-game-id">Or enter Game ID manually</label>
                 <input
                   id="join-game-id"
                   type="text"
@@ -115,7 +146,6 @@ export function PlayerView() {
                   onChange={(e) => setGameId(e.target.value)}
                   placeholder="Enter game ID"
                   disabled={loading}
-                  required
                 />
               </div>
               <button

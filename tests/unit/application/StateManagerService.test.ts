@@ -189,6 +189,35 @@ describe('StateManagerService', () => {
       );
     });
 
+    it('should throw InvalidMoveError when game is already completed', async () => {
+      // Arrange
+      const players = createMockPlayers();
+      const gameState = new GameStateBuilder()
+        .withGameId('test-game-1')
+        .withGameType('mock-game')
+        .withLifecycle(GameLifecycle.COMPLETED)
+        .withPlayers(players)
+        .withCurrentPlayerIndex(0)
+        .withPhase('main')
+        .build();
+      await repository.save(gameState);
+
+      const move: Move = {
+        playerId: 'player1',
+        timestamp: new Date(),
+        action: 'place',
+        parameters: {},
+      };
+
+      // Act & Assert
+      await expect(stateManager.applyMove('test-game-1', 'player1', move, 1)).rejects.toThrow(
+        InvalidMoveError
+      );
+      await expect(stateManager.applyMove('test-game-1', 'player1', move, 1)).rejects.toThrow(
+        'Game is already completed'
+      );
+    });
+
     it('should throw ConcurrencyError when version mismatch occurs', async () => {
       // Arrange
       const players = createMockPlayers();

@@ -18,11 +18,13 @@ export function AdminView() {
     filter,
     loading,
     error,
+    gameTypes,
     loadGames,
     selectGame,
     createTestGame,
     addTestPlayer,
     impersonatePlayer,
+    submitMove,
     deleteGame,
     setFilter,
   } = useAdmin();
@@ -77,6 +79,10 @@ export function AdminView() {
 
   const handleImpersonate = (playerId: string) => {
     impersonatePlayer(playerId);
+  };
+
+  const handleSubmitMove = async (move: any) => {
+    await submitMove(move);
   };
 
   return (
@@ -161,6 +167,8 @@ export function AdminView() {
                 impersonatedPlayer={impersonatedPlayer}
                 onImpersonate={handleImpersonate}
                 onAddPlayer={handleAddPlayer}
+                onSubmitMove={handleSubmitMove}
+                maxPlayers={gameTypes.get(selectedGame.gameType)?.maxPlayers}
               />
             </>
           ) : (

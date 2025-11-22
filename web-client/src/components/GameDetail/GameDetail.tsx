@@ -16,8 +16,9 @@ export function GameDetail({
   currentPlayerId 
 }: GameDetailProps) {
   const boardSvgUrl = useMemo(() => {
-    return `/api/games/${game.gameId}/board.svg`;
-  }, [game.gameId]);
+    // Add version as cache-busting parameter to force image reload
+    return `/api/games/${game.gameId}/board.svg?v=${game.version}`;
+  }, [game.gameId, game.version]);
 
   const currentPlayer = game.players[game.currentPlayerIndex];
   const isCurrentPlayerTurn = currentPlayerId && currentPlayer?.id === currentPlayerId;
