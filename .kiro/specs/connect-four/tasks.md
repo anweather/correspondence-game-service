@@ -261,18 +261,18 @@
   - Ensure clean delegation patterns
   - Optimize module interactions
 
-- [ ] 12. Checkpoint - Ensure all backend tests pass
+- [x] 12. Checkpoint - Ensure all backend tests pass
   - Run complete backend test suite
   - Verify all property tests pass with 100+ iterations
   - Ask user if questions arise
 
-- [ ] 13. TDD: UI move input component
-- [ ] 13.1 RED: Write tests for UI structure
+- [x] 13. TDD: UI move input component
+- [x] 13.1 RED: Write tests for UI structure
   - Test 7 column buttons are rendered
   - Test buttons have correct labels/indices
   - _Requirements: 8.1_
 
-- [ ] 13.2 RED: Write tests for UI button states
+- [x] 13.2 RED: Write tests for UI button states
   - **Property 25: Full columns disable UI buttons**
   - **Validates: Requirements 8.2**
   - **Property 26: UI disables buttons when not player's turn**
@@ -281,14 +281,14 @@
   - Test buttons disabled when not player's turn
   - _Requirements: 8.2, 8.3_
 
-- [ ] 13.3 RED: Write tests for UI interactions
+- [x] 13.3 RED: Write tests for UI interactions
   - **Property 27: UI submits correct column on click**
   - **Validates: Requirements 8.4**
   - Test clicking button submits correct column
   - Test hover effects are present
   - _Requirements: 8.4, 8.5_
 
-- [ ] 13.4 GREEN: Implement UI component
+- [x] 13.4 GREEN: Implement UI component
   - Create `ui/components/ConnectFourMoveInput.tsx`
   - Create `ui/components/ConnectFourMoveInput.module.css`
   - Render 7 column buttons
@@ -298,12 +298,12 @@
   - All UI tests should pass
   - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
 
-- [ ] 13.5 REFACTOR: Improve UI component
+- [x] 13.5 REFACTOR: Improve UI component
   - Extract button component if needed
   - Optimize re-renders
   - Improve accessibility
 
-- [ ] 14. Create documentation
+- [x] 14. Create documentation
   - Create `games/connect-four/README.md` following Tic-Tac-Toe pattern
   - Create `games/connect-four/docs/rules.md` with detailed game rules
   - Create `games/connect-four/docs/gameplay.md` with API examples
