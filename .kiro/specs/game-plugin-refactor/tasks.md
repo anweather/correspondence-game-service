@@ -101,7 +101,7 @@
   - Verify all existing tests pass without modification to test logic
   - _Requirements: 14.1, 14.2, 14.3, 14.4, 14.5_
 
-- [ ] 15. Create game package documentation
+- [x] 15. Create game package documentation
   - Create `games/tic-tac-toe/README.md` with comprehensive documentation
   - Document package structure and module organization
   - Explain purpose of each module (shared, engine, ui)
@@ -112,7 +112,7 @@
   - Explain how structure prepares for future npm extraction
   - _Requirements: 15.1, 15.2, 15.3, 15.4, 15.5, 15.6, 15.7, 15.8_
 
-- [ ] 16. Clean up old implementation
+- [x] 16. Clean up old implementation
   - Remove `src/adapters/plugins/tic-tac-toe/TicTacToeEngine.ts`
   - Remove `tests/unit/adapters/plugins/TicTacToeEngine.test.ts`
   - Remove old `web-client/src/components/games/tic-tac-toe/` directory if it exists

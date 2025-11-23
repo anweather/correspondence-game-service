@@ -710,7 +710,7 @@ afterApplyMove(oldState: GameState, newState: GameState, move: Move): void {
 
 - [Domain Models Documentation](../src/domain/models/README.md)
 - [Interface Definitions](../src/domain/interfaces/README.md)
-- [Tic-Tac-Toe Implementation](../src/adapters/plugins/tic-tac-toe/)
+- [Tic-Tac-Toe Implementation](../games/tic-tac-toe/)
 - [Test Utilities](../tests/utils/)
 
 ## Contributing
