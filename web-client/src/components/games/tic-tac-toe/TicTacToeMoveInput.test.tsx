@@ -95,10 +95,8 @@ describe('TicTacToeMoveInput', () => {
 
     expect(handleMoveChange).toHaveBeenCalledTimes(1);
     expect(handleMoveChange).toHaveBeenCalledWith({
-      playerId: '',
-      timestamp: expect.any(String),
       action: 'place',
-      parameters: { x: 0, y: 0 }
+      parameters: { row: 0, col: 0 }
     });
   });
 
@@ -116,19 +114,15 @@ describe('TicTacToeMoveInput', () => {
     // Click center cell (1, 1)
     cells[4].click();
     expect(handleMoveChange).toHaveBeenCalledWith({
-      playerId: '',
-      timestamp: expect.any(String),
       action: 'place',
-      parameters: { x: 1, y: 1 }
+      parameters: { row: 1, col: 1 }
     });
 
     // Click bottom-right cell (2, 2)
     cells[8].click();
     expect(handleMoveChange).toHaveBeenCalledWith({
-      playerId: '',
-      timestamp: expect.any(String),
       action: 'place',
-      parameters: { x: 2, y: 2 }
+      parameters: { row: 2, col: 2 }
     });
   });
 

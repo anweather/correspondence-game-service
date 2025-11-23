@@ -5,6 +5,7 @@
   "description": "Tic-Tac-Toe game plugin for Async Boardgame Service",
   "main": "engine/index.ts",
   "types": "engine/index.ts",
+
   "exports": {
     "./shared": {
       "types": "./shared/index.ts",
