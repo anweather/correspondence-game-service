@@ -1,7 +1,7 @@
 import { RendererService } from '@infrastructure/rendering/RendererService';
 import { PluginRegistry } from '@application/PluginRegistry';
 import { InMemoryGameRepository } from '@infrastructure/persistence/InMemoryGameRepository';
-import { TicTacToeEngine } from '@adapters/plugins/tic-tac-toe/TicTacToeEngine';
+import { TicTacToeEngine } from '@games/tic-tac-toe/engine';
 import { GameState, Player } from '@domain/models';
 import { BoardRenderData } from '@domain/interfaces';
 import { GameNotFoundError } from '@domain/errors';

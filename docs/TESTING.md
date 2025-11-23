@@ -248,7 +248,7 @@ describe('GameManagerService', () => {
 ### Testing Game Engines
 
 ```typescript
-import { TicTacToeEngine } from '@adapters/plugins/tic-tac-toe/TicTacToeEngine';
+import { TicTacToeEngine } from '@games/tic-tac-toe/engine';
 import { createPlayer, createMove } from '../../utils';
 
 describe('TicTacToeEngine', () => {
@@ -311,7 +311,7 @@ Integration tests verify that multiple components work together correctly:
 import request from 'supertest';
 import { app } from '@adapters/rest/app';
 import { PluginRegistry } from '@application/PluginRegistry';
-import { TicTacToeEngine } from '@adapters/plugins/tic-tac-toe/TicTacToeEngine';
+import { TicTacToeEngine } from '@games/tic-tac-toe/engine';
 
 describe('Game Management API', () => {
   beforeAll(() => {

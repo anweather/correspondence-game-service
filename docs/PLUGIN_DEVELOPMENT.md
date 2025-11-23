@@ -440,7 +440,7 @@ Once you've created your plugin, register it with the service:
 ```typescript
 // src/index.ts
 import { PluginRegistry } from '@application/PluginRegistry';
-import { TicTacToeEngine } from '@adapters/plugins/tic-tac-toe/TicTacToeEngine';
+import { TicTacToeEngine } from '@games/tic-tac-toe/engine';
 import { MyGameEngine } from '@adapters/plugins/my-game/MyGameEngine';
 
 const registry = new PluginRegistry();

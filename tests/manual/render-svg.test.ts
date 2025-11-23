@@ -1,4 +1,4 @@
-import { TicTacToeEngine } from '@adapters/plugins/tic-tac-toe/TicTacToeEngine';
+import { TicTacToeEngine } from '@games/tic-tac-toe/engine';
 import { Player, Move } from '@domain/models';
 import { RendererService } from '@infrastructure/rendering/RendererService';
 import { PluginRegistry } from '@application/PluginRegistry';

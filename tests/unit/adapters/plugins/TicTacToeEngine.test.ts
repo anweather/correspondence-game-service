@@ -1,5 +1,5 @@
 import { Player, Move, GameLifecycle } from '@domain/models';
-import { TicTacToeEngine } from '@adapters/plugins/tic-tac-toe/TicTacToeEngine';
+import { TicTacToeEngine } from '@games/tic-tac-toe/engine';
 
 describe('TicTacToeEngine', () => {
   let engine: TicTacToeEngine;

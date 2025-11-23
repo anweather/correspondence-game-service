@@ -8,7 +8,7 @@ import { RendererService } from '@infrastructure/rendering/RendererService';
 import { GameLockManager } from '@application/GameLockManager';
 import { PluginRegistry } from '@application/PluginRegistry';
 import { InMemoryGameRepository } from '@infrastructure/persistence/InMemoryGameRepository';
-import { TicTacToeEngine } from '@adapters/plugins/tic-tac-toe/TicTacToeEngine';
+import { TicTacToeEngine } from '@games/tic-tac-toe/engine';
 
 describe('E2E: Complete Tic-Tac-Toe Game Flow', () => {
   let app: Express;

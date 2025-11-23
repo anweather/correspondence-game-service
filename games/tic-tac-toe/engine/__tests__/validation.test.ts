@@ -1,4 +1,4 @@
-import { GameState, Player, Move, GameLifecycle } from '../../../../src/domain/models';
+import { GameState, Player, Move, GameLifecycle } from '@domain/models';
 import {
   validateMove,
   isValidPosition,

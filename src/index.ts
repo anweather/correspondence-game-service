@@ -15,7 +15,7 @@ import { InMemoryGameRepository } from './infrastructure/persistence/InMemoryGam
 import { PostgresGameRepository } from './infrastructure/persistence/PostgresGameRepository';
 import { InMemoryPlayerIdentityRepository } from './infrastructure/persistence/InMemoryPlayerIdentityRepository';
 import { RendererService } from './infrastructure/rendering/RendererService';
-import { TicTacToeEngine } from './adapters/plugins/tic-tac-toe/TicTacToeEngine';
+import { TicTacToeEngine } from '@games/tic-tac-toe/engine';
 import { DatabaseConnection } from './infrastructure/persistence/DatabaseConnection';
 import { DatabaseMigrator } from './infrastructure/persistence/DatabaseMigrator';
 import { validateAndLogConfig } from './config';

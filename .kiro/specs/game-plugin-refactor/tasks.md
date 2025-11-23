@@ -85,7 +85,7 @@
   - Verify components are properly registered
   - _Requirements: 13.2, 13.3, 13.4_
 
-- [ ] 13. Migrate and update engine tests (reuse existing tests)
+- [x] 13. Migrate and update engine tests (reuse existing tests)
   - Create `games/tic-tac-toe/engine/__tests__/` directory
   - **Copy** existing `tests/unit/adapters/plugins/TicTacToeEngine.test.ts` to new location
   - Optionally split monolithic test into module-specific test files (metadata.test.ts, initialization.test.ts, etc.) for better organization
