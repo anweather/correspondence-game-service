@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: backend-builder
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - DATABASE_URL=postgresql://boardgame:devpassword@postgres:5432/boardgame
+      - DB_POOL_SIZE=5
+      - LOG_LEVEL=debug
+    volumes:
+      - ./src:/app/src
+      - ./web-client/src:/app/web-client/src
+      - ./web-client/public:/app/web-client/public
+      - /app/node_modules
+      - /app/web-client/node_modules
+    command: sh -c "npm install && cd web-client && npm install && cd .. && npm run dev"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - boardgame-network
+
+  postgres:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=boardgame
+      - POSTGRES_USER=boardgame
+      - POSTGRES_PASSWORD=devpassword
+    volumes:
+      - postgres-dev-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U boardgame"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - boardgame-network
+
+volumes:
+  postgres-dev-data:
+    driver: local
+
+networks:
+  boardgame-network:
+    driver: bridge

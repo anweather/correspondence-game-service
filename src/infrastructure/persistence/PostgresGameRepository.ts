@@ -13,7 +13,7 @@ interface DatabaseRow {
   game_id: string;
   game_type: string;
   lifecycle: string;
-  state: string;
+  state: string | GameState; // Can be string or object (JSONB returns objects)
   version: number;
   created_at: Date;
   updated_at: Date;
@@ -51,7 +51,7 @@ export class PostgresGameRepository implements GameRepository {
       game_id: state.gameId,
       game_type: state.gameType,
       lifecycle: state.lifecycle,
-      state: JSON.stringify(state),
+      state: state as any, // PostgreSQL JSONB handles objects directly
       version: state.version,
       created_at: state.createdAt,
       updated_at: state.updatedAt,
@@ -63,7 +63,8 @@ export class PostgresGameRepository implements GameRepository {
    * Reconstructs Date objects from ISO strings
    */
   private deserializeGameState(row: DatabaseRow): GameState {
-    const state = JSON.parse(row.state) as GameState;
+    // Handle both string and object types (JSONB returns objects directly)
+    const state = (typeof row.state === 'string' ? JSON.parse(row.state) : row.state) as GameState;
 
     // Reconstruct Date objects
     state.createdAt = new Date(state.createdAt);

@@ -96,16 +96,15 @@ describe('PostgresGameRepository - Basic Structure', () => {
         game_id: 'game-1',
         game_type: 'tic-tac-toe',
         lifecycle: 'active',
-        state: expect.any(String),
+        state: gameState, // PostgreSQL JSONB handles objects directly
         version: 1,
         created_at: new Date('2025-01-01T00:00:00.000Z'),
         updated_at: new Date('2025-01-01T00:00:00.000Z'),
       });
 
-      // Verify the state is valid JSON
-      const parsedState = JSON.parse(serialized.state);
-      expect(parsedState.gameId).toBe('game-1');
-      expect(parsedState.gameType).toBe('tic-tac-toe');
+      // Verify the state object has correct properties
+      expect((serialized.state as GameState).gameId).toBe('game-1');
+      expect((serialized.state as GameState).gameType).toBe('tic-tac-toe');
     });
 
     it('should deserialize database row to GameState', () => {
