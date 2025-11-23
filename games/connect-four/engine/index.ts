@@ -1,16 +1,12 @@
 /**
- * Connect Four game engine
- * Exports the main engine class and supporting modules
+ * Connect Four Engine Module
+ * Barrel export for the game engine
  */
 
-// Initialization module
-export * from './initialization';
-
-// Metadata module
+export { ConnectFourEngine } from './ConnectFourEngine';
 export * from './metadata';
-
-// Rendering module
+export * from './initialization';
+export * from './validation';
+export * from './gravity';
+export * from './rules';
 export * from './renderer';
-
-// Main engine class will be exported here once implemented
-// export { ConnectFourEngine } from './ConnectFourEngine';

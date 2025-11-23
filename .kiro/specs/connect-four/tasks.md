@@ -239,8 +239,8 @@
   - Ensure efficient layering
   - Clean up SVG element creation
 
-- [ ] 11. TDD: Main engine class integration
-- [ ] 11.1 RED: Write integration tests
+- [x] 11. TDD: Main engine class integration
+- [x] 11.1 RED: Write integration tests
   - **Property 30: Game state is complete**
   - **Validates: Requirements 9.4**
   - Test complete game flow: init → moves → win
@@ -249,7 +249,7 @@
   - Test state completeness at each step
   - _Requirements: 9.4, All_
 
-- [ ] 11.2 GREEN: Implement main engine class
+- [x] 11.2 GREEN: Implement main engine class
   - Create `engine/ConnectFourEngine.ts`
   - Extend `BaseGameEngine` abstract class
   - Implement all interface methods by delegating to modules
@@ -257,7 +257,7 @@
   - All integration tests should pass
   - _Requirements: 10.1_
 
-- [ ] 11.3 REFACTOR: Clean up engine orchestration
+- [x] 11.3 REFACTOR: Clean up engine orchestration
   - Ensure clean delegation patterns
   - Optimize module interactions
 
