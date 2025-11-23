@@ -7,20 +7,20 @@
   - Create barrel export in `shared/index.ts`
   - _Requirements: 1.1, 1.2, 10.2, 10.3, 10.4, 10.5_
 
-- [ ] 2. TDD: Game metadata module
-- [ ] 2.1 RED: Write tests for metadata functions
+- [x] 2. TDD: Game metadata module
+- [x] 2.1 RED: Write tests for metadata functions
   - Test `getGameType()` returns "connect-four"
   - Test `getGameName()` returns "Connect Four"
   - Test `getMinPlayers()` and `getMaxPlayers()` return 2
   - Test `getDescription()` returns non-empty string
   - _Requirements: 10.2, 10.3, 10.4, 10.5_
 
-- [ ] 2.2 GREEN: Implement metadata module
+- [x] 2.2 GREEN: Implement metadata module
   - Create `engine/metadata.ts` with pure functions
   - Implement all metadata functions to pass tests
   - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5_
 
-- [ ] 2.3 REFACTOR: Clean up metadata implementation
+- [x] 2.3 REFACTOR: Clean up metadata implementation
   - Extract constants if needed
   - Ensure code is clean and maintainable
 
