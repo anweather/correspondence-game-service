@@ -4,7 +4,8 @@
  * Requirements: 4.1, 4.2, 4.3, 4.4
  */
 
-import { CellState, PlayerColor, Direction } from '../shared/types';
+import { GameState, GameLifecycle } from '../../../src/domain/models';
+import { CellState, PlayerColor, Direction, ConnectFourMetadata, ConnectFourMove } from '../shared/types';
 import { ROWS, COLUMNS, WIN_LENGTH, DIRECTIONS } from '../shared/constants';
 
 /**
@@ -148,4 +149,82 @@ export function getWinner(board: CellState[][]): PlayerColor | null {
 export function isGameOver(board: CellState[][]): boolean {
   // Game is over if there's a winner or the board is full
   return getWinner(board) !== null || isBoardFull(board);
+}
+
+/**
+ * Applies a move to the game state, creating a new immutable state
+ * Integrates gravity, win detection, and turn switching
+ * @param state - Current game state
+ * @param move - Move to apply
+ * @returns New game state with move applied
+ * @throws Error if move is invalid
+ * Requirements: 6.1, 6.2, 9.1, 9.3
+ */
+export function applyMove(
+  state: GameState<ConnectFourMetadata>,
+  move: ConnectFourMove
+): GameState<ConnectFourMetadata> {
+  // Import dependencies (using require to avoid circular dependencies)
+  const { validateMove } = require('./validation');
+  const { applyGravity } = require('./gravity');
+  const { assignPlayerColors } = require('./initialization');
+
+  // Requirement 9.3: Validate move before applying
+  const validation = validateMove(state, move.playerId, move);
+  if (!validation.valid) {
+    throw new Error(validation.error || 'Invalid move');
+  }
+
+  // Requirement 6.2: Don't allow moves on completed games
+  if (state.lifecycle === GameLifecycle.COMPLETED) {
+    throw new Error('Game is already completed');
+  }
+
+  // Get player color
+  const playerColors = assignPlayerColors(state.players);
+  const playerColor = playerColors.get(move.playerId);
+  if (!playerColor) {
+    throw new Error(`Player ${move.playerId} not found in game`);
+  }
+
+  // Requirement 3.1: Apply gravity to place disc
+  const { board: newBoard, row } = applyGravity(
+    state.metadata.board,
+    move.parameters.column,
+    playerColor
+  );
+
+  // Check for win from the newly placed disc position
+  const hasWin = checkWinFromPosition(newBoard, row, move.parameters.column, playerColor);
+
+  // Determine new lifecycle based on win or draw
+  const newLifecycle: GameLifecycle = 
+    hasWin || isBoardFull(newBoard) 
+      ? GameLifecycle.COMPLETED 
+      : state.lifecycle;
+
+  // Requirement 6.1: Alternate turns (only if game is not completed)
+  const newPlayerIndex = 
+    newLifecycle === GameLifecycle.COMPLETED
+      ? state.currentPlayerIndex
+      : (state.currentPlayerIndex + 1) % state.players.length;
+
+  // Requirement 9.1: Create new immutable state
+  return {
+    ...state,
+    lifecycle: newLifecycle,
+    currentPlayerIndex: newPlayerIndex,
+    metadata: {
+      ...state.metadata,
+      board: newBoard,
+      lastMove: {
+        row,
+        column: move.parameters.column,
+        player: move.playerId,
+      },
+    },
+    moveHistory: [...state.moveHistory, move],
+    version: state.version + 1,
+    updatedAt: new Date(),
+  };
 }

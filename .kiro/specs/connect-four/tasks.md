@@ -162,8 +162,8 @@
 - [x] 7.3 REFACTOR: Clean up completion logic
   - Ensure clear separation between win and draw detection
 
-- [ ] 8. TDD: Move application and turn management
-- [ ] 8.1 RED: Write tests for move application
+- [x] 8. TDD: Move application and turn management
+- [x] 8.1 RED: Write tests for move application
   - **Property 17: Valid moves alternate turns**
   - **Validates: Requirements 6.1**
   - **Property 18: Completed games don't change turns**
@@ -175,7 +175,7 @@
   - Test current turn is always clear
   - _Requirements: 6.1, 6.2, 6.3_
 
-- [ ] 8.2 RED: Write tests for immutability
+- [x] 8.2 RED: Write tests for immutability
   - **Property 28: Move application is immutable**
   - **Validates: Requirements 9.1**
   - **Property 29: Invalid moves don't change state**
@@ -184,13 +184,13 @@
   - Test invalid moves don't mutate state
   - _Requirements: 9.1, 9.3_
 
-- [ ] 8.3 GREEN: Implement move application
+- [x] 8.3 GREEN: Implement move application
   - Implement `applyMove()` function with immutable updates
   - Integrate gravity, win detection, turn switching
   - All tests should pass
   - _Requirements: 6.1, 6.2, 9.1, 9.3_
 
-- [ ] 8.4 REFACTOR: Optimize move application
+- [x] 8.4 REFACTOR: Optimize move application
   - Ensure clean immutable patterns
   - Optimize state copying if needed
 
