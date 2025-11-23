@@ -82,6 +82,12 @@ describe('PlayerView', () => {
   });
 
   describe('Game Setup Screen', () => {
+    beforeEach(() => {
+      // Set up localStorage to simulate a logged-in player (but no current game)
+      localStorage.setItem('player.id', '"player-1"');
+      localStorage.setItem('player.name', '"Alice"');
+    });
+
     it('should render game setup screen when no game is loaded', () => {
       render(
         <PlayerProvider>
@@ -93,35 +99,35 @@ describe('PlayerView', () => {
       expect(screen.getByText(/join existing game/i)).toBeInTheDocument();
     });
 
-    it('should render create game form', () => {
+    it('should render create game form', async () => {
       render(
         <PlayerProvider>
           <PlayerView />
         </PlayerProvider>
       );
 
-      expect(screen.getByLabelText(/your name/i, { selector: '#create-name' })).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByLabelText(/game type/i)).toBeInTheDocument();
+      });
       expect(screen.getByRole('button', { name: /create game/i })).toBeInTheDocument();
     });
 
-    it('should render join game form', () => {
+    it('should render join game form', async () => {
       render(
         <PlayerProvider>
           <PlayerView />
         </PlayerProvider>
       );
 
-      expect(screen.getByLabelText(/game id/i)).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByLabelText(/game id/i)).toBeInTheDocument();
+      });
       expect(screen.getByRole('button', { name: /join game/i })).toBeInTheDocument();
     });
 
     it('should create game when create form is submitted', async () => {
       const user = userEvent.setup();
       mockCreateGame.mockResolvedValue(mockGame);
-      mockJoinGame.mockResolvedValue({
-        ...mockGame,
-        players: [{ id: 'player-1', name: 'Alice', joinedAt: '2024-01-01T00:00:00Z' }],
-      });
 
       render(
         <PlayerProvider>
@@ -129,10 +135,15 @@ describe('PlayerView', () => {
         </PlayerProvider>
       );
 
-      const nameInput = screen.getByLabelText(/your name/i, { selector: '#create-name' });
+      // Wait for game types to load
+      await waitFor(() => {
+        expect(screen.getByLabelText(/game type/i)).toBeInTheDocument();
+      });
+
+      const gameTypeSelect = screen.getByLabelText(/game type/i);
       const createButton = screen.getByRole('button', { name: /create game/i });
 
-      await user.type(nameInput, 'Alice');
+      await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
       await user.click(createButton);
 
       await waitFor(() => {
@@ -156,18 +167,21 @@ describe('PlayerView', () => {
         </PlayerProvider>
       );
 
-      const nameInput = screen.getByLabelText(/your name/i, { selector: '#join-name' });
+      // Wait for form to load
+      await waitFor(() => {
+        expect(screen.getByLabelText(/game id/i)).toBeInTheDocument();
+      });
+
       const gameIdInput = screen.getByLabelText(/game id/i);
       const joinButton = screen.getByRole('button', { name: /join game/i });
 
-      await user.type(nameInput, 'Bob');
       await user.type(gameIdInput, 'game-123');
       await user.click(joinButton);
 
       await waitFor(() => {
         expect(mockJoinGame).toHaveBeenCalledWith(
           'game-123',
-          expect.objectContaining({ name: 'Bob' })
+          expect.objectContaining({ name: 'Alice' })
         );
       });
     });
@@ -182,10 +196,15 @@ describe('PlayerView', () => {
         </PlayerProvider>
       );
 
-      const nameInput = screen.getByLabelText(/your name/i, { selector: '#create-name' });
+      // Wait for game types to load
+      await waitFor(() => {
+        expect(screen.getByLabelText(/game type/i)).toBeInTheDocument();
+      });
+
+      const gameTypeSelect = screen.getByLabelText(/game type/i);
       const createButton = screen.getByRole('button', { name: /create game/i });
 
-      await user.type(nameInput, 'Alice');
+      await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
       await user.click(createButton);
 
       await waitFor(() => {
@@ -203,11 +222,14 @@ describe('PlayerView', () => {
         </PlayerProvider>
       );
 
-      const nameInput = screen.getByLabelText(/your name/i, { selector: '#join-name' });
+      // Wait for form to load
+      await waitFor(() => {
+        expect(screen.getByLabelText(/game id/i)).toBeInTheDocument();
+      });
+
       const gameIdInput = screen.getByLabelText(/game id/i);
       const joinButton = screen.getByRole('button', { name: /join game/i });
 
-      await user.type(nameInput, 'Bob');
       await user.type(gameIdInput, 'invalid-game');
       await user.click(joinButton);
 
@@ -219,19 +241,16 @@ describe('PlayerView', () => {
 
   describe('Game View', () => {
     beforeEach(() => {
-      // Set up localStorage to simulate a player who has joined a game
+      // Set up localStorage to simulate a logged-in player (but no current game yet)
       localStorage.setItem('player.id', '"player-1"');
       localStorage.setItem('player.name', '"Alice"');
-      localStorage.setItem('player.currentGame', '"game-123"');
+      // Don't set currentGame - let tests create/join games
+      mockGetGame.mockResolvedValue(mockGame);
     });
 
     it('should render game view when game is loaded', async () => {
       const user = userEvent.setup();
       mockCreateGame.mockResolvedValue(mockGame);
-      mockJoinGame.mockResolvedValue({
-        ...mockGame,
-        players: [{ id: 'player-1', name: 'Alice', joinedAt: '2024-01-01T00:00:00Z' }],
-      });
 
       render(
         <PlayerProvider>
@@ -239,40 +258,33 @@ describe('PlayerView', () => {
         </PlayerProvider>
       );
 
-      // Create a game to transition to game view
-      const nameInput = screen.getByLabelText(/your name/i, { selector: '#create-name' });
+      // Wait for game types to load
+      await waitFor(() => {
+        expect(screen.getByLabelText(/game type/i)).toBeInTheDocument();
+      });
+
+      // Select game type and create game
+      const gameTypeSelect = screen.getByLabelText(/game type/i);
       const createButton = screen.getByRole('button', { name: /create game/i });
 
-      await user.type(nameInput, 'Alice');
+      await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
       await user.click(createButton);
 
       // Verify we're now in game view (not setup screen)
       await waitFor(() => {
         expect(screen.queryByText(/create new game/i)).not.toBeInTheDocument();
-        expect(screen.getByText(/welcome, alice/i)).toBeInTheDocument();
+        expect(screen.getByTestId('game-detail')).toBeInTheDocument();
       });
     });
 
     it('should render player welcome message', async () => {
-      const user = userEvent.setup();
-      mockCreateGame.mockResolvedValue(mockGame);
-      mockJoinGame.mockResolvedValue({
-        ...mockGame,
-        players: [{ id: 'player-1', name: 'Alice', joinedAt: '2024-01-01T00:00:00Z' }],
-      });
-
       render(
         <PlayerProvider>
           <PlayerView />
         </PlayerProvider>
       );
 
-      const nameInput = screen.getByLabelText(/your name/i, { selector: '#create-name' });
-      const createButton = screen.getByRole('button', { name: /create game/i });
-
-      await user.type(nameInput, 'Alice');
-      await user.click(createButton);
-
+      // Player is already logged in via beforeEach
       await waitFor(() => {
         expect(screen.getByText(/welcome, alice/i)).toBeInTheDocument();
       });
@@ -281,10 +293,6 @@ describe('PlayerView', () => {
     it('should render GameDetail component with current player ID', async () => {
       const user = userEvent.setup();
       mockCreateGame.mockResolvedValue(mockGame);
-      mockJoinGame.mockResolvedValue({
-        ...mockGame,
-        players: [{ id: 'player-1', name: 'Alice', joinedAt: '2024-01-01T00:00:00Z' }],
-      });
 
       render(
         <PlayerProvider>
@@ -292,10 +300,16 @@ describe('PlayerView', () => {
         </PlayerProvider>
       );
 
-      const nameInput = screen.getByLabelText(/your name/i, { selector: '#create-name' });
+      // Wait for game types to load
+      await waitFor(() => {
+        expect(screen.getByLabelText(/game type/i)).toBeInTheDocument();
+      });
+
+      // Create a game
+      const gameTypeSelect = screen.getByLabelText(/game type/i);
       const createButton = screen.getByRole('button', { name: /create game/i });
 
-      await user.type(nameInput, 'Alice');
+      await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
       await user.click(createButton);
 
       await waitFor(() => {
@@ -307,10 +321,6 @@ describe('PlayerView', () => {
     it('should render MoveInput component', async () => {
       const user = userEvent.setup();
       mockCreateGame.mockResolvedValue(mockGame);
-      mockJoinGame.mockResolvedValue({
-        ...mockGame,
-        players: [{ id: 'player-1', name: 'Alice', joinedAt: '2024-01-01T00:00:00Z' }],
-      });
 
       render(
         <PlayerProvider>
@@ -318,10 +328,16 @@ describe('PlayerView', () => {
         </PlayerProvider>
       );
 
-      const nameInput = screen.getByLabelText(/your name/i, { selector: '#create-name' });
+      // Wait for game types to load
+      await waitFor(() => {
+        expect(screen.getByLabelText(/game type/i)).toBeInTheDocument();
+      });
+
+      // Create a game
+      const gameTypeSelect = screen.getByLabelText(/game type/i);
       const createButton = screen.getByRole('button', { name: /create game/i });
 
-      await user.type(nameInput, 'Alice');
+      await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
       await user.click(createButton);
 
       await waitFor(() => {
@@ -331,8 +347,7 @@ describe('PlayerView', () => {
 
     it('should enable move input when it is player turn', async () => {
       const user = userEvent.setup();
-      mockCreateGame.mockResolvedValue(mockGame);
-      mockJoinGame.mockResolvedValue({
+      mockCreateGame.mockResolvedValue({
         ...mockGame,
         players: [{ id: 'player-1', name: 'Alice', joinedAt: '2024-01-01T00:00:00Z' }],
         currentPlayerIndex: 0,
@@ -344,10 +359,16 @@ describe('PlayerView', () => {
         </PlayerProvider>
       );
 
-      const nameInput = screen.getByLabelText(/your name/i, { selector: '#create-name' });
+      // Wait for game types to load
+      await waitFor(() => {
+        expect(screen.getByLabelText(/game type/i)).toBeInTheDocument();
+      });
+
+      // Create a game
+      const gameTypeSelect = screen.getByLabelText(/game type/i);
       const createButton = screen.getByRole('button', { name: /create game/i });
 
-      await user.type(nameInput, 'Alice');
+      await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
       await user.click(createButton);
 
       await waitFor(() => {
@@ -357,8 +378,7 @@ describe('PlayerView', () => {
 
     it('should disable move input when it is not player turn', async () => {
       const user = userEvent.setup();
-      mockCreateGame.mockResolvedValue(mockGame);
-      mockJoinGame.mockResolvedValue({
+      mockCreateGame.mockResolvedValue({
         ...mockGame,
         players: [
           { id: 'player-1', name: 'Alice', joinedAt: '2024-01-01T00:00:00Z' },
@@ -373,10 +393,16 @@ describe('PlayerView', () => {
         </PlayerProvider>
       );
 
-      const nameInput = screen.getByLabelText(/your name/i, { selector: '#create-name' });
+      // Wait for game types to load
+      await waitFor(() => {
+        expect(screen.getByLabelText(/game type/i)).toBeInTheDocument();
+      });
+
+      // Create a game
+      const gameTypeSelect = screen.getByLabelText(/game type/i);
       const createButton = screen.getByRole('button', { name: /create game/i });
 
-      await user.type(nameInput, 'Alice');
+      await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
       await user.click(createButton);
 
       await waitFor(() => {
@@ -387,10 +413,6 @@ describe('PlayerView', () => {
     it('should render refresh button', async () => {
       const user = userEvent.setup();
       mockCreateGame.mockResolvedValue(mockGame);
-      mockJoinGame.mockResolvedValue({
-        ...mockGame,
-        players: [{ id: 'player-1', name: 'Alice', joinedAt: '2024-01-01T00:00:00Z' }],
-      });
 
       render(
         <PlayerProvider>
@@ -398,10 +420,16 @@ describe('PlayerView', () => {
         </PlayerProvider>
       );
 
-      const nameInput = screen.getByLabelText(/your name/i, { selector: '#create-name' });
+      // Wait for game types to load
+      await waitFor(() => {
+        expect(screen.getByLabelText(/game type/i)).toBeInTheDocument();
+      });
+
+      // Create a game
+      const gameTypeSelect = screen.getByLabelText(/game type/i);
       const createButton = screen.getByRole('button', { name: /create game/i });
 
-      await user.type(nameInput, 'Alice');
+      await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
       await user.click(createButton);
 
       await waitFor(() => {
@@ -411,13 +439,16 @@ describe('PlayerView', () => {
   });
 
   describe('Move Submission', () => {
+    beforeEach(() => {
+      // Set up localStorage to simulate a logged-in player
+      localStorage.setItem('player.id', '"player-1"');
+      localStorage.setItem('player.name', '"Alice"');
+      mockGetGame.mockResolvedValue(mockGame);
+    });
+
     it('should submit move when move input is submitted', async () => {
       const user = userEvent.setup();
       mockCreateGame.mockResolvedValue(mockGame);
-      mockJoinGame.mockResolvedValue({
-        ...mockGame,
-        players: [{ id: 'player-1', name: 'Alice', joinedAt: '2024-01-01T00:00:00Z' }],
-      });
       mockMakeMove.mockResolvedValue({
         ...mockGame,
         version: 2,
@@ -437,10 +468,16 @@ describe('PlayerView', () => {
         </PlayerProvider>
       );
 
-      const nameInput = screen.getByLabelText(/your name/i, { selector: '#create-name' });
+      // Wait for game types to load
+      await waitFor(() => {
+        expect(screen.getByLabelText(/game type/i)).toBeInTheDocument();
+      });
+
+      // Create a game
+      const gameTypeSelect = screen.getByLabelText(/game type/i);
       const createButton = screen.getByRole('button', { name: /create game/i });
 
-      await user.type(nameInput, 'Alice');
+      await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
       await user.click(createButton);
 
       await waitFor(() => {
@@ -463,10 +500,6 @@ describe('PlayerView', () => {
     it('should display error when move submission fails', async () => {
       const user = userEvent.setup();
       mockCreateGame.mockResolvedValue(mockGame);
-      mockJoinGame.mockResolvedValue({
-        ...mockGame,
-        players: [{ id: 'player-1', name: 'Alice', joinedAt: '2024-01-01T00:00:00Z' }],
-      });
       mockMakeMove.mockRejectedValue(new Error('Invalid move'));
 
       render(
@@ -475,10 +508,16 @@ describe('PlayerView', () => {
         </PlayerProvider>
       );
 
-      const nameInput = screen.getByLabelText(/your name/i, { selector: '#create-name' });
+      // Wait for game types to load
+      await waitFor(() => {
+        expect(screen.getByLabelText(/game type/i)).toBeInTheDocument();
+      });
+
+      // Create a game
+      const gameTypeSelect = screen.getByLabelText(/game type/i);
       const createButton = screen.getByRole('button', { name: /create game/i });
 
-      await user.type(nameInput, 'Alice');
+      await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
       await user.click(createButton);
 
       await waitFor(() => {
@@ -495,13 +534,16 @@ describe('PlayerView', () => {
   });
 
   describe('Optimistic Locking Retry', () => {
+    beforeEach(() => {
+      // Set up localStorage to simulate a logged-in player
+      localStorage.setItem('player.id', '"player-1"');
+      localStorage.setItem('player.name', '"Alice"');
+      mockGetGame.mockResolvedValue(mockGame);
+    });
+
     it('should display error and allow retry when version conflict occurs', async () => {
       const user = userEvent.setup();
       mockCreateGame.mockResolvedValue(mockGame);
-      mockJoinGame.mockResolvedValue({
-        ...mockGame,
-        players: [{ id: 'player-1', name: 'Alice', joinedAt: '2024-01-01T00:00:00Z' }],
-      });
       mockMakeMove.mockRejectedValueOnce(new Error('Version conflict'));
 
       render(
@@ -510,10 +552,16 @@ describe('PlayerView', () => {
         </PlayerProvider>
       );
 
-      const nameInput = screen.getByLabelText(/your name/i, { selector: '#create-name' });
+      // Wait for game types to load
+      await waitFor(() => {
+        expect(screen.getByLabelText(/game type/i)).toBeInTheDocument();
+      });
+
+      // Create a game
+      const gameTypeSelect = screen.getByLabelText(/game type/i);
       const createButton = screen.getByRole('button', { name: /create game/i });
 
-      await user.type(nameInput, 'Alice');
+      await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
       await user.click(createButton);
 
       await waitFor(() => {
@@ -533,13 +581,16 @@ describe('PlayerView', () => {
   });
 
   describe('Refresh Functionality', () => {
+    beforeEach(() => {
+      // Set up localStorage to simulate a logged-in player
+      localStorage.setItem('player.id', '"player-1"');
+      localStorage.setItem('player.name', '"Alice"');
+      mockGetGame.mockResolvedValue(mockGame);
+    });
+
     it('should refresh game when refresh button is clicked', async () => {
       const user = userEvent.setup();
       mockCreateGame.mockResolvedValue(mockGame);
-      mockJoinGame.mockResolvedValue({
-        ...mockGame,
-        players: [{ id: 'player-1', name: 'Alice', joinedAt: '2024-01-01T00:00:00Z' }],
-      });
       mockGetGame.mockResolvedValue({
         ...mockGame,
         version: 2,
@@ -551,10 +602,16 @@ describe('PlayerView', () => {
         </PlayerProvider>
       );
 
-      const nameInput = screen.getByLabelText(/your name/i, { selector: '#create-name' });
+      // Wait for game types to load
+      await waitFor(() => {
+        expect(screen.getByLabelText(/game type/i)).toBeInTheDocument();
+      });
+
+      // Create a game
+      const gameTypeSelect = screen.getByLabelText(/game type/i);
       const createButton = screen.getByRole('button', { name: /create game/i });
 
-      await user.type(nameInput, 'Alice');
+      await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
       await user.click(createButton);
 
       await waitFor(() => {

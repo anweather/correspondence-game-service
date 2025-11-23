@@ -71,7 +71,7 @@ describe('GameDetail', () => {
       render(<GameDetail game={mockGame} />);
 
       const img = screen.getByRole('img', { name: /board/i });
-      expect(img).toHaveAttribute('src', '/api/games/game-123/board.svg');
+      expect(img).toHaveAttribute('src', '/api/games/game-123/board.svg?v=3');
     });
 
     it('should render board with alt text', () => {
@@ -88,7 +88,7 @@ describe('GameDetail', () => {
       rerender(<GameDetail game={updatedGame} />);
 
       const img = screen.getByRole('img', { name: /board/i });
-      expect(img).toHaveAttribute('src', '/api/games/game-456/board.svg');
+      expect(img).toHaveAttribute('src', '/api/games/game-456/board.svg?v=3');
     });
   });
 

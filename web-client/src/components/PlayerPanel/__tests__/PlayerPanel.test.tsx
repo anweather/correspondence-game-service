@@ -311,7 +311,8 @@ describe('PlayerPanel', () => {
           impersonatedPlayer={null}
           onImpersonate={onImpersonate}
           onAddPlayer={onAddPlayer}
-        onSubmitMove={mockOnSubmitMove}
+          onSubmitMove={mockOnSubmitMove}
+          maxPlayers={4}
         />
       );
 
@@ -330,7 +331,8 @@ describe('PlayerPanel', () => {
           impersonatedPlayer={null}
           onImpersonate={onImpersonate}
           onAddPlayer={onAddPlayer}
-        onSubmitMove={mockOnSubmitMove}
+          onSubmitMove={mockOnSubmitMove}
+          maxPlayers={4}
         />
       );
 
@@ -354,7 +356,8 @@ describe('PlayerPanel', () => {
           impersonatedPlayer={null}
           onImpersonate={onImpersonate}
           onAddPlayer={onAddPlayer}
-        onSubmitMove={mockOnSubmitMove}
+          onSubmitMove={mockOnSubmitMove}
+          maxPlayers={4}
         />
       );
 
@@ -380,7 +383,8 @@ describe('PlayerPanel', () => {
           impersonatedPlayer={null}
           onImpersonate={onImpersonate}
           onAddPlayer={onAddPlayer}
-        onSubmitMove={mockOnSubmitMove}
+          onSubmitMove={mockOnSubmitMove}
+          maxPlayers={4}
         />
       );
 
@@ -401,7 +405,8 @@ describe('PlayerPanel', () => {
           impersonatedPlayer={null}
           onImpersonate={onImpersonate}
           onAddPlayer={onAddPlayer}
-        onSubmitMove={mockOnSubmitMove}
+          onSubmitMove={mockOnSubmitMove}
+          maxPlayers={4}
         />
       );
 
@@ -425,7 +430,8 @@ describe('PlayerPanel', () => {
           impersonatedPlayer={null}
           onImpersonate={onImpersonate}
           onAddPlayer={onAddPlayer}
-        onSubmitMove={mockOnSubmitMove}
+          onSubmitMove={mockOnSubmitMove}
+          maxPlayers={4}
         />
       );
 
@@ -449,7 +455,8 @@ describe('PlayerPanel', () => {
           impersonatedPlayer={null}
           onImpersonate={onImpersonate}
           onAddPlayer={onAddPlayer}
-        onSubmitMove={mockOnSubmitMove}
+          onSubmitMove={mockOnSubmitMove}
+          maxPlayers={4}
         />
       );
 
@@ -556,7 +563,8 @@ describe('PlayerPanel', () => {
           impersonatedPlayer={null}
           onImpersonate={onImpersonate}
           onAddPlayer={onAddPlayer}
-        onSubmitMove={mockOnSubmitMove}
+          onSubmitMove={mockOnSubmitMove}
+          maxPlayers={4}
         />
       );
 
@@ -574,7 +582,8 @@ describe('PlayerPanel', () => {
           impersonatedPlayer={null}
           onImpersonate={onImpersonate}
           onAddPlayer={onAddPlayer}
-        onSubmitMove={mockOnSubmitMove}
+          onSubmitMove={mockOnSubmitMove}
+          maxPlayers={4}
         />
       );
 
