@@ -4,7 +4,7 @@
  */
 
 import { registerGameComponent } from './registry';
-import { TicTacToeMoveInput } from './tic-tac-toe';
+import { TicTacToeMoveInput } from '@games/tic-tac-toe/ui';
 
 // Register tic-tac-toe component
 registerGameComponent('tic-tac-toe', TicTacToeMoveInput);

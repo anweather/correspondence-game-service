@@ -10,7 +10,12 @@ export default defineConfig({
       '@games/tic-tac-toe/shared': path.resolve(__dirname, '../games/tic-tac-toe/shared'),
       '@games/tic-tac-toe/engine': path.resolve(__dirname, '../games/tic-tac-toe/engine'),
       '@games/tic-tac-toe/ui': path.resolve(__dirname, '../games/tic-tac-toe/ui'),
-      '@games': path.resolve(__dirname, '../games')
+      '@games': path.resolve(__dirname, '../games'),
+      // Ensure React is resolved from web-client's node_modules for game components
+      'react': path.resolve(__dirname, './node_modules/react'),
+      'react-dom': path.resolve(__dirname, './node_modules/react-dom'),
+      'react/jsx-runtime': path.resolve(__dirname, './node_modules/react/jsx-runtime'),
+      'react/jsx-dev-runtime': path.resolve(__dirname, './node_modules/react/jsx-dev-runtime')
     }
   },
   server: {

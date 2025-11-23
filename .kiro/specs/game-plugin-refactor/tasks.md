@@ -73,13 +73,13 @@
   - Document move format, valid parameters, and win conditions
   - _Requirements: 15.6, 15.7, 15.8_
 
-- [ ] 11. Update plugin registry imports
+- [x] 11. Update plugin registry imports
   - Update `src/application/PluginRegistry.ts` to import from `@games/tic-tac-toe/engine`
   - Update `src/index.ts` or plugin initialization to use new import path
   - Verify engine is properly registered and discoverable
   - _Requirements: 13.1, 13.3, 13.4_
 
-- [ ] 12. Update UI component registry imports
+- [x] 12. Update UI component registry imports
   - Update `web-client/src/components/games/index.ts` to import from `@games/tic-tac-toe/ui`
   - Update component registration to use new UI components
   - Verify components are properly registered

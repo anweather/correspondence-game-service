@@ -5,11 +5,14 @@
     "outDir": "../../dist/games/tic-tac-toe",
     "jsx": "react-jsx",
     "baseUrl": ".",
+    "skipLibCheck": true,
     "paths": {
       "@domain/*": ["../../src/domain/*"],
       "@application/*": ["../../src/application/*"],
       "@infrastructure/*": ["../../src/infrastructure/*"],
-      "@adapters/*": ["../../src/adapters/*"]
+      "@adapters/*": ["../../src/adapters/*"],
+      "react": ["../../node_modules/@types/react"],
+      "react-dom": ["../../node_modules/@types/react-dom"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx"],

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { GameState, MoveInput } from '../../../../../web-client/src/types/game';
+import type { GameState, MoveInput } from '../types';
 import styles from './TicTacToeMoveInput.module.css';
 
 export interface TicTacToeMoveInputProps {
@@ -23,7 +23,7 @@ export function TicTacToeMoveInput({ gameState, onMoveChange }: TicTacToeMoveInp
 
   const getCellContent = (x: number, y: number): string => {
     const space = gameState.board.spaces.find(
-      s => s.position.x === x && s.position.y === y
+      (s) => s.position.x === x && s.position.y === y
     );
     
     if (space && space.tokens.length > 0) {
@@ -35,7 +35,7 @@ export function TicTacToeMoveInput({ gameState, onMoveChange }: TicTacToeMoveInp
 
   const isCellOccupied = (x: number, y: number): boolean => {
     const space = gameState.board.spaces.find(
-      s => s.position.x === x && s.position.y === y
+      (s) => s.position.x === x && s.position.y === y
     );
     
     return space ? space.tokens.length > 0 : false;

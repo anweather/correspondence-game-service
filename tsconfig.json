@@ -30,6 +30,15 @@
       "@games/*": ["games/*"]
     }
   },
-  "include": ["src/**/*", "games/**/*"],
-  "exclude": ["node_modules", "dist", "tests", "games/**/__tests__/**", "games/**/*.test.ts", "games/**/*.test.tsx"]
+  "include": ["src/**/*", "games/**/engine/**/*", "games/**/shared/**/*"],
+  "exclude": [
+    "node_modules", 
+    "dist", 
+    "tests", 
+    "web-client",
+    "games/**/ui/**/*",
+    "games/**/__tests__/**", 
+    "games/**/*.test.ts", 
+    "games/**/*.test.tsx"
+  ]
 }
