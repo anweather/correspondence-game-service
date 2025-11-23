@@ -58,7 +58,7 @@
   - _Requirements: 3.6, 3.7, 16.1, 16.2_
 
 
-- [ ] 9. Move UI move input component (reuse existing code)
+- [x] 9. Move UI move input component (reuse existing code)
   - Create `games/tic-tac-toe/ui/components/` directory
   - **Copy** existing `web-client/src/components/games/tic-tac-toe/TicTacToeMoveInput.tsx` to new location
   - Update imports to use shared types from `@games/tic-tac-toe/shared`

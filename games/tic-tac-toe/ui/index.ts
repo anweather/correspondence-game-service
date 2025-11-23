@@ -1,4 +1,8 @@
-// UI components for tic-tac-toe game
-// This file will be populated in subsequent tasks
+/**
+ * Tic-Tac-Toe UI Components
+ * 
+ * This module exports React components for the Tic-Tac-Toe game UI.
+ */
 
-export {};
+export { TicTacToeMoveInput } from './components/TicTacToeMoveInput';
+export type { TicTacToeMoveInputProps } from './components/TicTacToeMoveInput';
