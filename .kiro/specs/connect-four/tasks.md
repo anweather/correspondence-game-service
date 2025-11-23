@@ -310,7 +310,7 @@
   - Document move format and coordinate system
   - _Requirements: All_
 
-- [ ] 15. Register plugin with game service
+- [x] 15. Register plugin with game service
   - Import ConnectFourEngine in plugin registry
   - Register the engine with game type "connect-four"
   - Update any game type lists or documentation

@@ -32,11 +32,21 @@ export function AdminView() {
   } = useAdmin();
 
   const [showMoveModal, setShowMoveModal] = useState(false);
+  const [showCreateGameModal, setShowCreateGameModal] = useState(false);
+  const [selectedGameType, setSelectedGameType] = useState<string>('');
 
   // Load games on mount
   useEffect(() => {
     loadGames();
   }, [loadGames]);
+
+  // Set default game type when game types are loaded
+  useEffect(() => {
+    if (gameTypes.size > 0 && !selectedGameType) {
+      const availableTypes = Array.from(gameTypes.keys());
+      setSelectedGameType(availableTypes[0] || 'tic-tac-toe');
+    }
+  }, [gameTypes, selectedGameType]);
 
   // Filter games based on selected filter
   const filteredGames = useMemo(() => {
@@ -63,11 +73,13 @@ export function AdminView() {
     }
   };
 
-  const handleCreateGame = async () => {
-    // Use first available game type, or default to tic-tac-toe
-    const availableTypes = Array.from(gameTypes.keys());
-    const gameType = availableTypes.length > 0 ? availableTypes[0] : 'tic-tac-toe';
-    await createTestGame(gameType);
+  const handleCreateGame = () => {
+    setShowCreateGameModal(true);
+  };
+
+  const handleConfirmCreateGame = async () => {
+    await createTestGame(selectedGameType);
+    setShowCreateGameModal(false);
   };
 
   const handleSelectGame = async (gameId: string) => {
@@ -191,6 +203,48 @@ export function AdminView() {
           )}
         </main>
       </div>
+
+      {/* Create Game Modal */}
+      {showCreateGameModal && (
+        <Modal
+          isOpen={showCreateGameModal}
+          onClose={() => setShowCreateGameModal(false)}
+          title="Create New Game"
+        >
+          <div className={styles.createGameModalContent}>
+            <label htmlFor="gameTypeSelect" className={styles.label}>
+              Select Game Type:
+            </label>
+            <select
+              id="gameTypeSelect"
+              className={styles.gameTypeSelect}
+              value={selectedGameType}
+              onChange={(e) => setSelectedGameType(e.target.value)}
+            >
+              {Array.from(gameTypes.entries()).map(([type, info]) => (
+                <option key={type} value={type}>
+                  {type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')} ({info.maxPlayers} players)
+                </option>
+              ))}
+            </select>
+            <div className={styles.modalActions}>
+              <button
+                className={styles.cancelButton}
+                onClick={() => setShowCreateGameModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className={styles.confirmButton}
+                onClick={handleConfirmCreateGame}
+                disabled={loading}
+              >
+                Create Game
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
 
       {/* Move Input Modal */}
       {showMoveModal && selectedGame && selectedGame.lifecycle === 'active' && impersonatedPlayer && (

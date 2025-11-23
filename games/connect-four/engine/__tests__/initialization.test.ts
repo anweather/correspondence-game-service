@@ -162,7 +162,7 @@ describe('ConnectFour Initialization', () => {
       );
     });
 
-    it('should reject initialization with fewer than 2 players', () => {
+    it('should allow initialization with fewer than 2 players (for CREATED/WAITING state)', () => {
       const singlePlayer: Player[] = [
         {
           id: 'player1',
@@ -171,11 +171,15 @@ describe('ConnectFour Initialization', () => {
         },
       ];
 
-      expect(() => initializeGame('game1', singlePlayer)).toThrow();
+      const state = initializeGame('game1', singlePlayer);
+      expect(state).toBeDefined();
+      expect(state.players).toHaveLength(1);
     });
 
-    it('should reject initialization with empty player list', () => {
-      expect(() => initializeGame('game1', [])).toThrow();
+    it('should allow initialization with empty player list (for CREATED state)', () => {
+      const state = initializeGame('game1', []);
+      expect(state).toBeDefined();
+      expect(state.players).toHaveLength(0);
     });
   });
 });

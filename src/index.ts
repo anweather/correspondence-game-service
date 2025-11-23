@@ -16,6 +16,7 @@ import { PostgresGameRepository } from './infrastructure/persistence/PostgresGam
 import { InMemoryPlayerIdentityRepository } from './infrastructure/persistence/InMemoryPlayerIdentityRepository';
 import { RendererService } from './infrastructure/rendering/RendererService';
 import { TicTacToeEngine } from '@games/tic-tac-toe/engine';
+import { ConnectFourEngine } from '@games/connect-four/engine';
 import { DatabaseConnection } from './infrastructure/persistence/DatabaseConnection';
 import { DatabaseMigrator } from './infrastructure/persistence/DatabaseMigrator';
 import { validateAndLogConfig } from './config';
@@ -95,6 +96,12 @@ async function startApplication() {
   pluginRegistry.register(ticTacToeEngine);
   logger.info('Registered game plugin', {
     gameType: ticTacToeEngine.getGameType(),
+  });
+
+  const connectFourEngine = new ConnectFourEngine();
+  pluginRegistry.register(connectFourEngine);
+  logger.info('Registered game plugin', {
+    gameType: connectFourEngine.getGameType(),
   });
 
   // Initialize services

@@ -20,7 +20,6 @@ import {
   COLUMNS,
   PLAYER_COLORS,
   GAME_TYPE,
-  MIN_PLAYERS,
 } from '../shared/constants';
 
 /**
@@ -56,21 +55,17 @@ export function assignPlayerColors(players: Player[]): Map<string, PlayerColor> 
 /**
  * Initializes a new Connect Four game
  * @param gameId - Unique identifier for the game
- * @param players - Array of players (must have exactly 2 players)
+ * @param players - Array of players (can be 0 for CREATED state, or 2+ for ACTIVE state)
  * @returns Initialized game state
- * @throws Error if fewer than 2 players provided
  * Requirements: 1.1, 1.2, 1.3, 1.4, 1.5
  */
 export function initializeGame(
   gameId: string,
   players: Player[]
 ): GameState<ConnectFourMetadata> {
-  // Validate player count
-  if (players.length < MIN_PLAYERS) {
-    throw new Error(
-      `Connect Four requires at least ${MIN_PLAYERS} players, but ${players.length} provided`
-    );
-  }
+  // Note: Player count validation happens at the service level
+  // Games can be created with 0 players (CREATED state) and players join later
+  // When the game has MIN_PLAYERS, it transitions to ACTIVE state
 
   // Create empty board
   const board = createEmptyBoard();
