@@ -58,38 +58,38 @@
   - Extract helper functions if needed
   - Ensure immutability patterns are clear
 
-- [ ] 4. TDD: Gravity mechanics module
-- [ ] 4.1 RED: Write tests for gravity mechanics
+- [x] 4. TDD: Gravity mechanics module
+- [x] 4.1 RED: Write tests for gravity mechanics
   - **Property 9: Gravity places discs at lowest position**
   - **Validates: Requirements 3.1**
   - Test disc lands at bottom of empty column
   - Test disc lands on top of existing discs
   - Test finding lowest empty row
 
-- [ ] 4.2 RED: Write tests for disc placement
+- [x] 4.2 RED: Write tests for disc placement
   - **Property 10: Disc placement updates board correctly**
   - **Validates: Requirements 3.4**
   - Test board updates with correct color at correct position
   - Test other positions remain unchanged
   - _Requirements: 3.1, 3.4_
 
-- [ ] 4.3 GREEN: Implement gravity module
+- [x] 4.3 GREEN: Implement gravity module
   - Create `engine/gravity.ts`
   - Implement `findLowestEmptyRow()` function
   - Implement `applyGravity()` function
   - All tests should pass
 
-- [ ] 4.4 REFACTOR: Optimize gravity calculations
+- [x] 4.4 REFACTOR: Optimize gravity calculations
   - Ensure efficient bottom-to-top scanning
   - Clean up edge case handling
 
-- [ ] 5. TDD: Move validation module
-- [ ] 5.1 RED: Write tests for turn validation
+- [x] 5. TDD: Move validation module
+- [x] 5.1 RED: Write tests for turn validation
   - **Property 5: Wrong turn moves are rejected**
   - **Validates: Requirements 2.1**
   - Test moves by wrong player are rejected
 
-- [ ] 5.2 RED: Write tests for column validation
+- [x] 5.2 RED: Write tests for column validation
   - **Property 6: Full column moves are rejected**
   - **Validates: Requirements 2.3**
   - Test negative column numbers rejected
@@ -98,7 +98,7 @@
   - Test valid columns accepted
   - _Requirements: 2.2, 2.3_
 
-- [ ] 5.3 RED: Write tests for validation responses
+- [x] 5.3 RED: Write tests for validation responses
   - **Property 7: Invalid moves return descriptive errors**
   - **Validates: Requirements 2.4**
   - **Property 8: Valid moves pass validation**
@@ -107,7 +107,7 @@
   - Test valid moves return success
   - _Requirements: 2.4, 2.5_
 
-- [ ] 5.4 GREEN: Implement validation module
+- [x] 5.4 GREEN: Implement validation module
   - Create `engine/validation.ts`
   - Implement `isValidColumn()` function
   - Implement `isColumnFull()` function
@@ -116,12 +116,12 @@
   - All tests should pass
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
 
-- [ ] 5.5 REFACTOR: Improve validation error messages
+- [x] 5.5 REFACTOR: Improve validation error messages
   - Ensure all error messages are clear and actionable
   - Extract error message constants if needed
 
-- [ ] 6. TDD: Win detection logic
-- [ ] 6.1 RED: Write tests for win detection
+- [x] 6. TDD: Win detection logic
+- [x] 6.1 RED: Write tests for win detection
   - **Property 11: Horizontal wins are detected**
   - **Validates: Requirements 4.1**
   - **Property 12: Vertical wins are detected**
@@ -133,18 +133,18 @@
   - Test all four win directions with various patterns
   - _Requirements: 4.1, 4.2, 4.3, 4.4_
 
-- [ ] 6.2 GREEN: Implement win detection functions
+- [x] 6.2 GREEN: Implement win detection functions
   - Create `engine/rules.ts`
   - Implement `checkDirection()` helper function
   - Implement `checkWinFromPosition()` function
   - Tests should pass
 
-- [ ] 6.3 REFACTOR: Optimize win detection
+- [x] 6.3 REFACTOR: Optimize win detection
   - Ensure efficient direction checking
   - Clean up pattern matching logic
 
-- [ ] 7. TDD: Game completion and draw detection
-- [ ] 7.1 RED: Write tests for game completion
+- [x] 7. TDD: Game completion and draw detection
+- [x] 7.1 RED: Write tests for game completion
   - **Property 15: Winning moves complete the game**
   - **Validates: Requirements 4.5**
   - **Property 16: Full board without winner is a draw**
@@ -153,13 +153,13 @@
   - Test game completes on full board with no winner
   - _Requirements: 4.5, 5.1, 5.2_
 
-- [ ] 7.2 GREEN: Implement game completion logic
+- [x] 7.2 GREEN: Implement game completion logic
   - Implement `isBoardFull()` function
   - Implement `getWinner()` function
   - Implement `isGameOver()` function
   - Tests should pass
 
-- [ ] 7.3 REFACTOR: Clean up completion logic
+- [x] 7.3 REFACTOR: Clean up completion logic
   - Ensure clear separation between win and draw detection
 
 - [ ] 8. TDD: Move application and turn management

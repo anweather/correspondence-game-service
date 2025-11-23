@@ -102,3 +102,50 @@ export function checkWinFromPosition(
 
   return false;
 }
+
+/**
+ * Checks if the board is completely full (all cells occupied)
+ * @param board - Current board state
+ * @returns true if all cells are filled
+ * Requirements: 5.1, 5.2
+ */
+export function isBoardFull(board: CellState[][]): boolean {
+  for (let row = 0; row < ROWS; row++) {
+    for (let col = 0; col < COLUMNS; col++) {
+      if (board[row][col] === null) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+/**
+ * Determines the winner of the game by checking all positions
+ * @param board - Current board state
+ * @returns The winning player color, or null if no winner
+ * Requirements: 4.5
+ */
+export function getWinner(board: CellState[][]): PlayerColor | null {
+  // Check every position on the board for a winning pattern
+  for (let row = 0; row < ROWS; row++) {
+    for (let col = 0; col < COLUMNS; col++) {
+      const color = board[row][col];
+      if (color && checkWinFromPosition(board, row, col, color)) {
+        return color;
+      }
+    }
+  }
+  return null;
+}
+
+/**
+ * Checks if the game is over (either won or drawn)
+ * @param board - Current board state
+ * @returns true if the game is complete (has a winner or board is full)
+ * Requirements: 4.5, 5.1, 5.2
+ */
+export function isGameOver(board: CellState[][]): boolean {
+  // Game is over if there's a winner or the board is full
+  return getWinner(board) !== null || isBoardFull(board);
+}
