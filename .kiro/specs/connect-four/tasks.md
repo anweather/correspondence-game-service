@@ -194,20 +194,20 @@
   - Ensure clean immutable patterns
   - Optimize state copying if needed
 
-- [ ] 9. Checkpoint - Ensure all core logic tests pass
+- [x] 9. Checkpoint - Ensure all core logic tests pass
   - Run all tests for modules 1-8
   - Verify all property tests pass with 100+ iterations
   - Ask user if questions arise
 
-- [ ] 10. TDD: SVG rendering module
-- [ ] 10.1 RED: Write tests for SVG structure
+- [x] 10. TDD: SVG rendering module
+- [x] 10.1 RED: Write tests for SVG structure
   - **Property 20: Rendering produces valid SVG structure**
   - **Validates: Requirements 7.1**
   - Test SVG has correct 7×6 grid structure
   - Test grid lines are present
   - _Requirements: 7.1, 7.5_
 
-- [ ] 10.2 RED: Write tests for disc rendering
+- [x] 10.2 RED: Write tests for disc rendering
   - **Property 21: Empty cells render as white circles**
   - **Validates: Requirements 7.2**
   - **Property 22: Red discs render correctly**
@@ -219,13 +219,13 @@
   - Test yellow discs render at correct positions
   - _Requirements: 7.2, 7.3, 7.4_
 
-- [ ] 10.3 RED: Write tests for win highlighting
+- [x] 10.3 RED: Write tests for win highlighting
   - **Property 24: Winning patterns are highlighted**
   - **Validates: Requirements 7.6**
   - Test winning discs are highlighted
   - _Requirements: 7.6_
 
-- [ ] 10.4 GREEN: Implement rendering module
+- [x] 10.4 GREEN: Implement rendering module
   - Create `engine/renderer.ts`
   - Implement `createGridLayer()` function
   - Implement `renderDisc()` helper function
@@ -235,7 +235,7 @@
   - All tests should pass
   - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6_
 
-- [ ] 10.5 REFACTOR: Optimize SVG generation
+- [x] 10.5 REFACTOR: Optimize SVG generation
   - Ensure efficient layering
   - Clean up SVG element creation
 

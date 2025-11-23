@@ -9,5 +9,8 @@ export * from './initialization';
 // Metadata module
 export * from './metadata';
 
+// Rendering module
+export * from './renderer';
+
 // Main engine class will be exported here once implemented
 // export { ConnectFourEngine } from './ConnectFourEngine';

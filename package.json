@@ -22,7 +22,8 @@
     "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\" \"tests/**/*.ts\"",
     "typecheck": "tsc --noEmit",
-    "prepare": "husky"
+    "prepare": "husky",
+    "generate:connect-four-svg": "ts-node games/connect-four/scripts/generate-svg-examples.ts"
   },
   "keywords": [
     "boardgame",

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" 
+     viewBox="0 0 560 480" 
+     width="560" 
+     height="480">
+  <title>Connect Four - Horizontal Win</title>
+  <rect width="100%" height="100%" fill="#ffffff" />
+  <g id="grid">
+    <rect x="0" y="0" width="560" height="480" fill="#0066cc" />
+    <path d="M 80 0 L 80 480" stroke="#0066cc" stroke-width="2" opacity="0.3" />
+    <path d="M 160 0 L 160 480" stroke="#0066cc" stroke-width="2" opacity="0.3" />
+    <path d="M 240 0 L 240 480" stroke="#0066cc" stroke-width="2" opacity="0.3" />
+    <path d="M 320 0 L 320 480" stroke="#0066cc" stroke-width="2" opacity="0.3" />
+    <path d="M 400 0 L 400 480" stroke="#0066cc" stroke-width="2" opacity="0.3" />
+    <path d="M 480 0 L 480 480" stroke="#0066cc" stroke-width="2" opacity="0.3" />
+    <path d="M 0 80 L 560 80" stroke="#0066cc" stroke-width="2" opacity="0.3" />
+    <path d="M 0 160 L 560 160" stroke="#0066cc" stroke-width="2" opacity="0.3" />
+    <path d="M 0 240 L 560 240" stroke="#0066cc" stroke-width="2" opacity="0.3" />
+    <path d="M 0 320 L 560 320" stroke="#0066cc" stroke-width="2" opacity="0.3" />
+    <path d="M 0 400 L 560 400" stroke="#0066cc" stroke-width="2" opacity="0.3" />
+    <rect x="0" y="0" width="560" height="480" fill="none" stroke="#0066cc" stroke-width="4" />
+  </g>
+  <g id="discs">
+    <circle cx="40" cy="40" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+    <circle cx="120" cy="40" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+    <circle cx="200" cy="40" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+    <circle cx="280" cy="40" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+    <circle cx="360" cy="40" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+    <circle cx="440" cy="40" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+    <circle cx="520" cy="40" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+    <circle cx="40" cy="120" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+    <circle cx="120" cy="120" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+    <circle cx="200" cy="120" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+    <circle cx="280" cy="120" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+    <circle cx="360" cy="120" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+    <circle cx="440" cy="120" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+    <circle cx="520" cy="120" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+    <circle cx="40" cy="200" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+    <circle cx="120" cy="200" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+    <circle cx="200" cy="200" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+    <circle cx="280" cy="200" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+    <circle cx="360" cy="200" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+    <circle cx="440" cy="200" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+    <circle cx="520" cy="200" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+    <circle cx="40" cy="280" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+    <circle cx="120" cy="280" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+    <circle cx="200" cy="280" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+    <circle cx="280" cy="280" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+    <circle cx="360" cy="280" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+    <circle cx="440" cy="280" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+    <circle cx="520" cy="280" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+    <circle cx="40" cy="360" r="30" fill="#f1c40f" stroke="none" stroke-width="1" />
+    <circle cx="120" cy="360" r="30" fill="#f1c40f" stroke="none" stroke-width="1" />
+    <circle cx="200" cy="360" r="30" fill="#f1c40f" stroke="none" stroke-width="1" />
+    <circle cx="280" cy="360" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+    <circle cx="360" cy="360" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+    <circle cx="440" cy="360" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+    <circle cx="520" cy="360" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+    <circle cx="40" cy="440" r="30" fill="#e74c3c" stroke="none" stroke-width="1" />
+    <circle cx="120" cy="440" r="30" fill="#e74c3c" stroke="none" stroke-width="1" />
+    <circle cx="200" cy="440" r="30" fill="#e74c3c" stroke="none" stroke-width="1" />
+    <circle cx="280" cy="440" r="30" fill="#e74c3c" stroke="none" stroke-width="1" />
+    <circle cx="360" cy="440" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+    <circle cx="440" cy="440" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+    <circle cx="520" cy="440" r="30" fill="white" stroke="#cccccc" stroke-width="1" />
+  </g>
+  <g id="win-highlight">
+    <circle cx="40" cy="440" r="35" fill="none" stroke="#2ecc71" stroke-width="4" />
+    <circle cx="120" cy="440" r="35" fill="none" stroke="#2ecc71" stroke-width="4" />
+    <circle cx="200" cy="440" r="35" fill="none" stroke="#2ecc71" stroke-width="4" />
+    <circle cx="280" cy="440" r="35" fill="none" stroke="#2ecc71" stroke-width="4" />
+  </g>
+</svg>
