@@ -43,13 +43,29 @@ export function applyMove(state: GameState, playerId: string, move: Move): GameS
     return space;
   });
 
-  // Return new state with updated board and move history
+  // Advance turn to next player (unless game is over)
+  // Note: We check game over status after applying the move
+  const newBoard = {
+    ...state.board,
+    spaces: newSpaces,
+  };
+  
+  const tempState = {
+    ...state,
+    board: newBoard,
+    moveHistory: [...state.moveHistory, move],
+  };
+  
+  const gameIsOver = isGameOver(tempState);
+  const nextPlayerIndex = gameIsOver 
+    ? state.currentPlayerIndex 
+    : (state.currentPlayerIndex + 1) % state.players.length;
+
+  // Return new state with updated board, move history, and turn advancement
   return {
     ...state,
-    board: {
-      ...state.board,
-      spaces: newSpaces,
-    },
+    currentPlayerIndex: nextPlayerIndex,
+    board: newBoard,
     moveHistory: [...state.moveHistory, move],
     version: state.version + 1,
     updatedAt: new Date(),

@@ -101,18 +101,25 @@ describe('TicTacToeEngine', () => {
     });
 
     it('should reject move to occupied space', () => {
-      const move: Move = {
+      const move1: Move = {
         playerId: 'player1',
         action: 'place',
         parameters: { row: 0, col: 0 },
         timestamp: new Date(),
       };
 
-      // Apply first move
-      state = engine.applyMove(state, 'player1', move);
+      // Apply first move by player1
+      state = engine.applyMove(state, 'player1', move1);
 
-      // Try to move to same space
-      const result = engine.validateMove(state, 'player1', move);
+      // Try to move to same space by player2 (whose turn it is now)
+      const move2: Move = {
+        playerId: 'player2',
+        action: 'place',
+        parameters: { row: 0, col: 0 }, // Same space
+        timestamp: new Date(),
+      };
+      
+      const result = engine.validateMove(state, 'player2', move2);
       expect(result.valid).toBe(false);
       expect(result.reason).toBe('Space is already occupied');
     });

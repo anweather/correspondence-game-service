@@ -192,8 +192,14 @@ export class MockGameEngine extends BaseGameEngine {
       throw new Error('Mock apply move error');
     }
 
+    // Advance turn if game is not over (mimicking real game engine behavior)
+    const nextPlayerIndex = this.gameOverResult
+      ? state.currentPlayerIndex
+      : (state.currentPlayerIndex + 1) % state.players.length;
+
     return {
       ...state,
+      currentPlayerIndex: nextPlayerIndex,
       moveHistory: [...state.moveHistory, move],
       version: state.version + 1,
       updatedAt: new Date(),

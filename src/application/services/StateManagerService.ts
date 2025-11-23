@@ -114,13 +114,8 @@ export class StateManagerService {
         timestamp: new Date(),
       };
 
-      // Apply move
+      // Apply move (game engine handles turn advancement internally)
       let updatedState = plugin.applyMove(game, playerId, enrichedMove);
-
-      // Advance turn if game is not over
-      if (!plugin.isGameOver(updatedState)) {
-        updatedState = plugin.advanceTurn(updatedState);
-      }
 
       // Check if game is over
       if (plugin.isGameOver(updatedState)) {

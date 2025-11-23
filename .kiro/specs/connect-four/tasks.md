@@ -322,3 +322,29 @@
   - Test through REST API endpoints
   - Create a test game and play through to completion
   - Ask user if questions arise
+
+## Bug Fixes
+
+- [x] 17. Fix turn alternation bug
+  - Investigate why Red player can take consecutive turns
+  - Ensure turns properly alternate between Red and Yellow players
+  - Verify turn switching logic in rules module
+  - Test that currentPlayerIndex updates correctly after each move
+  - _Requirements: 6.1_
+
+- [ ] 18. Improve AdminView modal positioning and sizing
+- [ ] 18.1 Center move modal over right panel
+  - Adjust modal positioning to center over game detail area
+  - Modal should not cover the entire screen
+  - Ensure modal is positioned relative to the right panel
+
+- [ ] 18.2 Increase move modal width for Connect Four
+  - Expand modal width to accommodate Connect Four's 7-column layout
+  - Ensure all column buttons are visible without scrolling
+  - Test with both Tic-Tac-Toe and Connect Four components
+
+- [ ] 18.3 Merge player impersonation into player panel
+  - Combine impersonation controls with player list
+  - Remove separate PlayerPanel component
+  - Integrate player selection and impersonation into single unified interface
+  - Simplify AdminView layout by consolidating player management
