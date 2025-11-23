@@ -15,27 +15,27 @@
   - Create `games/tic-tac-toe/shared/index.ts` barrel export
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
 
-- [ ] 3. Create engine metadata module (extract from existing code)
+- [x] 3. Create engine metadata module (extract from existing code)
   - Create `games/tic-tac-toe/engine/metadata.ts` with game metadata functions
   - **Copy and move** getGameType, getMinPlayers, getMaxPlayers, getDescription methods from existing TicTacToeEngine class
   - Add getGameName function for human-readable name
   - _Requirements: 3.1, 4.1, 4.2, 4.3, 4.4, 4.5_
 
-- [ ] 4. Create engine initialization module (extract from existing code)
+- [x] 4. Create engine initialization module (extract from existing code)
   - Create `games/tic-tac-toe/engine/initialization.ts` with initialization logic
   - **Copy and move** initializeGame method logic from existing TicTacToeEngine class
   - Extract board creation logic into helper function createEmptyBoard
   - Update to use shared constants for board size
   - _Requirements: 3.2, 5.1, 5.2, 5.3, 5.4_
 
-- [ ] 5. Create engine validation module (extract from existing code)
+- [x] 5. Create engine validation module (extract from existing code)
   - Create `games/tic-tac-toe/engine/validation.ts` with validation logic
   - **Copy and move** validateMove method logic from existing TicTacToeEngine class
   - Extract inline validation checks into helper functions: isValidPosition, isSpaceOccupied, isPlayerTurn
   - Ensure validation functions are pure (no state mutation)
   - _Requirements: 3.3, 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 6. Create engine rules module (extract from existing code)
+- [x] 6. Create engine rules module (extract from existing code)
   - Create `games/tic-tac-toe/engine/rules.ts` with game rules logic
   - **Copy and move** applyMove, isGameOver, getWinner methods from existing TicTacToeEngine class
   - Extract win detection logic into helper functions: checkWinPattern, isBoardFull
@@ -43,13 +43,13 @@
   - Ensure immutable state transitions are preserved
   - _Requirements: 3.4, 7.1, 7.2, 7.3, 7.4, 7.5_
 
-- [ ] 7. Create engine renderer module (extract from existing code)
+- [x] 7. Create engine renderer module (extract from existing code)
   - Create `games/tic-tac-toe/engine/renderer.ts` with rendering logic
   - **Copy and move** renderBoard method logic from existing TicTacToeEngine class
   - Extract rendering logic into helper functions: createGridLayer, createTokenLayer, renderXToken, renderOToken
   - _Requirements: 3.5, 8.1, 8.2, 8.3, 8.4, 8.5_
 
-- [ ] 8. Update TicTacToeEngine class to use modules
+- [x] 8. Update TicTacToeEngine class to use modules
   - Create `games/tic-tac-toe/engine/TicTacToeEngine.ts` that extends BaseGameEngine
   - Import all module functions
   - Implement interface methods by delegating to module functions

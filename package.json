@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "A generic, pluggable platform for managing turn-based board games through RESTful web APIs",
   "main": "dist/index.js",
+  "workspaces": [
+    "games/*"
+  ],
   "scripts": {
     "test": "jest --watch",
     "test:run": "jest",

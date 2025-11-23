@@ -1,9 +1,18 @@
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
+import path from 'path'
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      '@games/tic-tac-toe/shared': path.resolve(__dirname, '../games/tic-tac-toe/shared'),
+      '@games/tic-tac-toe/engine': path.resolve(__dirname, '../games/tic-tac-toe/engine'),
+      '@games/tic-tac-toe/ui': path.resolve(__dirname, '../games/tic-tac-toe/ui'),
+      '@games': path.resolve(__dirname, '../games')
+    }
+  },
   server: {
     port: 5173,
     proxy: {
