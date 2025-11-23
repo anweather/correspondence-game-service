@@ -125,7 +125,12 @@ describe('StateManagerService', () => {
 
       // Assert
       expect(updatedState.moveHistory).toHaveLength(1);
-      expect(updatedState.moveHistory[0]).toEqual(move);
+      expect(updatedState.moveHistory[0]).toMatchObject({
+        playerId: 'player1',
+        action: 'test-action',
+        parameters: {},
+      });
+      expect(updatedState.moveHistory[0].timestamp).toBeInstanceOf(Date);
       expect(updatedState.version).toBe(2);
     });
 

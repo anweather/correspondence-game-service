@@ -6,6 +6,7 @@
 import { Pool } from 'pg';
 import * as fs from 'fs';
 import * as path from 'path';
+import { getLogger } from '../logging/Logger';
 
 export class DatabaseMigrator {
   private pool: Pool;
@@ -21,7 +22,8 @@ export class DatabaseMigrator {
    * @throws Error if any migration fails
    */
   async applyMigrations(): Promise<void> {
-    console.log('Starting database migrations...');
+    const logger = getLogger();
+    logger.info('Starting database migrations');
 
     try {
       // Ensure schema_migrations table exists
@@ -31,7 +33,7 @@ export class DatabaseMigrator {
       const migrationFiles = this.getMigrationFiles();
 
       if (migrationFiles.length === 0) {
-        console.log('No migration files found');
+        logger.info('No migration files found');
         return;
       }
 
@@ -41,18 +43,20 @@ export class DatabaseMigrator {
         const isApplied = await this.isMigrationApplied(version);
 
         if (isApplied) {
-          console.log(`Migration ${version} already applied, skipping`);
+          logger.debug('Migration already applied, skipping', { version, file });
           continue;
         }
 
-        console.log(`Applying migration ${version}: ${file}`);
+        logger.info('Applying migration', { version, file });
         await this.applyMigration(file, version);
-        console.log(`Migration ${version} applied successfully`);
+        logger.info('Migration applied successfully', { version });
       }
 
-      console.log('All migrations completed successfully');
+      logger.info('All migrations completed successfully');
     } catch (error) {
-      console.error('Migration failed:', error);
+      logger.error('Migration failed', {
+        error: error instanceof Error ? error.message : String(error),
+      });
       throw error;
     }
   }
@@ -109,8 +113,10 @@ export class DatabaseMigrator {
    * @returns Array of migration filenames
    */
   private getMigrationFiles(): string[] {
+    const logger = getLogger();
+
     if (!fs.existsSync(this.migrationsDir)) {
-      console.warn(`Migrations directory not found: ${this.migrationsDir}`);
+      logger.warn('Migrations directory not found', { path: this.migrationsDir });
       return [];
     }
 

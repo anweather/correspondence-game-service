@@ -20,6 +20,7 @@ import { DatabaseConnection } from './infrastructure/persistence/DatabaseConnect
 import { DatabaseMigrator } from './infrastructure/persistence/DatabaseMigrator';
 import { validateAndLogConfig } from './config';
 import { GameRepository } from '@domain/interfaces';
+import { initializeLogger } from './infrastructure/logging/Logger';
 
 console.log('Async Boardgame Service - Starting...');
 
@@ -28,31 +29,58 @@ async function startApplication() {
   // Load configuration
   const config = validateAndLogConfig();
 
+  // Initialize logger
+  const logger = initializeLogger(config.logging.level, config.logging.format);
+  logger.info('Async Boardgame Service starting', {
+    nodeEnv: config.nodeEnv,
+    port: config.port,
+    logLevel: config.logging.level,
+    logFormat: config.logging.format,
+  });
+
   // Initialize database connection and repository based on configuration
   let dbConnection: DatabaseConnection | null = null;
   let gameRepository: GameRepository;
 
   if (config.database.url) {
-    console.log('Initializing database connection...');
+    logger.info('Initializing database connection', {
+      poolSize: config.database.poolSize,
+    });
+
     dbConnection = new DatabaseConnection({
       connectionString: config.database.url,
       poolSize: config.database.poolSize,
     });
 
     // Connect to database with retry logic
-    await dbConnection.connect();
+    try {
+      await dbConnection.connect();
+      logger.info('Database connection established');
+    } catch (error) {
+      logger.error('Failed to connect to database', {
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw error;
+    }
 
     // Apply database migrations
-    console.log('Applying database migrations...');
-    const migrator = new DatabaseMigrator(dbConnection.getPool());
-    await migrator.applyMigrations();
-    console.log('Database migrations completed');
+    logger.info('Applying database migrations');
+    try {
+      const migrator = new DatabaseMigrator(dbConnection.getPool());
+      await migrator.applyMigrations();
+      logger.info('Database migrations completed');
+    } catch (error) {
+      logger.error('Failed to apply database migrations', {
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw error;
+    }
 
     // Use PostgreSQL repository
-    console.log('Using PostgreSQL for game state persistence');
+    logger.info('Using PostgreSQL for game state persistence');
     gameRepository = new PostgresGameRepository(config.database.url, config.database.poolSize);
   } else {
-    console.log('No DATABASE_URL configured, using in-memory storage');
+    logger.info('No DATABASE_URL configured, using in-memory storage');
     gameRepository = new InMemoryGameRepository();
   }
 
@@ -65,7 +93,9 @@ async function startApplication() {
   // Register game plugins
   const ticTacToeEngine = new TicTacToeEngine();
   pluginRegistry.register(ticTacToeEngine);
-  console.log(`Registered game plugin: ${ticTacToeEngine.getGameType()}`);
+  logger.info('Registered game plugin', {
+    gameType: ticTacToeEngine.getGameType(),
+  });
 
   // Initialize services
   const gameManagerService = new GameManagerService(pluginRegistry, gameRepository);
@@ -102,32 +132,30 @@ async function startApplication() {
   // Start server
   const PORT = config.port;
   const server = app.listen(PORT, () => {
-    console.log(`✓ Async Boardgame Service running on http://localhost:${PORT}`);
-    console.log(`✓ API available at http://localhost:${PORT}/api`);
-    console.log(
-      `✓ Available game types: ${pluginRegistry
-        .list()
-        .map((t) => t.type)
-        .join(', ')}`
-    );
+    logger.info('Async Boardgame Service started', {
+      port: PORT,
+      url: `http://localhost:${PORT}`,
+      apiUrl: `http://localhost:${PORT}/api`,
+      availableGameTypes: pluginRegistry.list().map((t) => t.type),
+    });
   });
 
   // Graceful shutdown handler
   const shutdown = async (signal: string) => {
-    console.log(`\n${signal} received, starting graceful shutdown...`);
+    logger.info('Shutdown signal received', { signal });
     const shutdownStartTime = Date.now();
 
     try {
       // Step 1: Stop accepting new requests
-      console.log('Step 1/4: Stopping acceptance of new requests...');
+      logger.info('Shutdown step 1/4: Stopping acceptance of new requests');
       inFlightTracker.startShutdown();
-      console.log('✓ New requests will be rejected with 503 Service Unavailable');
+      logger.info('New requests will be rejected with 503 Service Unavailable');
 
       // Step 2: Stop accepting new HTTP connections
-      console.log('Step 2/4: Closing HTTP server...');
+      logger.info('Shutdown step 2/4: Closing HTTP server');
       await new Promise<void>((resolve) => {
         server.close(() => {
-          console.log('✓ HTTP server closed');
+          logger.info('HTTP server closed');
           resolve();
         });
       });
@@ -135,40 +163,45 @@ async function startApplication() {
       // Step 3: Wait for in-flight requests to complete (30s timeout)
       const inFlightCount = inFlightTracker.getInFlightCount();
       if (inFlightCount > 0) {
-        console.log(
-          `Step 3/4: Waiting for ${inFlightCount} in-flight request(s) to complete (30s timeout)...`
-        );
+        logger.info('Shutdown step 3/4: Waiting for in-flight requests', {
+          count: inFlightCount,
+          timeoutMs: 30000,
+        });
         await inFlightTracker.waitForCompletion(30000);
         const remainingCount = inFlightTracker.getInFlightCount();
         if (remainingCount === 0) {
-          console.log('✓ All in-flight requests completed');
+          logger.info('All in-flight requests completed');
         } else {
-          console.log(`⚠ Timeout reached, ${remainingCount} request(s) still in-flight`);
+          logger.warn('Shutdown timeout reached with requests still in-flight', {
+            remainingCount,
+          });
         }
       } else {
-        console.log('Step 3/4: No in-flight requests to wait for');
+        logger.info('Shutdown step 3/4: No in-flight requests to wait for');
       }
 
       // Step 4: Close database connections
-      console.log('Step 4/4: Closing database connections...');
+      logger.info('Shutdown step 4/4: Closing database connections');
 
       // Close database connection if it exists
       if (dbConnection) {
         await dbConnection.close();
-        console.log('✓ Database connection closed');
+        logger.info('Database connection closed');
       }
 
       // Close repository connections (PostgresGameRepository has its own pool)
       if (gameRepository instanceof PostgresGameRepository) {
         await gameRepository.close();
-        console.log('✓ Repository connection pool closed');
+        logger.info('Repository connection pool closed');
       }
 
       const shutdownDuration = Date.now() - shutdownStartTime;
-      console.log(`\n✓ Graceful shutdown completed in ${shutdownDuration}ms`);
+      logger.info('Graceful shutdown completed', { durationMs: shutdownDuration });
       process.exit(0);
     } catch (error) {
-      console.error('Error during graceful shutdown:', error);
+      logger.error('Error during graceful shutdown', {
+        error: error instanceof Error ? error.message : String(error),
+      });
       process.exit(1);
     }
   };
@@ -179,6 +212,7 @@ async function startApplication() {
 
 // Start the application
 startApplication().catch((error) => {
+  // Logger may not be initialized yet, so use console.error
   console.error('Failed to start application:', error);
   process.exit(1);
 });

@@ -7,6 +7,7 @@ import { Pool, PoolConfig } from 'pg';
 import { GameRepository, GameFilters, PaginatedResult } from '@domain/interfaces';
 import { GameState } from '@domain/models';
 import { ConcurrencyError, GameNotFoundError } from '@domain/errors';
+import { getLogger } from '../logging/Logger';
 
 interface DatabaseRow {
   game_id: string;
@@ -33,7 +34,11 @@ export class PostgresGameRepository implements GameRepository {
 
     // Set up error handler for the pool
     this.pool.on('error', (err) => {
-      console.error('Unexpected error on idle client', err);
+      const logger = getLogger();
+      logger.error('Unexpected error on idle database client', {
+        error: err.message,
+        stack: err.stack,
+      });
     });
   }
 
@@ -83,6 +88,7 @@ export class PostgresGameRepository implements GameRepository {
    * Save a new game state
    */
   async save(state: GameState): Promise<void> {
+    const logger = getLogger();
     const row = this.serializeGameState(state);
 
     const query = `
@@ -90,15 +96,27 @@ export class PostgresGameRepository implements GameRepository {
       VALUES ($1, $2, $3, $4, $5, $6, $7)
     `;
 
-    await this.pool.query(query, [
-      row.game_id,
-      row.game_type,
-      row.lifecycle,
-      row.state,
-      row.version,
-      row.created_at,
-      row.updated_at,
-    ]);
+    try {
+      await this.pool.query(query, [
+        row.game_id,
+        row.game_type,
+        row.lifecycle,
+        row.state,
+        row.version,
+        row.created_at,
+        row.updated_at,
+      ]);
+      logger.debug('Game saved to database', {
+        gameId: state.gameId,
+        gameType: state.gameType,
+      });
+    } catch (error) {
+      logger.error('Failed to save game to database', {
+        gameId: state.gameId,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw error;
+    }
   }
 
   /**
@@ -125,6 +143,7 @@ export class PostgresGameRepository implements GameRepository {
 
     // Build WHERE clause
     const conditions: string[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const params: any[] = [];
     let paramIndex = 1;
 
@@ -178,6 +197,7 @@ export class PostgresGameRepository implements GameRepository {
 
     // Build WHERE clause
     const conditions: string[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const params: any[] = [];
     let paramIndex = 1;
 
@@ -232,6 +252,7 @@ export class PostgresGameRepository implements GameRepository {
    * @throws GameNotFoundError if game not found
    */
   async update(gameId: string, state: GameState, expectedVersion: number): Promise<GameState> {
+    const logger = getLogger();
     const row = this.serializeGameState(state);
 
     const query = `
@@ -241,30 +262,52 @@ export class PostgresGameRepository implements GameRepository {
       RETURNING *
     `;
 
-    const result = await this.pool.query(query, [
-      row.game_type,
-      row.lifecycle,
-      row.state,
-      row.version,
-      row.updated_at,
-      gameId,
-      expectedVersion,
-    ]);
+    try {
+      const result = await this.pool.query(query, [
+        row.game_type,
+        row.lifecycle,
+        row.state,
+        row.version,
+        row.updated_at,
+        gameId,
+        expectedVersion,
+      ]);
 
-    if (result.rows.length === 0) {
-      // Check if game exists
-      const checkQuery = 'SELECT version FROM games WHERE game_id = $1';
-      const checkResult = await this.pool.query(checkQuery, [gameId]);
+      if (result.rows.length === 0) {
+        // Check if game exists
+        const checkQuery = 'SELECT version FROM games WHERE game_id = $1';
+        const checkResult = await this.pool.query(checkQuery, [gameId]);
 
-      if (checkResult.rows.length === 0) {
-        throw new GameNotFoundError(gameId);
+        if (checkResult.rows.length === 0) {
+          logger.warn('Game not found for update', { gameId });
+          throw new GameNotFoundError(gameId);
+        }
+
+        // Game exists but version mismatch
+        logger.warn('Concurrency error during game update', {
+          gameId,
+          expectedVersion,
+          currentVersion: checkResult.rows[0].version,
+        });
+        throw new ConcurrencyError(gameId);
       }
 
-      // Game exists but version mismatch
-      throw new ConcurrencyError(gameId);
-    }
+      logger.debug('Game updated in database', {
+        gameId,
+        newVersion: row.version,
+      });
 
-    return this.deserializeGameState(result.rows[0]);
+      return this.deserializeGameState(result.rows[0]);
+    } catch (error) {
+      if (error instanceof GameNotFoundError || error instanceof ConcurrencyError) {
+        throw error;
+      }
+      logger.error('Failed to update game in database', {
+        gameId,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw error;
+    }
   }
 
   /**
@@ -280,11 +323,14 @@ export class PostgresGameRepository implements GameRepository {
    * @returns true if database is healthy, false otherwise
    */
   async healthCheck(): Promise<boolean> {
+    const logger = getLogger();
     try {
       await this.pool.query('SELECT 1');
       return true;
     } catch (error) {
-      console.error('Database health check failed:', error);
+      logger.error('Database health check failed', {
+        error: error instanceof Error ? error.message : String(error),
+      });
       return false;
     }
   }
@@ -293,8 +339,9 @@ export class PostgresGameRepository implements GameRepository {
    * Closes all connections in the pool
    */
   async close(): Promise<void> {
-    console.log('Closing database connections...');
+    const logger = getLogger();
+    logger.info('Closing repository database connections');
     await this.pool.end();
-    console.log('Database connections closed');
+    logger.info('Repository database connections closed');
   }
 }

@@ -2,6 +2,9 @@ import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import path from 'path';
 import { GameError } from '@domain/errors';
+import { requestIdMiddleware } from './requestIdMiddleware';
+import { requestLoggingMiddleware } from './requestLoggingMiddleware';
+import { getLogger } from '../../infrastructure/logging/Logger';
 
 /**
  * In-flight request tracker for graceful shutdown
@@ -83,9 +86,19 @@ export const inFlightTracker = new InFlightRequestTracker();
 /**
  * Error handling middleware that converts errors to JSON responses
  */
-export function errorHandler(err: Error, _req: Request, res: Response, _next: NextFunction): void {
+export function errorHandler(err: Error, req: Request, res: Response, _next: NextFunction): void {
+  const logger = getLogger();
+
   // Handle GameError instances
   if (err instanceof GameError) {
+    logger.warn('Game error occurred', {
+      requestId: req.requestId,
+      code: err.code,
+      message: err.message,
+      details: err.details,
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const response: any = {
       error: {
         code: err.code,
@@ -103,6 +116,12 @@ export function errorHandler(err: Error, _req: Request, res: Response, _next: Ne
   }
 
   // Handle unknown errors
+  logger.error('Unexpected error occurred', {
+    requestId: req.requestId,
+    error: err.message,
+    stack: err.stack,
+  });
+
   // In production, don't expose internal error details
   const isProduction = process.env.NODE_ENV === 'production';
 
@@ -138,6 +157,12 @@ export function createApp(): Express {
   // Middleware setup
   app.use(express.json());
   app.use(cors());
+
+  // Request ID middleware (must be early in the chain)
+  app.use(requestIdMiddleware);
+
+  // Request logging middleware
+  app.use(requestLoggingMiddleware);
 
   // Track in-flight requests for graceful shutdown
   app.use(inFlightTracker.middleware);

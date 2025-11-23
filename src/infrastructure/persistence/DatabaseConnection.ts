@@ -3,6 +3,7 @@
  */
 
 import { Pool, PoolConfig, PoolClient } from 'pg';
+import { getLogger } from '../logging/Logger';
 
 export interface DatabaseConnectionConfig {
   connectionString: string;
@@ -25,7 +26,11 @@ export class DatabaseConnection {
 
     // Set up error handler for the pool
     this.pool.on('error', (err) => {
-      console.error('Unexpected error on idle client', err);
+      const logger = getLogger();
+      logger.error('Unexpected error on idle database client', {
+        error: err.message,
+        stack: err.stack,
+      });
     });
   }
 
@@ -36,11 +41,15 @@ export class DatabaseConnection {
    * @throws Error if connection fails after all retries
    */
   async connect(maxRetries: number = 5, retryDelay: number = 1000): Promise<void> {
+    const logger = getLogger();
     let lastError: Error | null = null;
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        console.log(`Attempting database connection (attempt ${attempt}/${maxRetries})...`);
+        logger.info('Attempting database connection', {
+          attempt,
+          maxRetries,
+        });
 
         // Test the connection
         const client = await this.pool.connect();
@@ -48,24 +57,31 @@ export class DatabaseConnection {
         client.release();
 
         this.isConnected = true;
-        console.log('Database connection established successfully');
+        logger.info('Database connection established successfully');
         return;
       } catch (error) {
         lastError = error as Error;
-        console.error(`Connection attempt ${attempt} failed:`, error);
+        logger.error('Database connection attempt failed', {
+          attempt,
+          maxRetries,
+          error: lastError.message,
+        });
 
         if (attempt < maxRetries) {
           const delay = retryDelay * Math.pow(2, attempt - 1); // Exponential backoff
-          console.log(`Retrying in ${delay}ms...`);
+          logger.info('Retrying database connection', { delayMs: delay });
           await this.sleep(delay);
         }
       }
     }
 
     // All retries failed
-    throw new Error(
-      `Failed to connect to database after ${maxRetries} attempts: ${lastError?.message}`
-    );
+    const errorMessage = `Failed to connect to database after ${maxRetries} attempts: ${lastError?.message}`;
+    logger.error('Database connection failed after all retries', {
+      maxRetries,
+      error: lastError?.message,
+    });
+    throw new Error(errorMessage);
   }
 
   /**
@@ -73,7 +89,10 @@ export class DatabaseConnection {
    * @returns true if database is healthy, false otherwise
    */
   async healthCheck(): Promise<boolean> {
+    const logger = getLogger();
+
     if (!this.isConnected) {
+      logger.warn('Database health check failed: not connected');
       return false;
     }
 
@@ -84,10 +103,12 @@ export class DatabaseConnection {
       const responseTime = Date.now() - startTime;
       client.release();
 
-      console.log(`Database health check passed (${responseTime}ms)`);
+      logger.debug('Database health check passed', { responseTimeMs: responseTime });
       return true;
     } catch (error) {
-      console.error('Database health check failed:', error);
+      logger.error('Database health check failed', {
+        error: error instanceof Error ? error.message : String(error),
+      });
       return false;
     }
   }
@@ -106,6 +127,7 @@ export class DatabaseConnection {
    * @param params Query parameters
    * @returns Query result
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async query(text: string, params?: any[]) {
     return this.pool.query(text, params);
   }
@@ -122,10 +144,11 @@ export class DatabaseConnection {
    * Closes all connections in the pool
    */
   async close(): Promise<void> {
-    console.log('Closing database connections...');
+    const logger = getLogger();
+    logger.info('Closing database connections');
     await this.pool.end();
     this.isConnected = false;
-    console.log('Database connections closed');
+    logger.info('Database connections closed');
   }
 
   /**
