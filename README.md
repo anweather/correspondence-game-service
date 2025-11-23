@@ -11,7 +11,39 @@ A generic, pluggable platform for managing turn-based board games through RESTfu
 - 👥 **Multi-Player Support** - 2-8 players per game with flexible join mechanics
 - 📊 **Game Lifecycle Management** - Track games from creation through completion
 
+## Prerequisites
+
+- **Node.js** 20 or higher
+- **npm** or **yarn**
+- **Docker** and **Docker Compose** (for containerized deployment)
+
 ## Quick Start
+
+### Option 1: Docker Deployment (Recommended)
+
+The easiest way to run the service with persistent PostgreSQL storage:
+
+```bash
+# Start the service with Docker Compose
+docker-compose up -d
+
+# Check service health
+curl http://localhost:3000/health
+
+# View logs
+docker-compose logs -f
+
+# Stop the service
+docker-compose down
+```
+
+The service will be available at `http://localhost:3000` with data persisted in a Docker volume.
+
+For detailed deployment instructions, troubleshooting, and production configuration, see [DEPLOYMENT.md](./DEPLOYMENT.md).
+
+### Option 2: Local Development
+
+For local development without Docker:
 
 ```bash
 # Install dependencies
@@ -78,7 +110,113 @@ This project follows **Hexagonal Architecture (Ports and Adapters)** to maintain
 - **Web Framework**: Express
 - **Testing**: Jest with TypeScript support
 - **Image Generation**: SVG.js for board rendering
-- **Persistence**: In-memory (with design for easy migration to file/database)
+- **Database**: PostgreSQL 15 (production), In-memory (development/testing)
+- **Containerization**: Docker and Docker Compose
+
+## Docker Deployment
+
+The service is fully containerized and ready for production deployment with Docker.
+
+### Quick Start with Docker
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd async-boardgame-service
+
+# Copy environment template
+cp .env.example .env
+
+# Edit .env and set a secure database password
+# DB_PASSWORD=your_secure_password_here
+
+# Start all services
+docker-compose up -d
+
+# Verify services are running
+docker-compose ps
+
+# Check health
+curl http://localhost:3000/health
+```
+
+### Docker Architecture
+
+The Docker setup includes:
+- **Backend Service**: Node.js application with Express API and React web client
+- **PostgreSQL Database**: Persistent game state storage with automatic migrations
+- **Named Volume**: Data persistence across container restarts
+- **Health Checks**: Automatic service monitoring and restart policies
+
+### Common Docker Commands
+
+```bash
+# Start services
+docker-compose up -d
+
+# Stop services
+docker-compose down
+
+# View logs
+docker-compose logs -f backend
+docker-compose logs -f postgres
+
+# Restart services
+docker-compose restart
+
+# Rebuild after code changes
+docker-compose build
+docker-compose up -d
+
+# Database backup
+docker-compose exec postgres pg_dump -U boardgame boardgame > backup.sql
+
+# Database restore
+docker-compose exec -T postgres psql -U boardgame boardgame < backup.sql
+
+# Clean up (removes containers and volumes)
+docker-compose down -v
+```
+
+### Development Mode
+
+For development with hot-reloading:
+
+```bash
+# Start in development mode
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+# Or use the dev configuration directly
+docker-compose -f docker-compose.dev.yml up
+```
+
+### Environment Configuration
+
+Key environment variables (see `.env.example` for full list):
+
+- `DB_PASSWORD`: PostgreSQL password (required)
+- `PORT`: HTTP server port (default: 3000)
+- `NODE_ENV`: Environment mode (production/development)
+- `DB_POOL_SIZE`: Database connection pool size (default: 10)
+- `LOG_LEVEL`: Logging verbosity (debug/info/warn/error)
+
+### Production Deployment
+
+For production deployment:
+
+1. Set a strong `DB_PASSWORD` in `.env`
+2. Configure appropriate `LOG_LEVEL` (info or warn)
+3. Set `NODE_ENV=production`
+4. Consider using a reverse proxy (nginx) for HTTPS
+5. Set up regular database backups
+6. Monitor logs and health endpoint
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for comprehensive deployment documentation including:
+- Detailed setup instructions
+- Security best practices
+- Backup and restore procedures
+- Troubleshooting guide
+- Production recommendations
 
 ## Development Commands
 

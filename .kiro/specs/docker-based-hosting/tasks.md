@@ -160,7 +160,7 @@
   - Make script executable (chmod +x)
   - _Requirements: 13.5_
 
-- [ ] 11. Create deployment documentation
+- [x] 11. Create deployment documentation
   - Create DEPLOYMENT.md with step-by-step deployment instructions
   - Document all environment variables and their purposes
   - Provide troubleshooting guide for common issues
@@ -169,7 +169,7 @@
   - Document security best practices and production recommendations
   - _Requirements: 14.1, 14.2, 14.3, 14.4, 14.5, 11.3, 11.4, 12.4_
 
-- [ ] 12. Update main README
+- [x] 12. Update main README
   - Add Docker deployment section to README.md
   - Link to DEPLOYMENT.md for detailed instructions
   - Update prerequisites to include Docker and Docker Compose
