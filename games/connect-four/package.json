@@ -1,0 +1,32 @@
+{
+  "name": "@boardgame-plugins/connect-four",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Connect Four game plugin for Async Boardgame Service",
+  "main": "engine/index.ts",
+  "types": "engine/index.ts",
+
+  "exports": {
+    "./shared": {
+      "types": "./shared/index.ts",
+      "default": "./shared/index.ts"
+    },
+    "./engine": {
+      "types": "./engine/index.ts",
+      "default": "./engine/index.ts"
+    },
+    "./ui": {
+      "types": "./ui/index.ts",
+      "default": "./ui/index.tsx"
+    }
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "keywords": [
+    "boardgame",
+    "connect-four",
+    "game-plugin"
+  ]
+}
