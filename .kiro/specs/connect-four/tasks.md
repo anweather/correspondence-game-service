@@ -24,19 +24,19 @@
   - Extract constants if needed
   - Ensure code is clean and maintainable
 
-- [ ] 3. TDD: Game initialization module
-- [ ] 3.1 RED: Write tests for board initialization
+- [x] 3. TDD: Game initialization module
+- [x] 3.1 RED: Write tests for board initialization
   - **Property 1: Board initialization creates correct structure**
   - **Validates: Requirements 1.1**
   - Test board has 6 rows and 7 columns
   - Test all cells are initially empty
 
-- [ ] 3.2 RED: Write tests for player color assignment
+- [x] 3.2 RED: Write tests for player color assignment
   - **Property 2: Player color assignment is deterministic**
   - **Validates: Requirements 1.2**
   - Test first player gets red, second gets yellow
 
-- [ ] 3.3 RED: Write tests for initial game state
+- [x] 3.3 RED: Write tests for initial game state
   - **Property 3: First player starts**
   - **Validates: Requirements 1.3**
   - **Property 4: Games start in progress**
@@ -46,7 +46,7 @@
   - Test initialization with < 2 players fails
   - _Requirements: 1.3, 1.4, 1.5_
 
-- [ ] 3.4 GREEN: Implement initialization module
+- [x] 3.4 GREEN: Implement initialization module
   - Create `engine/initialization.ts`
   - Implement `createEmptyBoard()` function
   - Implement `assignPlayerColors()` function
@@ -54,7 +54,7 @@
   - All tests should pass
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
 
-- [ ] 3.5 REFACTOR: Clean up initialization code
+- [x] 3.5 REFACTOR: Clean up initialization code
   - Extract helper functions if needed
   - Ensure immutability patterns are clear
 
