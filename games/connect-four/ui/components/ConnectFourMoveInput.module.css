@@ -1,0 +1,68 @@
+/* Connect Four Move Input Styles */
+
+.connectFourInput {
+  display: inline-block;
+  padding: 8px;
+}
+
+.columnButtons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.columnButton {
+  width: 60px;
+  height: 50px;
+  border: 2px solid var(--color-border, #333333);
+  border-radius: 8px;
+  background-color: var(--color-background, #ffffff);
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text, #333333);
+}
+
+.columnButton:hover:not(:disabled) {
+  background-color: var(--color-hover, #e3f2fd);
+  border-color: var(--color-primary, #2196f3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.columnButton:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.columnButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+  background-color: var(--color-disabled, #f5f5f5);
+  border-color: var(--color-border-disabled, #cccccc);
+}
+
+/* Responsive sizing for mobile */
+@media (max-width: 768px) {
+  .columnButton {
+    width: 50px;
+    height: 45px;
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .columnButton {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+  
+  .columnButtons {
+    gap: 4px;
+  }
+}

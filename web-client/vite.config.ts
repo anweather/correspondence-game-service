@@ -10,12 +10,18 @@ export default defineConfig({
       '@games/tic-tac-toe/shared': path.resolve(__dirname, '../games/tic-tac-toe/shared'),
       '@games/tic-tac-toe/engine': path.resolve(__dirname, '../games/tic-tac-toe/engine'),
       '@games/tic-tac-toe/ui': path.resolve(__dirname, '../games/tic-tac-toe/ui'),
+      '@games/connect-four/shared': path.resolve(__dirname, '../games/connect-four/shared'),
+      '@games/connect-four/engine': path.resolve(__dirname, '../games/connect-four/engine'),
+      '@games/connect-four/ui': path.resolve(__dirname, '../games/connect-four/ui'),
       '@games': path.resolve(__dirname, '../games'),
       // Ensure React is resolved from web-client's node_modules for game components
       'react': path.resolve(__dirname, './node_modules/react'),
       'react-dom': path.resolve(__dirname, './node_modules/react-dom'),
       'react/jsx-runtime': path.resolve(__dirname, './node_modules/react/jsx-runtime'),
-      'react/jsx-dev-runtime': path.resolve(__dirname, './node_modules/react/jsx-dev-runtime')
+      'react/jsx-dev-runtime': path.resolve(__dirname, './node_modules/react/jsx-dev-runtime'),
+      // Ensure testing libraries are resolved from web-client's node_modules
+      '@testing-library/react': path.resolve(__dirname, './node_modules/@testing-library/react'),
+      '@testing-library/jest-dom': path.resolve(__dirname, './node_modules/@testing-library/jest-dom')
     }
   },
   server: {
@@ -40,6 +46,10 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
-    css: true
+    css: true,
+    include: [
+      'src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+      '../games/**/__tests__/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'
+    ]
   }
 })
