@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { usePlayer } from '../context/PlayerContext';
 import { GameDetail } from '../components/GameDetail/GameDetail';
 import { MoveInput } from '../components/MoveInput/MoveInput';
+import { Modal } from '../components/common/Modal';
 import type { MoveInput as MoveInputType, GameState } from '../types/game';
 import styles from './PlayerView.module.css';
 
@@ -37,6 +38,7 @@ export function PlayerView() {
   const [gameTypes, setGameTypes] = useState<Array<{ type: string; name: string; description: string }>>([]);
   const [loadingGames, setLoadingGames] = useState(false);
   const [knownPlayers, setKnownPlayers] = useState<string[]>([]);
+  const [showMoveModal, setShowMoveModal] = useState(false);
   const isInitialMount = useRef(true);
 
   // Update URL when game changes (for bookmarking and refresh)
@@ -444,16 +446,10 @@ export function PlayerView() {
           showAdminControls={false}
           onRefresh={handleRefresh}
           currentPlayerId={playerId || undefined}
+          onMakeMoveClick={currentGame.lifecycle === 'active' ? () => setShowMoveModal(true) : undefined}
         />
-        {currentGame.lifecycle === 'active' ? (
-          <MoveInput
-            gameType={currentGame.gameType}
-            gameState={currentGame}
-            playerId={playerId || ''}
-            enabled={canMakeMove}
-            onSubmit={handleSubmitMove}
-          />
-        ) : (
+        
+        {currentGame.lifecycle !== 'active' && (
           <div className={styles.gameStatus}>
             {currentGame.lifecycle === 'waiting_for_players' && (
               <p>Waiting for more players to join before the game can start...</p>
@@ -467,6 +463,28 @@ export function PlayerView() {
           </div>
         )}
       </main>
+
+      {/* Move Input Modal */}
+      {showMoveModal && currentGame.lifecycle === 'active' && (
+        <Modal
+          isOpen={showMoveModal}
+          onClose={() => setShowMoveModal(false)}
+          title="Make Your Move"
+        >
+          <div className={styles.moveModalContent}>
+            <MoveInput
+              gameType={currentGame.gameType}
+              gameState={currentGame}
+              playerId={playerId || ''}
+              enabled={canMakeMove}
+              onSubmit={async (move) => {
+                await handleSubmitMove(move);
+                setShowMoveModal(false);
+              }}
+            />
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }

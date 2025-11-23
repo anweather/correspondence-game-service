@@ -7,13 +7,15 @@ interface GameDetailProps {
   showAdminControls?: boolean;
   onRefresh?: () => void;
   currentPlayerId?: string;
+  onMakeMoveClick?: () => void;
 }
 
 export function GameDetail({ 
   game, 
   showAdminControls = false, 
   onRefresh,
-  currentPlayerId 
+  currentPlayerId,
+  onMakeMoveClick
 }: GameDetailProps) {
   const boardSvgUrl = useMemo(() => {
     // Add version as cache-busting parameter to force image reload
@@ -71,6 +73,16 @@ export function GameDetail({
           alt="Game board" 
           className={styles.boardImage}
         />
+        {onMakeMoveClick && game.lifecycle === 'active' && (
+          <button
+            className={`${styles.makeMoveButton} ${isCurrentPlayerTurn ? styles.enabled : styles.disabled}`}
+            onClick={onMakeMoveClick}
+            disabled={!isCurrentPlayerTurn}
+            aria-label={isCurrentPlayerTurn ? 'Make your move' : 'Not your turn'}
+          >
+            {isCurrentPlayerTurn ? '🎯 Make Move' : '⏳ Waiting...'}
+          </button>
+        )}
       </div>
 
       {/* Player List */}

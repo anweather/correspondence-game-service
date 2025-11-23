@@ -575,3 +575,15 @@
     color: var(--color-text-tertiary-dark, #888888);
   }
 }
+
+/* Move Modal */
+.moveModalContent {
+  padding: 1rem;
+  min-width: 300px;
+}
+
+@media (min-width: 768px) {
+  .moveModalContent {
+    min-width: 400px;
+  }
+}

@@ -113,23 +113,6 @@ export function PlayerPanel({
       {isGameFull && game.lifecycle !== 'completed' && (
         <p className={styles.gameFull}>Game is full ({game.players.length}/{effectiveMaxPlayers} players)</p>
       )}
-
-      {impersonatedPlayer && (
-        <div className={styles.moveInputSection}>
-          <h4>Make Move as {game.players.find(p => p.id === impersonatedPlayer)?.name}</h4>
-          {game.lifecycle === 'completed' ? (
-            <p className={styles.gameCompleted}>Game is completed. No more moves allowed.</p>
-          ) : (
-            <MoveInputComponent
-              gameType={game.gameType}
-              gameState={game}
-              playerId={impersonatedPlayer}
-              enabled={game.players[game.currentPlayerIndex]?.id === impersonatedPlayer}
-              onSubmit={onSubmitMove}
-            />
-          )}
-        </div>
-      )}
     </div>
   );
 }

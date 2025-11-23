@@ -1,8 +1,10 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useAdmin } from '../context/AdminContext';
 import { GameList } from '../components/GameList/GameList';
 import { GameDetail } from '../components/GameDetail/GameDetail';
 import { PlayerPanel } from '../components/PlayerPanel/PlayerPanel';
+import { Modal } from '../components/common/Modal';
+import { MoveInput } from '../components/MoveInput/MoveInput';
 import type { GameFilter } from '../context/AdminContext';
 import styles from './AdminView.module.css';
 
@@ -28,6 +30,8 @@ export function AdminView() {
     deleteGame,
     setFilter,
   } = useAdmin();
+
+  const [showMoveModal, setShowMoveModal] = useState(false);
 
   // Load games on mount
   useEffect(() => {
@@ -164,6 +168,12 @@ export function AdminView() {
                 game={selectedGame}
                 showAdminControls={true}
                 onRefresh={() => selectGame(selectedGame.gameId)}
+                currentPlayerId={impersonatedPlayer || undefined}
+                onMakeMoveClick={
+                  selectedGame.lifecycle === 'active' && impersonatedPlayer
+                    ? () => setShowMoveModal(true)
+                    : undefined
+                }
               />
               <PlayerPanel
                 game={selectedGame}
@@ -181,6 +191,28 @@ export function AdminView() {
           )}
         </main>
       </div>
+
+      {/* Move Input Modal */}
+      {showMoveModal && selectedGame && selectedGame.lifecycle === 'active' && impersonatedPlayer && (
+        <Modal
+          isOpen={showMoveModal}
+          onClose={() => setShowMoveModal(false)}
+          title="Make Move"
+        >
+          <div className={styles.moveModalContent}>
+            <MoveInput
+              gameType={selectedGame.gameType}
+              gameState={selectedGame}
+              playerId={impersonatedPlayer}
+              enabled={true}
+              onSubmit={async (move) => {
+                await handleSubmitMove(move);
+                setShowMoveModal(false);
+              }}
+            />
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
