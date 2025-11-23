@@ -66,7 +66,7 @@
   - Create `games/tic-tac-toe/ui/index.ts` barrel export
   - _Requirements: 9.1, 9.2, 9.4, 9.5, 11.1, 11.2, 11.3, 11.4, 11.5, 11.6_
 
-- [ ] 10. Create game documentation
+- [x] 10. Create game documentation
   - Create `games/tic-tac-toe/docs/` directory
   - Create `games/tic-tac-toe/docs/rules.md` with detailed game rules
   - Create `games/tic-tac-toe/docs/gameplay.md` with gameplay instructions and examples
