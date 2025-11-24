@@ -76,7 +76,7 @@ Tests are NOT optional - they are the specification for the implementation.
     - Verify tests FAIL before implementation
     - _Requirements: 6.4_
 
-- [ ] 5. Implement database migration for authentication
+- [x] 5. Implement database migration for authentication
   - Create migration `003_add_authentication.sql`
   - Add `external_auth_provider` column to `player_identities`
   - Add `external_auth_id` column to `player_identities`
