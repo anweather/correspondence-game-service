@@ -37,20 +37,20 @@ Tests are NOT optional - they are the specification for the implementation.
   - Tests should FAIL initially (no implementation yet)
   - _Requirements: 7.1, 7.3, 7.6_
 
-- [ ] 3. Create generic authentication interfaces in domain layer
-  - [ ] 3.1 Define `AuthenticatedUser` interface
+- [x] 3. Create generic authentication interfaces in domain layer
+  - [x] 3.1 Define `AuthenticatedUser` interface
     - Create `src/domain/interfaces/authentication.ts`
     - Define generic `AuthenticatedUser` type (id, externalId, username, email)
     - Define `ExternalAuthUser` type for external auth providers
     - _Requirements: 4.1, 4.4_
 
-  - [ ] 3.2 Define `AuthenticationService` interface
+  - [x] 3.2 Define `AuthenticationService` interface
     - Define `findOrCreatePlayer()` method signature
     - Define `getUserById()` method signature
     - Add JSDoc comments explaining generic nature
     - _Requirements: 4.1, 4.4_
 
-  - [ ] 3.3 Write property test for AuthenticatedUser structure (RED)
+  - [x] 3.3 Write property test for AuthenticatedUser structure (RED)
     - **Property 12: PlayerIdentity structure completeness**
     - **Validates: Requirements 6.4**
     - Test that any AuthenticatedUser has required fields

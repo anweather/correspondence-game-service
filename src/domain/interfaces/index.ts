@@ -1,5 +1,8 @@
 import { GameState, Player, Move } from '@domain/models';
 
+// Export authentication interfaces
+export * from './authentication';
+
 /**
  * Configuration for initializing a game
  */
