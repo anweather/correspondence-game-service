@@ -323,6 +323,18 @@
   - Create a test game and play through to completion
   - Ask user if questions arise
 
+## Framework Improvements
+
+- [ ] 19. Add winner field to GameState at framework level
+  - Add `winner: string | null` field to GameState interface in domain models
+  - Update GameManagerService to extract and store winner from game engine
+  - Update database schema to include winner column
+  - Update repositories (InMemory and Postgres) to persist winner
+  - Update API responses to include winner field
+  - Ensure backward compatibility with existing games
+  - Update tests to verify winner is properly stored and retrieved
+  - _Requirements: Framework-level improvement for all games_
+
 ## Bug Fixes
 
 - [x] 17. Fix turn alternation bug
