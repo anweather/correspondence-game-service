@@ -84,7 +84,7 @@ export function GameDetail({
             </span>
           </div>
         </div>
-        {currentPlayerId && (
+        {currentPlayerId && game.lifecycle === 'active' && (
           <div className={styles.turnIndicator}>
             {isCurrentPlayerTurn ? (
               <span className={styles.yourTurn}>Your turn</span>
