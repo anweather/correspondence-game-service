@@ -12,11 +12,20 @@ export interface LoggingConfig {
   format: 'json' | 'pretty';
 }
 
+export interface AuthConfig {
+  enabled: boolean;
+  clerk: {
+    publishableKey: string;
+    secretKey: string;
+  };
+}
+
 export interface AppConfig {
   port: number;
   nodeEnv: 'development' | 'production' | 'test';
   database: DatabaseConfig;
   logging: LoggingConfig;
+  auth: AuthConfig;
 }
 
 class ConfigurationError extends Error {
@@ -80,6 +89,21 @@ export function loadConfig(): AppConfig {
   // Determine log format based on NODE_ENV
   const logFormat: LoggingConfig['format'] = nodeEnv === 'production' ? 'json' : 'pretty';
 
+  // Validate and load authentication configuration
+  const authEnabled = process.env.AUTH_ENABLED === 'true';
+  const clerkPublishableKey = process.env.CLERK_PUBLISHABLE_KEY || '';
+  const clerkSecretKey = process.env.CLERK_SECRET_KEY || '';
+
+  // Validate Clerk keys when authentication is enabled
+  if (authEnabled) {
+    if (!clerkPublishableKey) {
+      throw new ConfigurationError('CLERK_PUBLISHABLE_KEY is required when AUTH_ENABLED is true');
+    }
+    if (!clerkSecretKey) {
+      throw new ConfigurationError('CLERK_SECRET_KEY is required when AUTH_ENABLED is true');
+    }
+  }
+
   return {
     port,
     nodeEnv,
@@ -90,6 +114,13 @@ export function loadConfig(): AppConfig {
     logging: {
       level: logLevel,
       format: logFormat,
+    },
+    auth: {
+      enabled: authEnabled,
+      clerk: {
+        publishableKey: clerkPublishableKey,
+        secretKey: clerkSecretKey,
+      },
     },
   };
 }
@@ -107,6 +138,11 @@ export function validateAndLogConfig(): AppConfig {
       ? config.database.url.replace(/(:\/\/)([^:]+):([^@]+)(@)/, '$1$2:****$4')
       : 'not configured (using in-memory storage)';
 
+    // Mask Clerk secret key (show first 8 chars + ****)
+    const maskedClerkSecret = config.auth.clerk.secretKey
+      ? config.auth.clerk.secretKey.substring(0, 8) + '****'
+      : 'not configured';
+
     console.log('Configuration loaded successfully:');
     console.log(`  PORT: ${config.port}`);
     console.log(`  NODE_ENV: ${config.nodeEnv}`);
@@ -114,6 +150,11 @@ export function validateAndLogConfig(): AppConfig {
     console.log(`  DB_POOL_SIZE: ${config.database.poolSize}`);
     console.log(`  LOG_LEVEL: ${config.logging.level}`);
     console.log(`  LOG_FORMAT: ${config.logging.format}`);
+    console.log(`  AUTH_ENABLED: ${config.auth.enabled}`);
+    if (config.auth.enabled) {
+      console.log(`  CLERK_PUBLISHABLE_KEY: ${config.auth.clerk.publishableKey}`);
+      console.log(`  CLERK_SECRET_KEY: ${maskedClerkSecret}`);
+    }
 
     return config;
   } catch (error) {
