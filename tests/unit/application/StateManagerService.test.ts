@@ -297,6 +297,31 @@ describe('StateManagerService', () => {
 
       // Assert
       expect(updatedState.lifecycle).toBe(GameLifecycle.COMPLETED);
+      expect(updatedState.winner).toBe('player1');
+    });
+
+    it('should set winner to null for draw games', async () => {
+      // Arrange
+      const players = createMockPlayers();
+      const gameState = createMockGameState(players);
+      await repository.save(gameState);
+
+      mockEngine.withGameOverResult(true).withWinnerResult(null);
+
+      const move: Move = {
+        playerId: 'player1',
+        timestamp: new Date(),
+        action: 'final-move',
+        parameters: {},
+      };
+
+      // Act
+      const updatedState = await stateManager.applyMove('test-game-1', 'player1', move, 1);
+
+      // Assert
+      expect(updatedState.lifecycle).toBe(GameLifecycle.COMPLETED);
+      expect(updatedState.winner).toBeNull();
+      expect(updatedState.metadata.isDraw).toBe(true);
     });
 
     it('should invoke beforeApplyMove hook', async () => {

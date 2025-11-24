@@ -125,9 +125,9 @@ export class StateManagerService {
         updatedState = {
           ...updatedState,
           lifecycle: GameLifecycle.COMPLETED,
+          winner,
           metadata: {
             ...updatedState.metadata,
-            winner,
             isDraw,
           },
         };

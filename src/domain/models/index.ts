@@ -82,6 +82,7 @@ export interface GameState<TMetadata = Record<string, any>> {
   board: Board;
   moveHistory: Move[];
   metadata: TMetadata;
+  winner: string | null;
   version: number;
   createdAt: Date;
   updatedAt: Date;

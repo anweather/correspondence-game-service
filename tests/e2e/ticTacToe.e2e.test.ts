@@ -177,13 +177,13 @@ describe('E2E: Complete Tic-Tac-Toe Game Flow', () => {
       // Step 4: Verify win detection via REST API
       expect(move5Response.body.lifecycle).toBe('completed');
       expect(move5Response.body.moveHistory).toHaveLength(5);
-      expect(move5Response.body.metadata.winner).toBe('alice');
+      expect(move5Response.body.winner).toBe('alice');
 
       // Step 5: Check final game state via REST API
       const finalStateResponse = await request(app).get(`/api/games/${gameId}/state`).expect(200);
 
       expect(finalStateResponse.body.lifecycle).toBe('completed');
-      expect(finalStateResponse.body.metadata.winner).toBe('alice');
+      expect(finalStateResponse.body.winner).toBe('alice');
       expect(finalStateResponse.body.moveHistory).toHaveLength(5);
 
       // Step 6: Verify move history via REST API
@@ -278,14 +278,14 @@ describe('E2E: Complete Tic-Tac-Toe Game Flow', () => {
       // Step 3: Verify draw detection via REST API
       expect(lastResponse!.body.lifecycle).toBe('completed');
       expect(lastResponse!.body.moveHistory).toHaveLength(9);
-      expect(lastResponse!.body.metadata.winner).toBeNull();
+      expect(lastResponse!.body.winner).toBeNull();
       expect(lastResponse!.body.metadata.isDraw).toBe(true);
 
       // Step 4: Check final game state via REST API
       const finalStateResponse = await request(app).get(`/api/games/${gameId}/state`).expect(200);
 
       expect(finalStateResponse.body.lifecycle).toBe('completed');
-      expect(finalStateResponse.body.metadata.winner).toBeNull();
+      expect(finalStateResponse.body.winner).toBeNull();
       expect(finalStateResponse.body.metadata.isDraw).toBe(true);
       expect(finalStateResponse.body.moveHistory).toHaveLength(9);
 

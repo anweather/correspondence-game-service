@@ -13,6 +13,7 @@ interface DatabaseRow {
   game_id: string;
   game_type: string;
   lifecycle: string;
+  winner: string | null;
   state: string | GameState; // Can be string or object (JSONB returns objects)
   version: number;
   created_at: Date;
@@ -51,6 +52,7 @@ export class PostgresGameRepository implements GameRepository {
       game_id: state.gameId,
       game_type: state.gameType,
       lifecycle: state.lifecycle,
+      winner: state.winner,
       state: state as any, // PostgreSQL JSONB handles objects directly
       version: state.version,
       created_at: state.createdAt,
@@ -93,8 +95,8 @@ export class PostgresGameRepository implements GameRepository {
     const row = this.serializeGameState(state);
 
     const query = `
-      INSERT INTO games (game_id, game_type, lifecycle, state, version, created_at, updated_at)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      INSERT INTO games (game_id, game_type, lifecycle, winner, state, version, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
     `;
 
     try {
@@ -102,6 +104,7 @@ export class PostgresGameRepository implements GameRepository {
         row.game_id,
         row.game_type,
         row.lifecycle,
+        row.winner,
         row.state,
         row.version,
         row.created_at,
@@ -258,8 +261,8 @@ export class PostgresGameRepository implements GameRepository {
 
     const query = `
       UPDATE games
-      SET game_type = $1, lifecycle = $2, state = $3, version = $4, updated_at = $5
-      WHERE game_id = $6 AND version = $7
+      SET game_type = $1, lifecycle = $2, winner = $3, state = $4, version = $5, updated_at = $6
+      WHERE game_id = $7 AND version = $8
       RETURNING *
     `;
 
@@ -267,6 +270,7 @@ export class PostgresGameRepository implements GameRepository {
       const result = await this.pool.query(query, [
         row.game_type,
         row.lifecycle,
+        row.winner,
         row.state,
         row.version,
         row.updated_at,

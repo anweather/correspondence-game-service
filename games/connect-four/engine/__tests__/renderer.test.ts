@@ -34,6 +34,7 @@ function createTestGameState(
     board: domainBoard,
     moveHistory: [],
     metadata,
+    winner: null,
     version: 1,
     createdAt: new Date(),
     updatedAt: new Date(),

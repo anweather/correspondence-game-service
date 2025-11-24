@@ -40,6 +40,7 @@ describe('Validation Module', () => {
       },
       moveHistory: [],
       metadata: { boardSize: 3 },
+      winner: null,
       version: 1,
       createdAt: new Date(),
       updatedAt: new Date(),

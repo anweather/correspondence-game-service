@@ -40,6 +40,7 @@ describe('PostgresGameRepository - Basic Structure', () => {
     },
     moveHistory: [],
     metadata: {},
+    winner: null,
     version,
     createdAt: new Date('2025-01-01T00:00:00.000Z'),
     updatedAt: new Date('2025-01-01T00:00:00.000Z'),
@@ -96,6 +97,7 @@ describe('PostgresGameRepository - Basic Structure', () => {
         game_id: 'game-1',
         game_type: 'tic-tac-toe',
         lifecycle: 'active',
+        winner: null,
         state: gameState, // PostgreSQL JSONB handles objects directly
         version: 1,
         created_at: new Date('2025-01-01T00:00:00.000Z'),

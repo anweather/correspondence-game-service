@@ -52,6 +52,7 @@ export function initializeGame(players: Player[], config: GameConfig): GameState
     metadata: {
       boardSize: BOARD_SIZE,
     },
+    winner: null,
     version: 1,
     createdAt: new Date(),
     updatedAt: new Date(),

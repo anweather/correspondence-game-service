@@ -94,6 +94,7 @@ export function initializeGame(
     board: domainBoard,
     moveHistory: [],
     metadata,
+    winner: null,
     version: 0,
     createdAt: now,
     updatedAt: now,

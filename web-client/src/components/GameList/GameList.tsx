@@ -50,6 +50,10 @@ function GameListItem({ game, onSelect, onDelete }: GameListItemProps) {
   const turnNumber = game.moveHistory.length;
   const maxPlayers = 2; // Default for most games
   const isCompleted = game.lifecycle === 'completed';
+  const winner = game.winner !== undefined && game.winner !== null 
+    ? game.players.find(p => p.id === game.winner) 
+    : null;
+  const isDraw = isCompleted && game.winner === null;
 
   return (
     <div className={styles.gameCard} onClick={handleClick}>
@@ -80,13 +84,27 @@ function GameListItem({ game, onSelect, onDelete }: GameListItemProps) {
             {isCompleted ? '🏁 Completed' : game.lifecycle}
           </span>
         </div>
-        <div className={styles.infoRow}>
-          <span className={styles.label}>Turn:</span>
-          <span className={styles.value}>
-            {turnNumber}
-            {!isCompleted && currentPlayer && ` (${currentPlayer.name})`}
-          </span>
-        </div>
+        {isCompleted && winner && (
+          <div className={styles.winnerRow}>
+            <span className={styles.label}>Winner:</span>
+            <span className={styles.winnerValue}>🏆 {winner.name}</span>
+          </div>
+        )}
+        {isDraw && (
+          <div className={styles.drawRow}>
+            <span className={styles.label}>Result:</span>
+            <span className={styles.drawValue}>Draw</span>
+          </div>
+        )}
+        {!isCompleted && (
+          <div className={styles.infoRow}>
+            <span className={styles.label}>Turn:</span>
+            <span className={styles.value}>
+              {turnNumber}
+              {currentPlayer && ` (${currentPlayer.name})`}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );

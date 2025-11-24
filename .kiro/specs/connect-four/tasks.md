@@ -325,7 +325,7 @@
 
 ## Framework Improvements
 
-- [ ] 19. Add winner field to GameState at framework level
+- [x] 19. Add winner field to GameState at framework level
   - Add `winner: string | null` field to GameState interface in domain models
   - Update GameManagerService to extract and store winner from game engine
   - Update database schema to include winner column

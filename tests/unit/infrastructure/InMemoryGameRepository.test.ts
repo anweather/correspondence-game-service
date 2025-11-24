@@ -32,6 +32,7 @@ describe('InMemoryGameRepository', () => {
     },
     moveHistory: [],
     metadata: {},
+    winner: null,
     version,
     createdAt: new Date(),
     updatedAt: new Date(),

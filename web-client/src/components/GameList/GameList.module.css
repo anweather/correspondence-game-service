@@ -143,6 +143,40 @@
   font-weight: 600;
 }
 
+.winnerRow {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  background-color: #d4edda;
+  padding: 0.5rem;
+  border-radius: 4px;
+  margin-top: 0.25rem;
+}
+
+.winnerValue {
+  color: #155724;
+  font-weight: 600;
+  flex: 1;
+}
+
+.drawRow {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  background-color: #fff3cd;
+  padding: 0.5rem;
+  border-radius: 4px;
+  margin-top: 0.25rem;
+}
+
+.drawValue {
+  color: #856404;
+  font-weight: 600;
+  flex: 1;
+}
+
 /* Mobile optimizations */
 @media (max-width: 767px) {
   .gameCard {

@@ -36,6 +36,10 @@ export function GameDetail({
   const currentPlayer = game.players[game.currentPlayerIndex];
   const isCurrentPlayerTurn = currentPlayerId && currentPlayer?.id === currentPlayerId;
   const isCompleted = game.lifecycle === 'completed';
+  const winner = game.winner !== undefined && game.winner !== null 
+    ? game.players.find(p => p.id === game.winner) 
+    : null;
+  const isDraw = isCompleted && game.winner === null;
 
   // Use provided maxPlayers or default to 2 if not available
   const effectiveMaxPlayers = maxPlayers ?? 2;
@@ -85,7 +89,17 @@ export function GameDetail({
             </span>
           </div>
         </div>
-        {isCompleted && (
+        {isCompleted && winner && (
+          <div className={styles.winnerBanner}>
+            <span className={styles.winnerText}>🏆 {winner.name} wins!</span>
+          </div>
+        )}
+        {isDraw && (
+          <div className={styles.drawBanner}>
+            <span className={styles.drawText}>Game ended in a draw</span>
+          </div>
+        )}
+        {isCompleted && !winner && !isDraw && (
           <div className={styles.completedBanner}>
             <span className={styles.completedText}>🏁 Game Complete</span>
           </div>

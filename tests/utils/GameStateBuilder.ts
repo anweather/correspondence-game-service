@@ -21,6 +21,7 @@ export class GameStateBuilder {
   private board: Board = { spaces: [], metadata: {} };
   private moveHistory: Move[] = [];
   private metadata: Record<string, any> = {};
+  private winner: string | null = null;
   private version: number = 1;
   private createdAt: Date = new Date();
   private updatedAt: Date = new Date();
@@ -146,6 +147,14 @@ export class GameStateBuilder {
   }
 
   /**
+   * Set the winner
+   */
+  withWinner(winner: string | null): this {
+    this.winner = winner;
+    return this;
+  }
+
+  /**
    * Build the GameState object
    */
   build(): GameState {
@@ -159,6 +168,7 @@ export class GameStateBuilder {
       board: this.board,
       moveHistory: this.moveHistory,
       metadata: this.metadata,
+      winner: this.winner,
       version: this.version,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,

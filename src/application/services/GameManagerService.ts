@@ -64,6 +64,7 @@ export class GameManagerService {
       gameType,
       lifecycle,
       players,
+      winner: null,
       version: 1,
       createdAt: new Date(),
       updatedAt: new Date(),

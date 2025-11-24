@@ -90,6 +90,7 @@ export interface GameState<TMetadata = Record<string, any>> {
   version: number;
   createdAt: string; // ISO 8601 timestamp
   updatedAt: string; // ISO 8601 timestamp
+  winner?: string | null; // Player ID of the winner, null for draw, undefined if not yet determined
 }
 
 /**
