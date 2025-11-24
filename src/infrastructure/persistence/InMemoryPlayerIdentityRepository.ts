@@ -1,11 +1,23 @@
 import { PlayerIdentity } from '@domain/models/PlayerIdentity';
 
 /**
+ * Parameters for creating a new player identity
+ */
+export interface CreatePlayerIdentityParams {
+  name: string;
+  externalAuthProvider?: string;
+  externalAuthId?: string;
+  email?: string;
+}
+
+/**
  * In-memory repository for player identities
  * Maps player names to their persistent IDs
+ * Supports external authentication provider integration
  */
 export class InMemoryPlayerIdentityRepository {
   private identities: Map<string, PlayerIdentity> = new Map();
+  private externalAuthIndex: Map<string, PlayerIdentity> = new Map();
 
   /**
    * Get or create a player identity by name
@@ -51,9 +63,65 @@ export class InMemoryPlayerIdentityRepository {
   }
 
   /**
+   * Find player by external authentication provider and ID
+   * @param provider - External auth provider name (e.g., 'clerk', 'custom-oauth')
+   * @param externalId - External provider's user ID
+   * @returns PlayerIdentity or null if not found
+   */
+  async findByExternalId(provider: string, externalId: string): Promise<PlayerIdentity | null> {
+    const key = `${provider}:${externalId}`;
+    return this.externalAuthIndex.get(key) || null;
+  }
+
+  /**
+   * Create a new player identity
+   * @param params - Player identity creation parameters
+   * @returns Created PlayerIdentity
+   * @throws Error if external auth ID already exists for the provider
+   */
+  async create(params: CreatePlayerIdentityParams): Promise<PlayerIdentity> {
+    // Check for duplicate external auth ID
+    if (params.externalAuthProvider && params.externalAuthId) {
+      const existing = await this.findByExternalId(
+        params.externalAuthProvider,
+        params.externalAuthId
+      );
+      if (existing) {
+        throw new Error(
+          `Player with external auth ID ${params.externalAuthId} for provider ${params.externalAuthProvider} already exists`
+        );
+      }
+    }
+
+    const now = new Date();
+    const newIdentity: PlayerIdentity = {
+      id: `player-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      name: params.name.trim(),
+      externalAuthProvider: params.externalAuthProvider,
+      externalAuthId: params.externalAuthId,
+      email: params.email,
+      createdAt: now,
+      lastUsed: now,
+    };
+
+    // Store in name index (for backward compatibility)
+    const trimmedName = params.name.trim().toLowerCase();
+    this.identities.set(trimmedName, newIdentity);
+
+    // Store in external auth index if applicable
+    if (params.externalAuthProvider && params.externalAuthId) {
+      const key = `${params.externalAuthProvider}:${params.externalAuthId}`;
+      this.externalAuthIndex.set(key, newIdentity);
+    }
+
+    return newIdentity;
+  }
+
+  /**
    * Clear all identities (for testing)
    */
   async clear(): Promise<void> {
     this.identities.clear();
+    this.externalAuthIndex.clear();
   }
 }

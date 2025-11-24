@@ -57,20 +57,20 @@ Tests are NOT optional - they are the specification for the implementation.
     - Verify test FAILS before implementing
     - _Requirements: 6.4_
 
-- [ ] 4. Extend PlayerIdentity model for external auth
-  - [ ] 4.1 Add external auth fields to PlayerIdentity
+- [x] 4. Extend PlayerIdentity model for external auth
+  - [x] 4.1 Add external auth fields to PlayerIdentity
     - Add `externalAuthProvider` field (string: 'clerk', 'custom-oauth', etc.)
     - Add `externalAuthId` field (string: Clerk user ID or other provider ID)
     - Add `email` field (optional string)
     - Keep model generic (no Clerk-specific fields)
     - _Requirements: 2.7, 6.4_
 
-  - [ ] 4.2 Update PlayerIdentityRepository interface
+  - [x] 4.2 Update PlayerIdentityRepository interface
     - Add `findByExternalId(provider: string, externalId: string)` method
     - Update `create()` to accept external auth fields
     - _Requirements: 6.1_
 
-  - [ ] 4.3 Write unit tests for PlayerIdentity model (RED)
+  - [x] 4.3 Write unit tests for PlayerIdentity model (RED)
     - Test PlayerIdentity creation with external auth fields
     - Test field validation
     - Verify tests FAIL before implementation
