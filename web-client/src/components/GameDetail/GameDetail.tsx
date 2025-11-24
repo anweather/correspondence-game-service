@@ -35,6 +35,7 @@ export function GameDetail({
 
   const currentPlayer = game.players[game.currentPlayerIndex];
   const isCurrentPlayerTurn = currentPlayerId && currentPlayer?.id === currentPlayerId;
+  const isCompleted = game.lifecycle === 'completed';
 
   // Use provided maxPlayers or default to 2 if not available
   const effectiveMaxPlayers = maxPlayers ?? 2;
@@ -84,6 +85,11 @@ export function GameDetail({
             </span>
           </div>
         </div>
+        {isCompleted && (
+          <div className={styles.completedBanner}>
+            <span className={styles.completedText}>🏁 Game Complete</span>
+          </div>
+        )}
         {currentPlayerId && game.lifecycle === 'active' && (
           <div className={styles.turnIndicator}>
             {isCurrentPlayerTurn ? (

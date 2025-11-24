@@ -138,6 +138,11 @@
   flex: 1;
 }
 
+.completedStatus {
+  color: #28a745;
+  font-weight: 600;
+}
+
 /* Mobile optimizations */
 @media (max-width: 767px) {
   .gameCard {

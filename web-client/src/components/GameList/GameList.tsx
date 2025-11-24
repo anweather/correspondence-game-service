@@ -49,6 +49,7 @@ function GameListItem({ game, onSelect, onDelete }: GameListItemProps) {
   const currentPlayer = game.players[game.currentPlayerIndex];
   const turnNumber = game.moveHistory.length;
   const maxPlayers = 2; // Default for most games
+  const isCompleted = game.lifecycle === 'completed';
 
   return (
     <div className={styles.gameCard} onClick={handleClick}>
@@ -75,13 +76,15 @@ function GameListItem({ game, onSelect, onDelete }: GameListItemProps) {
         </div>
         <div className={styles.infoRow}>
           <span className={styles.label}>Status:</span>
-          <span className={styles.value}>{game.lifecycle}</span>
+          <span className={`${styles.value} ${isCompleted ? styles.completedStatus : ''}`}>
+            {isCompleted ? '🏁 Completed' : game.lifecycle}
+          </span>
         </div>
         <div className={styles.infoRow}>
           <span className={styles.label}>Turn:</span>
           <span className={styles.value}>
             {turnNumber}
-            {currentPlayer && ` (${currentPlayer.name})`}
+            {!isCompleted && currentPlayer && ` (${currentPlayer.name})`}
           </span>
         </div>
       </div>

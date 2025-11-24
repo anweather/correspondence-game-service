@@ -72,6 +72,22 @@
   border-radius: 0.375rem;
 }
 
+.completedBanner {
+  margin-top: 0.5rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  border: 2px solid #28a745;
+  text-align: center;
+}
+
+.completedText {
+  color: #155724;
+  font-size: 1.25rem;
+  font-weight: 700;
+  display: block;
+}
+
 .refreshButton {
   align-self: flex-start;
   padding: 0.5rem 1rem;
