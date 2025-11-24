@@ -85,26 +85,26 @@ Tests are NOT optional - they are the specification for the implementation.
   - Add `creator_player_id` foreign key to `games` table
   - _Requirements: 6.1, 6.2, 6.5_
 
-- [ ] 6. Implement PlayerIdentityRepository with external auth support
-  - [ ] 6.1 Implement `findByExternalId()` method
+- [x] 6. Implement PlayerIdentityRepository with external auth support
+  - [x] 6.1 Implement `findByExternalId()` method
     - Query by provider and external ID
     - Return PlayerIdentity or null
     - _Requirements: 6.1_
 
-  - [ ] 6.2 Update `create()` method
+  - [x] 6.2 Update `create()` method
     - Accept external auth fields
     - Validate required fields
     - Insert into database
     - _Requirements: 6.1_
 
-  - [ ] 6.3 Write unit tests for repository methods (RED)
+  - [x] 6.3 Write unit tests for repository methods (RED)
     - Test findByExternalId with existing and non-existing players
     - Test create with external auth fields
     - Test unique constraint on (provider, externalId)
     - Verify tests FAIL before implementation
     - _Requirements: 6.1_
 
-  - [ ] 6.4 Write property test for player creation (RED)
+  - [x] 6.4 Write property test for player creation (RED)
     - **Property 9: PlayerIdentity creation on authentication**
     - **Validates: Requirements 6.1**
     - Test that any external auth user results in PlayerIdentity creation
