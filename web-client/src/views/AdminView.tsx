@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { useAdmin } from '../context/AdminContext';
 import { GameList } from '../components/GameList/GameList';
 import { GameDetail } from '../components/GameDetail/GameDetail';
-import { PlayerPanel } from '../components/PlayerPanel/PlayerPanel';
 import { Modal } from '../components/common/Modal';
 import { MoveInput } from '../components/MoveInput/MoveInput';
 import type { GameFilter } from '../context/AdminContext';
@@ -172,30 +171,24 @@ export function AdminView() {
           />
         </aside>
 
-        {/* Main area with Game Detail and Player Panel */}
+        {/* Main area with Game Detail */}
         <main className={styles.main}>
           {selectedGame ? (
-            <>
-              <GameDetail
-                game={selectedGame}
-                showAdminControls={true}
-                onRefresh={() => selectGame(selectedGame.gameId)}
-                currentPlayerId={impersonatedPlayer || undefined}
-                onMakeMoveClick={
-                  selectedGame.lifecycle === 'active' && impersonatedPlayer
-                    ? () => setShowMoveModal(true)
-                    : undefined
-                }
-              />
-              <PlayerPanel
-                game={selectedGame}
-                impersonatedPlayer={impersonatedPlayer}
-                onImpersonate={handleImpersonate}
-                onAddPlayer={handleAddPlayer}
-                onSubmitMove={handleSubmitMove}
-                maxPlayers={gameTypes.get(selectedGame.gameType)?.maxPlayers}
-              />
-            </>
+            <GameDetail
+              game={selectedGame}
+              showAdminControls={true}
+              onRefresh={() => selectGame(selectedGame.gameId)}
+              currentPlayerId={impersonatedPlayer || undefined}
+              onMakeMoveClick={
+                selectedGame.lifecycle === 'active' && impersonatedPlayer
+                  ? () => setShowMoveModal(true)
+                  : undefined
+              }
+              impersonatedPlayer={impersonatedPlayer}
+              onImpersonate={handleImpersonate}
+              onAddPlayer={handleAddPlayer}
+              maxPlayers={gameTypes.get(selectedGame.gameType)?.maxPlayers}
+            />
           ) : (
             <div className={styles.emptyState}>
               <p>Select a game to view details</p>
@@ -252,6 +245,7 @@ export function AdminView() {
           isOpen={showMoveModal}
           onClose={() => setShowMoveModal(false)}
           title="Make Move"
+          variant="rightPanel"
         >
           <div className={styles.moveModalContent}>
             <MoveInput

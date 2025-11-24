@@ -189,12 +189,25 @@
   background-color: #f9fafb;
   align-items: center;
   transition: background-color 0.2s;
+  justify-content: space-between;
 }
 
 .player.currentTurn {
   background-color: #dbeafe;
   border: 2px solid #3b82f6;
   font-weight: 500;
+}
+
+.player.impersonated {
+  background-color: #fef3c7;
+  border: 2px solid #f59e0b;
+}
+
+.playerInfo {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex: 1;
 }
 
 .playerNumber {
@@ -206,13 +219,111 @@
 .playerName {
   font-weight: 500;
   color: #1f2937;
-  flex: 1;
 }
 
 .playerId {
   color: #9ca3af;
   font-size: 0.875rem;
   font-family: monospace;
+}
+
+.activeIndicator {
+  background-color: #f59e0b;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.impersonateButton {
+  padding: 0.375rem 0.75rem;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.impersonateButton:hover {
+  background-color: #2563eb;
+}
+
+.impersonateButton:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Add Player Form */
+.addPlayerForm {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.playerInput {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  transition: border-color 0.2s;
+}
+
+.playerInput:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.playerInput:disabled {
+  background-color: #f3f4f6;
+  cursor: not-allowed;
+}
+
+.addButton {
+  padding: 0.5rem 1rem;
+  background-color: #10b981;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.addButton:hover:not(:disabled) {
+  background-color: #059669;
+}
+
+.addButton:disabled {
+  background-color: #d1d5db;
+  cursor: not-allowed;
+}
+
+.addButton:focus {
+  outline: 2px solid #10b981;
+  outline-offset: 2px;
+}
+
+.gameFull {
+  margin-top: 0.75rem;
+  padding: 0.5rem;
+  background-color: #fef3c7;
+  color: #92400e;
+  border-radius: 0.375rem;
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 /* Move history */

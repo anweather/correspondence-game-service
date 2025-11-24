@@ -332,10 +332,13 @@
 .moveModalContent {
   padding: 1rem;
   min-width: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 @media (min-width: 768px) {
   .moveModalContent {
-    min-width: 400px;
+    min-width: 600px;
   }
 }

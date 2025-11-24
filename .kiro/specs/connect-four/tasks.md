@@ -332,18 +332,18 @@
   - Test that currentPlayerIndex updates correctly after each move
   - _Requirements: 6.1_
 
-- [ ] 18. Improve AdminView modal positioning and sizing
-- [ ] 18.1 Center move modal over right panel
+- [x] 18. Improve AdminView modal positioning and sizing
+- [x] 18.1 Center move modal over right panel
   - Adjust modal positioning to center over game detail area
   - Modal should not cover the entire screen
   - Ensure modal is positioned relative to the right panel
 
-- [ ] 18.2 Increase move modal width for Connect Four
+- [x] 18.2 Increase move modal width for Connect Four
   - Expand modal width to accommodate Connect Four's 7-column layout
   - Ensure all column buttons are visible without scrolling
   - Test with both Tic-Tac-Toe and Connect Four components
 
-- [ ] 18.3 Merge player impersonation into player panel
+- [x] 18.3 Merge player impersonation into player panel
   - Combine impersonation controls with player list
   - Remove separate PlayerPanel component
   - Integrate player selection and impersonation into single unified interface

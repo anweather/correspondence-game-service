@@ -7,9 +7,10 @@ export interface ModalProps {
   onClose: () => void;
   title?: string;
   children: ReactNode;
+  variant?: 'default' | 'rightPanel';
 }
 
-export function Modal({ isOpen, onClose, title, children }: ModalProps) {
+export function Modal({ isOpen, onClose, title, children, variant = 'default' }: ModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   const titleId = useRef(`modal-title-${Math.random().toString(36).substr(2, 9)}`);
 
@@ -57,9 +58,13 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
     }
   };
 
+  const overlayClassName = variant === 'rightPanel' 
+    ? `${styles.overlay} ${styles.rightPanel}` 
+    : styles.overlay;
+
   return (
     <div
-      className={styles.overlay}
+      className={overlayClassName}
       onClick={handleOverlayClick}
       data-testid="modal-overlay"
     >

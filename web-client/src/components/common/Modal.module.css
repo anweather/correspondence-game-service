@@ -12,6 +12,24 @@
   padding: 1rem;
 }
 
+/* Variant for positioning over right panel in admin view */
+.overlay.rightPanel {
+  left: 350px; /* Width of sidebar */
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 1023px) {
+  .overlay.rightPanel {
+    left: 0; /* Full width on smaller screens */
+  }
+}
+
+@media (min-width: 1024px) {
+  .overlay.rightPanel {
+    left: 400px; /* Larger sidebar width on desktop */
+  }
+}
+
 .modal {
   background-color: white;
   border-radius: 0.5rem;
@@ -21,6 +39,11 @@
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
+}
+
+/* Wider modal for game moves */
+.overlay.rightPanel .modal {
+  max-width: 48rem;
 }
 
 .modal:focus {
