@@ -4,6 +4,11 @@ import { StateManagerService } from '@application/services/StateManagerService';
 import { RendererService } from '@infrastructure/rendering/RendererService';
 import { GameRepository } from '@domain/interfaces';
 import { GameNotFoundError } from '@domain/errors';
+import { requireAuth } from './auth/requireAuth';
+import { requireGameParticipant } from './auth/requireGameParticipant';
+import { AuthenticatedRequest } from './auth/types';
+
+import { loadConfig } from '../../config';
 
 /**
  * Creates game management and gameplay routes
@@ -20,20 +25,36 @@ export function createGameRoutes(
   rendererService?: RendererService
 ): Router {
   const router = Router();
+  const config = loadConfig();
+
+  // Helper to conditionally apply auth middleware
+  const authMiddleware = config.auth.enabled ? [requireAuth] : [];
+  const participantMiddleware = config.auth.enabled
+    ? [requireAuth, requireGameParticipant(gameRepository)]
+    : [];
 
   /**
    * POST /api/games
    * Create a new game instance
+   * Requires authentication (when enabled)
    */
-  router.post('/games', async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { gameType, config } = req.body;
-      const game = await gameManagerService.createGame(gameType, config || {});
-      res.status(201).json(game);
-    } catch (error) {
-      next(error);
+  router.post(
+    '/games',
+    ...authMiddleware,
+    async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+      try {
+        const { gameType, config } = req.body;
+        // Extract authenticated user from request (if auth is enabled)
+        const user = req.user; // May be undefined if auth is disabled
+
+        // Pass user to GameManagerService (will be used for creator association)
+        const game = await gameManagerService.createGame(gameType, config || {}, user);
+        res.status(201).json(game);
+      } catch (error) {
+        next(error);
+      }
     }
-  });
+  );
 
   /**
    * GET /api/games
@@ -132,21 +153,26 @@ export function createGameRoutes(
   /**
    * POST /api/games/:gameId/moves
    * Apply a move to a game
+   * Requires authentication and game participation (when enabled)
    */
-  router.post('/games/:gameId/moves', async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { playerId, move, version } = req.body;
-      const updatedState = await stateManagerService.applyMove(
-        req.params.gameId,
-        playerId,
-        move,
-        version
-      );
-      res.json(updatedState);
-    } catch (error) {
-      next(error);
+  router.post(
+    '/games/:gameId/moves',
+    ...participantMiddleware,
+    async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+      try {
+        const { playerId, move, version } = req.body;
+        const updatedState = await stateManagerService.applyMove(
+          req.params.gameId,
+          playerId,
+          move,
+          version
+        );
+        res.json(updatedState);
+      } catch (error) {
+        next(error);
+      }
     }
-  });
+  );
 
   /**
    * GET /api/games/:gameId/moves

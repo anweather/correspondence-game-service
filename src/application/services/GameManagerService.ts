@@ -30,10 +30,15 @@ export class GameManagerService {
    * Create a new game instance
    * @param gameType - The type of game to create
    * @param config - Configuration for the game
+   * @param _creator - Optional authenticated user who is creating the game (will be used in task 11)
    * @returns The created game state
    * @throws Error if game type is not supported
    */
-  async createGame(gameType: string, config: GameConfig): Promise<GameState> {
+  async createGame(
+    gameType: string,
+    config: GameConfig,
+    _creator?: { id: string; username: string }
+  ): Promise<GameState> {
     const plugin = this.registry.get(gameType);
 
     if (!plugin) {

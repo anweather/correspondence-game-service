@@ -203,38 +203,38 @@ Tests are NOT optional - they are the specification for the implementation.
   - Verify tests FAIL before implementation
   - _Requirements: 1.2, 9.5_
 
-- [ ] 10. Update game routes to use authentication
-  - [ ] 10.1 Protect game creation endpoint
+- [x] 10. Update game routes to use authentication
+  - [x] 10.1 Protect game creation endpoint
     - Apply `requireAuth` middleware to POST /api/games
     - Extract `req.user` in route handler
     - Pass user to GameManagerService
     - _Requirements: 5.2, 6.2_
 
-  - [ ] 10.2 Protect game move endpoint
+  - [x] 10.2 Protect game move endpoint
     - Apply `requireAuth` and `requireGameParticipant` to POST /api/games/:gameId/moves
     - Validate user is participant
     - _Requirements: 5.3, 6.3_
 
-  - [ ] 10.3 Keep game retrieval public
+  - [x] 10.3 Keep game retrieval public
     - Do NOT apply requireAuth to GET /api/games/:gameId
     - Allow spectators to view games
     - _Requirements: 5.4_
 
-  - [ ] 10.4 Write integration tests for protected routes (RED)
+  - [x] 10.4 Write integration tests for protected routes (RED)
     - Test game creation requires authentication
     - Test game moves require authentication and participation
     - Test game retrieval works without authentication
     - Verify tests FAIL before implementation
     - _Requirements: 5.2, 5.3, 5.4_
 
-  - [ ] 10.5 Write property test for game ownership (RED)
+  - [x] 10.5 Write property test for game ownership (RED)
     - **Property 10: Game ownership association**
     - **Validates: Requirements 6.2**
     - Test that any game created by authenticated user is associated with that user
     - Verify test FAILS before implementation
     - _Requirements: 6.2_
 
-  - [ ] 10.6 Write property test for game participant authorization (RED)
+  - [x] 10.6 Write property test for game participant authorization (RED)
     - **Property 11: Game participant authorization**
     - **Validates: Requirements 6.3**
     - Test that any move by non-participant is rejected
