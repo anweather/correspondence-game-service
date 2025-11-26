@@ -111,8 +111,8 @@ Tests are NOT optional - they are the specification for the implementation.
     - Verify test FAILS before implementation
     - _Requirements: 6.1_
 
-- [ ] 7. Implement Clerk authentication adapter
-  - [ ] 7.1 Create ClerkAuthenticationService
+- [x] 7. Implement Clerk authentication adapter
+  - [x] 7.1 Create ClerkAuthenticationService
     - Create `src/adapters/rest/auth/clerk/ClerkAuthenticationService.ts`
     - Implement `AuthenticationService` interface
     - Implement `findOrCreatePlayer()` using Clerk SDK
@@ -120,7 +120,7 @@ Tests are NOT optional - they are the specification for the implementation.
     - Map Clerk User to domain types
     - _Requirements: 2.1, 2.2, 2.3, 4.1, 6.1_
 
-  - [ ] 7.2 Write unit tests for ClerkAuthenticationService (RED)
+  - [x] 7.2 Write unit tests for ClerkAuthenticationService (RED)
     - Mock Clerk SDK
     - Test findOrCreatePlayer creates new player
     - Test findOrCreatePlayer retrieves existing player
@@ -129,7 +129,7 @@ Tests are NOT optional - they are the specification for the implementation.
     - Verify tests FAIL before implementation
     - _Requirements: 6.1, 9.2, 9.4_
 
-  - [ ] 7.3 Write property test for Clerk user mapping (RED)
+  - [x] 7.3 Write property test for Clerk user mapping (RED)
     - **Property 5: OAuth provider data persistence**
     - **Validates: Requirements 2.7**
     - Test that any Clerk user maps to PlayerIdentity with provider data
