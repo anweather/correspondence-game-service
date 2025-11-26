@@ -1,7 +1,10 @@
 import { clerkClient } from '@clerk/express';
-import { AuthenticationService, ExternalAuthUser } from '@domain/interfaces/authentication';
-import { PlayerIdentity } from '@domain/models/PlayerIdentity';
-import { InMemoryPlayerIdentityRepository } from '@infrastructure/persistence/InMemoryPlayerIdentityRepository';
+import {
+  AuthenticationService,
+  ExternalAuthUser,
+} from '../../../../domain/interfaces/authentication';
+import { PlayerIdentity } from '../../../../domain/models/PlayerIdentity';
+import { InMemoryPlayerIdentityRepository } from '../../../../infrastructure/persistence/InMemoryPlayerIdentityRepository';
 
 /**
  * Clerk-specific implementation of AuthenticationService

@@ -135,8 +135,8 @@ Tests are NOT optional - they are the specification for the implementation.
     - Test that any Clerk user maps to PlayerIdentity with provider data
     - _Requirements: 2.7_
 
-- [ ] 8. Implement authentication middleware
-  - [ ] 8.1 Create Clerk middleware wrapper
+- [x] 8. Implement authentication middleware
+  - [x] 8.1 Create Clerk middleware wrapper
     - Create `src/adapters/rest/auth/clerkMiddleware.ts`
     - Wrap Clerk's `clerkMiddleware()` function
     - Extract user from Clerk session
@@ -145,20 +145,20 @@ Tests are NOT optional - they are the specification for the implementation.
     - Handle AUTH_ENABLED=false bypass
     - _Requirements: 1.1, 1.2, 4.2, 4.3_
 
-  - [ ] 8.2 Create requireAuth middleware
+  - [x] 8.2 Create requireAuth middleware
     - Create `src/adapters/rest/auth/requireAuth.ts`
     - Check for `req.user` presence
     - Return 401 if not authenticated
     - Use generic `AuthenticatedUser` type
     - _Requirements: 1.2, 5.2, 5.3, 8.1_
 
-  - [ ] 8.3 Create requireGameParticipant middleware
+  - [x] 8.3 Create requireGameParticipant middleware
     - Check user is participant in game
     - Return 403 if not authorized
     - Use domain logic for authorization
     - _Requirements: 6.3, 8.5_
 
-  - [ ] 8.4 Write unit tests for middleware (RED)
+  - [x] 8.4 Write unit tests for middleware (RED)
     - Test clerkMiddleware with valid Clerk session
     - Test clerkMiddleware with invalid session
     - Test AUTH_ENABLED=false bypass
@@ -167,28 +167,28 @@ Tests are NOT optional - they are the specification for the implementation.
     - Verify tests FAIL before implementation
     - _Requirements: 1.1, 1.2, 4.3, 6.3, 9.4_
 
-  - [ ] 8.5 Write property test for auth bypass (RED)
+  - [x] 8.5 Write property test for auth bypass (RED)
     - **Property 1: Authentication bypass when disabled**
     - **Validates: Requirements 1.1**
     - Test that any request succeeds when AUTH_ENABLED=false
     - Verify test FAILS before implementation
     - _Requirements: 1.1_
 
-  - [ ] 8.6 Write property test for auth enforcement (RED)
+  - [x] 8.6 Write property test for auth enforcement (RED)
     - **Property 2: Authentication enforcement when enabled**
     - **Validates: Requirements 1.2, 5.5, 7.2**
     - Test that any protected route rejects unauthenticated requests
     - Verify test FAILS before implementation
     - _Requirements: 1.2_
 
-  - [ ] 8.7 Write property test for request context population (RED)
+  - [x] 8.7 Write property test for request context population (RED)
     - **Property 8: Request context population**
     - **Validates: Requirements 4.3**
     - Test that any authenticated request has user context
     - Verify test FAILS before implementation
     - _Requirements: 4.3_
 
-- [ ] 9. Integrate authentication middleware into Express app (GREEN)
+- [x] 9. Integrate authentication middleware into Express app (GREEN)
   - Update `createApp()` to add Clerk middleware
   - Apply middleware before route handlers
   - Ensure middleware order: logging → Clerk → routes
@@ -196,7 +196,7 @@ Tests are NOT optional - they are the specification for the implementation.
   - Make tests from 8.4-8.7 pass
   - _Requirements: 1.1, 1.2, 4.2_
 
-- [ ] 9.1 Write integration tests for middleware integration (RED)
+- [x] 9.1 Write integration tests for middleware integration (RED)
   - Test middleware is applied in correct order
   - Test authenticated requests flow through middleware
   - Test unauthenticated requests are rejected

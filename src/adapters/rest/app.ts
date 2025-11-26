@@ -5,6 +5,8 @@ import { GameError } from '@domain/errors';
 import { requestIdMiddleware } from './requestIdMiddleware';
 import { requestLoggingMiddleware } from './requestLoggingMiddleware';
 import { getLogger } from '../../infrastructure/logging/Logger';
+import { clerkMiddleware } from './auth/clerkMiddleware';
+import { loadConfig } from '../../config';
 
 /**
  * In-flight request tracker for graceful shutdown
@@ -153,6 +155,7 @@ export function notFoundHandler(_req: Request, res: Response): void {
  */
 export function createApp(): Express {
   const app = express();
+  const config = loadConfig();
 
   // Middleware setup
   app.use(express.json());
@@ -163,6 +166,16 @@ export function createApp(): Express {
 
   // Request logging middleware
   app.use(requestLoggingMiddleware);
+
+  // Clerk authentication middleware (if enabled)
+  // This must come after logging but before routes
+  if (config.auth.enabled) {
+    app.use(clerkMiddleware());
+  } else {
+    // Log warning when authentication is disabled
+    const logger = getLogger();
+    logger.warn('Authentication is disabled (AUTH_ENABLED=false)');
+  }
 
   // Track in-flight requests for graceful shutdown
   app.use(inFlightTracker.middleware);
