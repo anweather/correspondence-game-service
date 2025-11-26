@@ -1,7 +1,12 @@
 import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import path from 'path';
-import { GameError } from '@domain/errors';
+import {
+  GameError,
+  AuthenticationRequiredError,
+  InvalidTokenError,
+  ForbiddenError,
+} from '@domain/errors';
 import { requestIdMiddleware } from './requestIdMiddleware';
 import { requestLoggingMiddleware } from './requestLoggingMiddleware';
 import { getLogger } from '../../infrastructure/logging/Logger';
@@ -87,11 +92,44 @@ export const inFlightTracker = new InFlightRequestTracker();
 
 /**
  * Error handling middleware that converts errors to JSON responses
+ * Requirements: 8.1, 8.2, 8.5, 8.6
  */
 export function errorHandler(err: Error, req: Request, res: Response, _next: NextFunction): void {
   const logger = getLogger();
 
-  // Handle GameError instances
+  // Handle authentication errors specifically (Requirements: 8.1, 8.2, 8.5, 8.6)
+  if (
+    err instanceof AuthenticationRequiredError ||
+    err instanceof InvalidTokenError ||
+    err instanceof ForbiddenError
+  ) {
+    // Log authentication errors without sensitive data (Requirement: 8.6)
+    logger.warn('Authentication error occurred', {
+      requestId: req.requestId,
+      code: err.code,
+      message: err.message,
+      // Explicitly exclude sensitive data - no tokens, secrets, or passwords
+      // Only log error metadata for debugging
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const response: any = {
+      error: {
+        code: err.code,
+        message: err.message,
+      },
+    };
+
+    // Include details if present (e.g., reason for invalid token)
+    if (err.details) {
+      response.error.details = err.details;
+    }
+
+    res.status(err.statusCode).json(response);
+    return;
+  }
+
+  // Handle other GameError instances
   if (err instanceof GameError) {
     logger.warn('Game error occurred', {
       requestId: req.requestId,

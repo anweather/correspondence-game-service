@@ -74,3 +74,43 @@ export class GameFullError extends GameError {
     this.name = 'GameFullError';
   }
 }
+
+/**
+ * Error thrown when authentication is required but not provided
+ * HTTP Status: 401 Unauthorized
+ * Requirements: 8.1
+ */
+export class AuthenticationRequiredError extends GameError {
+  constructor() {
+    super('Authentication required', 'AUTHENTICATION_REQUIRED', 401);
+    this.name = 'AuthenticationRequiredError';
+  }
+}
+
+/**
+ * Error thrown when an authentication token is invalid or expired
+ * HTTP Status: 401 Unauthorized
+ * Requirements: 8.2, 8.3
+ */
+export class InvalidTokenError extends GameError {
+  constructor(reason: 'missing' | 'malformed' | 'expired' | 'invalid') {
+    const isExpired = reason === 'expired';
+    const message = isExpired ? 'Authentication token expired' : 'Invalid authentication token';
+    const code = isExpired ? 'TOKEN_EXPIRED' : 'INVALID_TOKEN';
+
+    super(message, code, 401, { reason });
+    this.name = 'InvalidTokenError';
+  }
+}
+
+/**
+ * Error thrown when a user is authenticated but not authorized for a resource
+ * HTTP Status: 403 Forbidden
+ * Requirements: 8.5
+ */
+export class ForbiddenError extends GameError {
+  constructor(message: string = 'Access denied') {
+    super(`Forbidden: ${message}`, 'FORBIDDEN', 403);
+    this.name = 'ForbiddenError';
+  }
+}

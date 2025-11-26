@@ -261,21 +261,21 @@ Tests are NOT optional - they are the specification for the implementation.
     - Verify tests FAIL before implementation
     - _Requirements: 6.2, 6.3_
 
-- [ ] 12. Implement error handling for authentication
-  - [ ] 12.1 Create authentication error types
+- [x] 12. Implement error handling for authentication
+  - [x] 12.1 Create authentication error types
     - Create `AuthenticationRequiredError` (401)
     - Create `InvalidTokenError` (401)
     - Create `ForbiddenError` (403)
     - Add to domain errors
     - _Requirements: 8.1, 8.2, 8.5_
 
-  - [ ] 12.2 Update error handler middleware
+  - [x] 12.2 Update error handler middleware
     - Handle authentication errors
     - Return appropriate status codes and messages
     - Log errors without exposing sensitive data
     - _Requirements: 8.1, 8.2, 8.5, 8.6_
 
-  - [ ] 12.3 Write unit tests for error handling (RED)
+  - [x] 12.3 Write unit tests for error handling (RED)
     - Test error responses for missing token
     - Test error responses for invalid token
     - Test error responses for forbidden access
@@ -283,7 +283,7 @@ Tests are NOT optional - they are the specification for the implementation.
     - Verify tests FAIL before implementation
     - _Requirements: 8.1, 8.2, 8.5, 8.6_
 
-  - [ ] 12.4 Write property test for auth failure logging (RED)
+  - [x] 12.4 Write property test for auth failure logging (RED)
     - **Property 15: Authentication failure logging**
     - **Validates: Requirements 8.6**
     - Test that any auth failure is logged without sensitive data
