@@ -6,6 +6,7 @@ import {
   useMemo,
 } from 'react';
 import type { ReactNode } from 'react';
+import { useAuth } from '@clerk/clerk-react';
 import { GameClient } from '../api/gameClient';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import type { GameState, MoveInput } from '../types/game';
@@ -57,6 +58,7 @@ interface PlayerProviderProps {
  * Manages state for the player view including game participation and move submission
  */
 export function PlayerProvider({ children }: PlayerProviderProps) {
+  const { getToken } = useAuth();
   const [currentGame, setCurrentGame] = useState<GameState | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -69,7 +71,34 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
     null
   );
 
-  const client = useMemo(() => new GameClient(), []);
+  const client = useMemo(() => new GameClient('/api', getToken), [getToken]);
+
+  /**
+   * Handle API errors with specific authentication error handling
+   */
+  const handleError = useCallback((err: unknown, defaultMessage: string): string => {
+    if (err instanceof Error) {
+      const message = err.message;
+      
+      // Check for authentication errors
+      if (message.includes('Authentication required') || message.includes('401')) {
+        return 'Authentication required. Please sign in to continue.';
+      }
+      
+      // Check for token expiration
+      if (message.includes('token expired') || message.includes('Token expired')) {
+        return 'Your session has expired. Please sign in again.';
+      }
+      
+      // Check for forbidden errors
+      if (message.includes('Forbidden') || message.includes('403')) {
+        return 'You do not have permission to perform this action.';
+      }
+      
+      return message;
+    }
+    return defaultMessage;
+  }, []);
 
   /**
    * Login with a player name (gets or creates player identity from backend)
@@ -90,7 +119,7 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
         setPlayerName(identity.name);
         setPlayerId(identity.id);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to login';
+        const errorMessage = handleError(err, 'Failed to login');
         setError(errorMessage);
       } finally {
         setLoading(false);
@@ -161,13 +190,13 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
         setCurrentGameId(joinedGame.gameId);
         setCurrentGame(joinedGame);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to create game';
+        const errorMessage = handleError(err, 'Failed to create game');
         setError(errorMessage);
       } finally {
         setLoading(false);
       }
     },
-    [client, playerName, playerId, setCurrentGameId]
+    [client, playerName, playerId, setCurrentGameId, handleError]
   );
 
   /**
@@ -193,13 +222,13 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
         setCurrentGameId(joinedGame.gameId);
         setCurrentGame(joinedGame);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to join game';
+        const errorMessage = handleError(err, 'Failed to join game');
         setError(errorMessage);
       } finally {
         setLoading(false);
       }
     },
-    [client, playerName, playerId, setCurrentGameId]
+    [client, playerName, playerId, setCurrentGameId, handleError]
   );
 
   /**
@@ -214,13 +243,13 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
         setCurrentGame(game);
         setCurrentGameId(gameId);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to load game';
+        const errorMessage = handleError(err, 'Failed to load game');
         setError(errorMessage);
       } finally {
         setLoading(false);
       }
     },
-    [client, setCurrentGameId]
+    [client, setCurrentGameId, handleError]
   );
 
   /**
@@ -250,13 +279,13 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
 
         setCurrentGame(updatedGame);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to submit move';
+        const errorMessage = handleError(err, 'Failed to submit move');
         setError(errorMessage);
       } finally {
         setLoading(false);
       }
     },
-    [client, currentGame, playerId]
+    [client, currentGame, playerId, handleError]
   );
 
   /**
@@ -274,12 +303,12 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
       const refreshedGame = await client.getGame(currentGame.gameId);
       setCurrentGame(refreshedGame);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to refresh game';
+      const errorMessage = handleError(err, 'Failed to refresh game');
       setError(errorMessage);
     } finally {
       setLoading(false);
     }
-  }, [client, currentGame]);
+  }, [client, currentGame, handleError]);
 
   /**
    * List available games that can be joined

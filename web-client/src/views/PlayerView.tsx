@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
+import { SignedIn, SignedOut, useUser } from '@clerk/clerk-react';
 import { usePlayer } from '../context/PlayerContext';
 import { GameDetail } from '../components/GameDetail/GameDetail';
 import { MoveInput } from '../components/MoveInput/MoveInput';
-import { Modal } from '../components/common/Modal';
+import { Modal, AuthHeader } from '../components/common';
 import type { MoveInput as MoveInputType, GameState } from '../types/game';
 import styles from './PlayerView.module.css';
 
@@ -11,6 +12,7 @@ import styles from './PlayerView.module.css';
  * Main view for players to create, join, and play games
  */
 export function PlayerView() {
+  const { user, isSignedIn } = useUser();
   const {
     currentGame,
     playerId,
@@ -40,6 +42,36 @@ export function PlayerView() {
   const [knownPlayers, setKnownPlayers] = useState<string[]>([]);
   const [showMoveModal, setShowMoveModal] = useState(false);
   const isInitialMount = useRef(true);
+
+  // Automatically login when user signs in with Clerk
+  useEffect(() => {
+    if (isSignedIn && user && !playerName && !loading) {
+      // Priority: username → full name → first name → email → fallback
+      let name = 'Player';
+      
+      if (user.username) {
+        name = user.username;
+      } else if (user.firstName && user.lastName) {
+        name = `${user.firstName} ${user.lastName}`;
+      } else if (user.firstName) {
+        name = user.firstName;
+      } else if (user.emailAddresses && user.emailAddresses[0]?.emailAddress) {
+        name = user.emailAddresses[0].emailAddress;
+      }
+      
+      login(name);
+    }
+  }, [isSignedIn, user, playerName, loading, login]);
+
+  // Automatically logout when user signs out through Clerk
+  useEffect(() => {
+    if (!isSignedIn && playerName) {
+      // User signed out through Clerk, clear local state
+      logout();
+      // Clear URL parameters from hash
+      window.history.replaceState({}, '', `${window.location.pathname}#/player`);
+    }
+  }, [isSignedIn, playerName, logout]);
 
   // Update URL when game changes (for bookmarking and refresh)
   useEffect(() => {
@@ -128,12 +160,6 @@ export function PlayerView() {
     }
   };
 
-  const handleLogout = () => {
-    logout();
-    // Clear URL parameters from hash
-    window.history.replaceState({}, '', `${window.location.pathname}#/player`);
-  };
-
   const handleCreateGame = async (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedGameType) {
@@ -192,67 +218,42 @@ export function PlayerView() {
   if (!playerName) {
     return (
       <div className={styles.playerView}>
-        <header className={styles.header}>
-          <h1>Welcome to Async Boardgame</h1>
-        </header>
+        <AuthHeader title="Welcome to Async Boardgame" />
 
-        {error && (
-          <div className={styles.error} role="alert">
-            {error}
+        <SignedOut>
+          <div className={styles.authPrompt}>
+            <h2>Please sign in to continue</h2>
+            <p>Sign in with your preferred provider to create and join games.</p>
           </div>
-        )}
+        </SignedOut>
 
-        <div className={styles.loginContainer}>
-          <div className={styles.loginSection}>
-            <h2>Enter Your Name</h2>
-            <p className={styles.loginDescription}>
-              Your identity will be saved across sessions
-            </p>
-            <form onSubmit={handleLogin} className={styles.form}>
-              {knownPlayers.length > 0 && (
-                <div className={styles.formGroup}>
-                  <label htmlFor="known-players">Select Previous Name</label>
-                  <select
-                    id="known-players"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    disabled={loading}
-                    className={styles.select}
-                  >
-                    <option value="">-- Select a name --</option>
-                    {knownPlayers.map((playerName) => (
-                      <option key={playerName} value={playerName}>
-                        {playerName}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+        <SignedIn>
+          {error && (
+            <div className={styles.error} role="alert">
+              {error}
+            </div>
+          )}
+
+          <div className={styles.loginContainer}>
+            <div className={styles.loginSection}>
+              {loading ? (
+                <>
+                  <h2>Setting up your account...</h2>
+                  <p className={styles.loginDescription}>
+                    Please wait while we create your player profile.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h2>Welcome!</h2>
+                  <p className={styles.loginDescription}>
+                    We're setting up your account. This will only take a moment.
+                  </p>
+                </>
               )}
-              <div className={styles.formGroup}>
-                <label htmlFor="login-name">
-                  {knownPlayers.length > 0 ? 'Or Enter New Name' : 'Your Name'}
-                </label>
-                <input
-                  id="login-name"
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Enter your name"
-                  disabled={loading}
-                  required
-                  autoFocus={knownPlayers.length === 0}
-                />
-              </div>
-              <button
-                type="submit"
-                className={styles.button}
-                disabled={loading || !name.trim()}
-              >
-                {loading ? 'Loading...' : 'Continue'}
-              </button>
-            </form>
+            </div>
           </div>
-        </div>
+        </SignedIn>
       </div>
     );
   }
@@ -261,16 +262,7 @@ export function PlayerView() {
   if (!currentGame) {
     return (
       <div className={styles.playerView}>
-        <header className={styles.header}>
-          <h1>Welcome, {playerName}</h1>
-          <button
-            className={styles.logoutButton}
-            onClick={handleLogout}
-            aria-label="Logout"
-          >
-            Logout
-          </button>
-        </header>
+        <AuthHeader title={`Welcome, ${playerName}`} />
 
         {error && (
           <div className={styles.error} role="alert">
@@ -403,36 +395,24 @@ export function PlayerView() {
 
   return (
     <div className={styles.playerView}>
-      <header className={styles.header}>
-        <div className={styles.headerLeft}>
-          <h1>Welcome, {playerName}</h1>
-          <button
-            className={styles.logoutButton}
-            onClick={handleLogout}
-            aria-label="Logout"
-          >
-            Logout
-          </button>
-        </div>
-        <div className={styles.headerRight}>
-          <button
-            className={styles.shareButton}
-            onClick={handleCopyLink}
-            aria-label="Copy share link"
-            title="Copy shareable link"
-          >
-            📋 Share Link
-          </button>
-          <button
-            className={styles.refreshButton}
-            onClick={handleRefresh}
-            disabled={loading}
-            aria-label="Refresh"
-          >
-            Refresh
-          </button>
-        </div>
-      </header>
+      <AuthHeader title={`Welcome, ${playerName}`}>
+        <button
+          className={styles.shareButton}
+          onClick={handleCopyLink}
+          aria-label="Copy share link"
+          title="Copy shareable link"
+        >
+          📋 Share Link
+        </button>
+        <button
+          className={styles.refreshButton}
+          onClick={handleRefresh}
+          disabled={loading}
+          aria-label="Refresh"
+        >
+          Refresh
+        </button>
+      </AuthHeader>
 
       {error && (
         <div className={styles.error} role="alert">

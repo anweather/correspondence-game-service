@@ -290,54 +290,54 @@ Tests are NOT optional - they are the specification for the implementation.
     - Verify test FAILS before implementation
     - _Requirements: 8.6_
 
-- [ ] 13. Checkpoint - Ensure all backend tests pass
+- [x] 13. Checkpoint - Ensure all backend tests pass
   - Run full test suite: `npm run test:run`
   - Verify all authentication tests pass
   - Verify existing tests still pass
   - Fix any broken tests
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 14. Set up Clerk in web client
-  - [ ] 14.1 Install and configure Clerk React
+- [x] 14. Set up Clerk in web client
+  - [x] 14.1 Install and configure Clerk React
     - Install `@clerk/clerk-react` in web-client
     - Create Clerk provider wrapper
     - Add `VITE_CLERK_PUBLISHABLE_KEY` to web-client `.env`
     - Wrap App with `<ClerkProvider>`
     - _Requirements: 11.1, 11.2_
 
-  - [ ] 14.2 Add Clerk components to UI
+  - [x] 14.2 Add Clerk components to UI
     - Add `<SignIn>` component to login page/modal
     - Add `<UserButton>` component to header
     - Add `<SignedIn>` and `<SignedOut>` conditional rendering
     - _Requirements: 11.1_
 
-  - [ ] 14.3 Update API client to include Clerk token
+  - [x] 14.3 Update API client to include Clerk token
     - Modify `gameClient.ts` to get Clerk session token
     - Include token in Authorization header
     - Handle token expiration
     - _Requirements: 11.4_
 
-  - [ ] 14.4 Write tests for web client auth integration (RED)
+  - [x] 14.4 Write tests for web client auth integration (RED)
     - Test Clerk provider setup
     - Test authenticated API requests include token
     - Test unauthenticated state
     - Verify tests FAIL before implementation
     - _Requirements: 11.1, 11.4_
 
-- [ ] 15. Update web client UI for authentication
-  - [ ] 15.1 Add authentication state to UI
+- [x] 15. Update web client UI for authentication
+  - [x] 15.1 Add authentication state to UI
     - Show login button when signed out
     - Show user button when signed in
     - Conditionally show "Create Game" based on auth
     - _Requirements: 11.1_
 
-  - [ ] 15.2 Handle authentication errors in UI
+  - [x] 15.2 Handle authentication errors in UI
     - Show error messages for 401 responses
     - Prompt re-authentication on token expiration
     - Handle 403 forbidden errors
     - _Requirements: 11.5_
 
-  - [ ] 15.3 Write tests for UI authentication state (RED)
+  - [x] 15.3 Write tests for UI authentication state (RED)
     - Test UI shows correct state when signed in/out
     - Test error handling for auth failures
     - Verify tests FAIL before implementation

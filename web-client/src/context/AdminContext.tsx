@@ -7,6 +7,7 @@ import {
   useEffect,
 } from 'react';
 import type { ReactNode } from 'react';
+import { useAuth } from '@clerk/clerk-react';
 import { GameClient } from '../api/gameClient';
 import type { GameState, MoveInput } from '../types/game';
 
@@ -61,6 +62,7 @@ interface AdminProviderProps {
  * Manages state for the admin view including game list, selection, and player impersonation
  */
 export function AdminProvider({ children }: AdminProviderProps) {
+  const { getToken } = useAuth();
   const [games, setGames] = useState<GameState[]>([]);
   const [selectedGame, setSelectedGame] = useState<GameState | null>(null);
   const [impersonatedPlayer, setImpersonatedPlayer] = useState<string | null>(null);
@@ -69,7 +71,7 @@ export function AdminProvider({ children }: AdminProviderProps) {
   const [error, setError] = useState<string | null>(null);
   const [gameTypes, setGameTypes] = useState<Map<string, { maxPlayers: number }>>(new Map());
 
-  const client = useMemo(() => new GameClient(), []);
+  const client = useMemo(() => new GameClient('/api', getToken), [getToken]);
 
   /**
    * Load game types on mount

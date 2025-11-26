@@ -4,6 +4,11 @@ import type { ReactNode } from 'react';
 import { PlayerProvider, usePlayer } from '../PlayerContext';
 import type { GameState } from '../../types/game';
 
+// Mock Clerk
+vi.mock('@clerk/clerk-react', () => ({
+  useAuth: () => ({ getToken: vi.fn().mockResolvedValue(null) }),
+}));
+
 // Create mock functions that will be shared across all tests
 const mockGetGameTypes = vi.fn();
 const mockCreateGame = vi.fn();
@@ -14,6 +19,8 @@ const mockDeleteGame = vi.fn();
 const mockMakeMove = vi.fn();
 const mockGetMoveHistory = vi.fn();
 const mockGetBoardSvgUrl = vi.fn();
+const mockGetOrCreatePlayerIdentity = vi.fn();
+const mockGetKnownPlayers = vi.fn();
 
 // Mock the GameClient module
 vi.mock('../../api/gameClient', () => {
@@ -28,6 +35,8 @@ vi.mock('../../api/gameClient', () => {
       makeMove = mockMakeMove;
       getMoveHistory = mockGetMoveHistory;
       getBoardSvgUrl = mockGetBoardSvgUrl;
+      getOrCreatePlayerIdentity = mockGetOrCreatePlayerIdentity;
+      getKnownPlayers = mockGetKnownPlayers;
     },
   };
 });
@@ -70,14 +79,18 @@ describe('PlayerContext', () => {
   });
 
   describe('login/logout', () => {
-    it('should login with a player name', () => {
+    it('should login with a player name', async () => {
+      mockGetOrCreatePlayerIdentity.mockResolvedValue({ id: 'player-123', name: 'Alice' });
+      
       const { result } = renderHook(() => usePlayer(), { wrapper });
 
-      act(() => {
-        result.current.login('Alice');
+      await act(async () => {
+        await result.current.login('Alice');
       });
 
-      expect(result.current.playerName).toBe('Alice');
+      await waitFor(() => {
+        expect(result.current.playerName).toBe('Alice');
+      });
       expect(localStorage.getItem('player.name')).toBe(JSON.stringify('Alice'));
     });
 
@@ -95,8 +108,9 @@ describe('PlayerContext', () => {
       expect(result.current.playerName).toBeNull();
       expect(result.current.playerId).toBeNull();
       expect(result.current.currentGame).toBeNull();
-      expect(localStorage.getItem('player.name')).toBe('null');
-      expect(localStorage.getItem('player.id')).toBe('null');
+      // useLocalStorage removes keys when value is null
+      expect(localStorage.getItem('player.name')).toBeNull();
+      expect(localStorage.getItem('player.id')).toBeNull();
     });
   });
 
@@ -119,14 +133,15 @@ describe('PlayerContext', () => {
         updatedAt: '2024-01-01T00:00:00Z',
       };
 
+      mockGetOrCreatePlayerIdentity.mockResolvedValue({ id: 'player-1', name: 'Alice' });
       mockCreateGame.mockResolvedValue(mockGame);
       mockJoinGame.mockResolvedValue(mockGame);
 
       const { result } = renderHook(() => usePlayer(), { wrapper });
 
       // Login first
-      act(() => {
-        result.current.login('Alice');
+      await act(async () => {
+        await result.current.login('Alice');
       });
 
       await act(async () => {
@@ -147,13 +162,14 @@ describe('PlayerContext', () => {
 
     it('should handle errors during game creation', async () => {
       const errorMessage = 'Failed to create game';
+      mockGetOrCreatePlayerIdentity.mockResolvedValue({ id: 'player-1', name: 'Alice' });
       mockCreateGame.mockRejectedValue(new Error(errorMessage));
 
       const { result } = renderHook(() => usePlayer(), { wrapper });
 
       // Login first
-      act(() => {
-        result.current.login('Alice');
+      await act(async () => {
+        await result.current.login('Alice');
       });
 
       await act(async () => {
@@ -199,13 +215,14 @@ describe('PlayerContext', () => {
         updatedAt: '2024-01-01T00:00:00Z',
       };
 
+      mockGetOrCreatePlayerIdentity.mockResolvedValue({ id: 'player-2', name: 'Bob' });
       mockJoinGame.mockResolvedValue(mockGame);
 
       const { result } = renderHook(() => usePlayer(), { wrapper });
 
       // Login first
-      act(() => {
-        result.current.login('Bob');
+      await act(async () => {
+        await result.current.login('Bob');
       });
 
       await act(async () => {
@@ -226,13 +243,14 @@ describe('PlayerContext', () => {
 
     it('should handle errors when joining game', async () => {
       const errorMessage = 'Game is full';
+      mockGetOrCreatePlayerIdentity.mockResolvedValue({ id: 'player-3', name: 'Charlie' });
       mockJoinGame.mockRejectedValue(new Error(errorMessage));
 
       const { result } = renderHook(() => usePlayer(), { wrapper });
 
       // Login first
-      act(() => {
-        result.current.login('Charlie');
+      await act(async () => {
+        await result.current.login('Charlie');
       });
 
       await act(async () => {

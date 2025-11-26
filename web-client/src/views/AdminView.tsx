@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useAdmin } from '../context/AdminContext';
 import { GameList } from '../components/GameList/GameList';
 import { GameDetail } from '../components/GameDetail/GameDetail';
-import { Modal } from '../components/common/Modal';
+import { Modal, AuthHeader } from '../components/common';
 import { MoveInput } from '../components/MoveInput/MoveInput';
 import type { GameFilter } from '../context/AdminContext';
 import styles from './AdminView.module.css';
@@ -106,27 +106,24 @@ export function AdminView() {
   return (
     <div className={styles.adminView}>
       {/* Header */}
-      <header className={styles.header}>
-        <h1>Admin View</h1>
-        <div className={styles.headerControls}>
-          <button
-            className={styles.refreshButton}
-            onClick={handleRefresh}
-            disabled={loading}
-            aria-label="Refresh"
-          >
-            Refresh
-          </button>
-          <button
-            className={styles.createButton}
-            onClick={handleCreateGame}
-            disabled={loading}
-            aria-label="Create game"
-          >
-            Create Game
-          </button>
-        </div>
-      </header>
+      <AuthHeader title="Admin View">
+        <button
+          className={styles.refreshButton}
+          onClick={handleRefresh}
+          disabled={loading}
+          aria-label="Refresh"
+        >
+          Refresh
+        </button>
+        <button
+          className={styles.createButton}
+          onClick={handleCreateGame}
+          disabled={loading}
+          aria-label="Create game"
+        >
+          Create Game
+        </button>
+      </AuthHeader>
 
       {/* Filter Controls */}
       <div className={styles.filterControls}>

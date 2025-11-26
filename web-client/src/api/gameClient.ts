@@ -15,9 +15,11 @@ import type {
  */
 export class GameClient {
   private baseUrl: string;
+  private getToken?: () => Promise<string | null>;
   
-  constructor(baseUrl: string = '/api') {
+  constructor(baseUrl: string = '/api', getToken?: () => Promise<string | null>) {
     this.baseUrl = baseUrl;
+    this.getToken = getToken;
   }
 
   /**
@@ -129,7 +131,19 @@ export class GameClient {
    */
   private async request<T>(url: string, options?: RequestInit): Promise<T> {
     try {
-      const response = await fetch(url, options);
+      // Get Clerk session token if available
+      const token = this.getToken ? await this.getToken() : null;
+      
+      // Add Authorization header if token exists
+      const headers = new Headers(options?.headers);
+      if (token) {
+        headers.set('Authorization', `Bearer ${token}`);
+      }
+      
+      const response = await fetch(url, {
+        ...options,
+        headers,
+      });
 
       if (!response.ok) {
         await this.handleErrorResponse(response);
