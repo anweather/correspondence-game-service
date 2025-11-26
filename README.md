@@ -226,6 +226,36 @@ curl -X POST http://localhost:3000/api/games \
 
 For detailed Clerk setup instructions, see [CLERK_SETUP_GUIDE.md](./CLERK_SETUP_GUIDE.md).
 
+## Home Server Deployment
+
+Deploy to your own home server with a custom domain:
+
+**Quick Start** (30 minutes):
+```bash
+curl -fsSL https://raw.githubusercontent.com/your-repo/main/scripts/full-setup.sh | sudo bash -s -- \
+  --domain games.yourdomain.com \
+  --email your@email.com \
+  --db-password "YourSecurePassword123!"
+```
+
+This automated script will:
+- ✅ Install Docker, Nginx, and all dependencies
+- ✅ Configure SSL with Let's Encrypt (automatic HTTPS)
+- ✅ Deploy the application with PostgreSQL
+- ✅ Set up automated daily backups
+- ✅ Configure health monitoring and auto-restart
+- ✅ Configure firewall rules
+
+**What you need**:
+- Linux server (Ubuntu 20.04+)
+- Domain name pointing to your server
+- Router with port forwarding (80, 443)
+
+**Documentation**:
+- [Quick Start Guide](./docs/QUICK_START_HOME_SERVER.md) - Get running in 30 minutes
+- [Complete Home Server Guide](./docs/HOME_SERVER_DEPLOYMENT.md) - Detailed setup and troubleshooting
+- [GitHub Actions Auto-Deployment](./docs/GITHUB_ACTIONS_SETUP.md) - Push to deploy
+
 ## Docker Deployment
 
 The service is fully containerized and ready for production deployment with Docker.

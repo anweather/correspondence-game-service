@@ -1,0 +1,140 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run linter
+        run: npm run lint
+      
+      - name: Run tests
+        run: npm run test:run
+      
+      - name: Build application
+        run: npm run build
+
+  deploy:
+    name: Deploy to Home Server
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      
+      - name: Add server to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+      
+      - name: Deploy to server
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_PATH: ${{ secrets.SERVER_PATH }}
+        run: |
+          ssh $SERVER_USER@$SERVER_HOST << 'ENDSSH'
+            set -e
+            cd ${{ secrets.SERVER_PATH }}
+            
+            echo "📦 Pulling latest code..."
+            git pull origin main
+            
+            echo "🔨 Building Docker images..."
+            docker-compose build --no-cache
+            
+            echo "🚀 Deploying services..."
+            docker-compose up -d
+            
+            echo "⏳ Waiting for services to be healthy..."
+            sleep 10
+            
+            # Wait for health check
+            for i in {1..30}; do
+              if curl -f http://localhost:3000/health > /dev/null 2>&1; then
+                echo "✅ Services are healthy!"
+                break
+              fi
+              if [ $i -eq 30 ]; then
+                echo "❌ Health check failed!"
+                docker-compose logs --tail=50 backend
+                exit 1
+              fi
+              sleep 2
+            done
+            
+            echo "🎉 Deployment complete!"
+          ENDSSH
+      
+      - name: Verify deployment
+        env:
+          DOMAIN: ${{ secrets.DOMAIN }}
+        run: |
+          echo "Verifying deployment at https://$DOMAIN"
+          sleep 5
+          curl -f https://$DOMAIN/health || exit 1
+          echo "✅ Deployment verified!"
+      
+      - name: Notify on success
+        if: success()
+        run: |
+          echo "🎉 Deployment successful!"
+          echo "Site: https://${{ secrets.DOMAIN }}"
+      
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "❌ Deployment failed!"
+          echo "Check the logs above for details"
+
+  notify:
+    name: Send Notification
+    needs: [test, deploy]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: Send Discord notification
+        if: env.DISCORD_WEBHOOK != ''
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          if [ "${{ needs.deploy.result }}" == "success" ]; then
+            COLOR="3066993"
+            TITLE="✅ Deployment Successful"
+            DESCRIPTION="Successfully deployed to production"
+          else
+            COLOR="15158332"
+            TITLE="❌ Deployment Failed"
+            DESCRIPTION="Deployment to production failed"
+          fi
+          
+          curl -H "Content-Type: application/json" \
+            -d "{\"embeds\": [{\"title\": \"$TITLE\", \"description\": \"$DESCRIPTION\", \"color\": $COLOR, \"fields\": [{\"name\": \"Commit\", \"value\": \"${{ github.sha }}\", \"inline\": true}, {\"name\": \"Branch\", \"value\": \"${{ github.ref_name }}\", \"inline\": true}]}]}" \
+            $DISCORD_WEBHOOK || true
