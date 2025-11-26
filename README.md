@@ -49,6 +49,11 @@ For local development without Docker:
 # Install dependencies
 npm install
 
+# Copy environment template
+cp .env.example .env
+
+# Edit .env and configure as needed (authentication is disabled by default)
+
 # Run tests
 npm run test:run
 
@@ -60,6 +65,8 @@ npm run build
 ```
 
 The server will start on `http://localhost:3000` (or the port specified in your environment).
+
+**Note**: Authentication is disabled by default for local development. See the [Authentication](#authentication) section below for details.
 
 ## Project Structure
 
@@ -112,6 +119,112 @@ This project follows **Hexagonal Architecture (Ports and Adapters)** to maintain
 - **Image Generation**: SVG.js for board rendering
 - **Database**: PostgreSQL 15 (production), In-memory (development/testing)
 - **Containerization**: Docker and Docker Compose
+
+## Authentication
+
+The service supports optional authentication using [Clerk](https://clerk.com), a managed authentication service. Authentication is **disabled by default** for local development and can be enabled for production/Docker deployments.
+
+### Authentication Modes
+
+#### Development Mode (Default)
+- Authentication is **disabled** by default (`AUTH_ENABLED=false`)
+- All API endpoints are accessible without authentication
+- No Clerk configuration required
+- Ideal for local development and testing
+
+#### Production Mode
+- Authentication is **enabled** (`AUTH_ENABLED=true`)
+- Protected endpoints require valid Clerk session tokens
+- OAuth providers: Discord, Google, GitHub
+- User identities are managed through Clerk
+
+### Quick Setup for Production
+
+1. **Create a Clerk Account**
+   - Sign up at [https://clerk.com](https://clerk.com)
+   - Create a new application in the Clerk dashboard
+
+2. **Configure OAuth Providers**
+   - In Clerk dashboard, go to **Configure > Social Connections**
+   - Enable Discord, Google, and/or GitHub
+   - Configure OAuth redirect URLs
+
+3. **Get API Keys**
+   - In Clerk dashboard, go to **Configure > API Keys**
+   - Copy your **Publishable Key** (starts with `pk_`)
+   - Copy your **Secret Key** (starts with `sk_`)
+
+4. **Configure Environment Variables**
+   ```bash
+   # Enable authentication
+   AUTH_ENABLED=true
+   
+   # Add Clerk keys
+   CLERK_PUBLISHABLE_KEY=pk_test_your_publishable_key_here
+   CLERK_SECRET_KEY=sk_test_your_secret_key_here
+   ```
+
+5. **Configure Web Client**
+   ```bash
+   # In web-client/.env
+   VITE_CLERK_PUBLISHABLE_KEY=pk_test_your_publishable_key_here
+   ```
+
+### Disabling Authentication for Local Development
+
+Authentication is disabled by default. To explicitly disable it:
+
+```bash
+# In .env
+AUTH_ENABLED=false
+```
+
+When authentication is disabled:
+- No Clerk configuration is required
+- All API endpoints work without authentication headers
+- Player IDs can be any string value
+- Ideal for rapid development and testing
+
+### Protected vs Public Endpoints
+
+When authentication is **enabled**:
+
+**Protected Endpoints** (require authentication):
+- `POST /api/games` - Create a new game
+- `POST /api/games/:gameId/moves` - Make a move
+- `POST /api/games/:gameId/join` - Join a game
+
+**Public Endpoints** (no authentication required):
+- `GET /api/games` - List games
+- `GET /api/games/:gameId` - View game state
+- `GET /api/games/:gameId/board.svg` - View board rendering
+- `GET /api/game-types` - List available game types
+- `GET /health` - Health check
+
+### Authentication Flow
+
+1. User clicks "Sign In" in web client
+2. Clerk handles OAuth flow with chosen provider (Discord/Google/GitHub)
+3. User authorizes the application
+4. Clerk creates a session and returns a token
+5. Web client includes token in API requests
+6. Backend validates token with Clerk and associates actions with user identity
+
+### Testing with Authentication
+
+For testing authenticated endpoints:
+
+```bash
+# 1. Get a session token from Clerk (via web client or Clerk API)
+# 2. Include it in the Authorization header
+
+curl -X POST http://localhost:3000/api/games \
+  -H "Authorization: Bearer <clerk_session_token>" \
+  -H "Content-Type: application/json" \
+  -d '{"gameType": "tic-tac-toe"}'
+```
+
+For detailed Clerk setup instructions, see [CLERK_SETUP_GUIDE.md](./CLERK_SETUP_GUIDE.md).
 
 ## Docker Deployment
 
@@ -194,11 +307,19 @@ docker-compose -f docker-compose.dev.yml up
 
 Key environment variables (see `.env.example` for full list):
 
+**Database:**
 - `DB_PASSWORD`: PostgreSQL password (required)
+- `DB_POOL_SIZE`: Database connection pool size (default: 10)
+
+**Application:**
 - `PORT`: HTTP server port (default: 3000)
 - `NODE_ENV`: Environment mode (production/development)
-- `DB_POOL_SIZE`: Database connection pool size (default: 10)
 - `LOG_LEVEL`: Logging verbosity (debug/info/warn/error)
+
+**Authentication:**
+- `AUTH_ENABLED`: Enable/disable authentication (default: false)
+- `CLERK_PUBLISHABLE_KEY`: Clerk publishable key (required when AUTH_ENABLED=true)
+- `CLERK_SECRET_KEY`: Clerk secret key (required when AUTH_ENABLED=true)
 
 ### Production Deployment
 

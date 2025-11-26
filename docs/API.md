@@ -8,6 +8,90 @@ This document provides comprehensive documentation for the Async Boardgame Servi
 http://localhost:3000/api
 ```
 
+## Authentication
+
+The API supports optional authentication using [Clerk](https://clerk.com). Authentication is **disabled by default** for local development and can be enabled for production deployments.
+
+### Authentication Modes
+
+**Development Mode (Default):**
+- `AUTH_ENABLED=false` in environment configuration
+- No authentication required for any endpoints
+- Player IDs can be any string value
+- Ideal for local development and testing
+
+**Production Mode:**
+- `AUTH_ENABLED=true` in environment configuration
+- Protected endpoints require valid Clerk session tokens
+- Tokens must be included in the `Authorization` header
+- User identities are managed through Clerk
+
+### Making Authenticated Requests
+
+When authentication is enabled, include the Clerk session token in the Authorization header:
+
+```bash
+curl -X POST http://localhost:3000/api/games \
+  -H "Authorization: Bearer <clerk_session_token>" \
+  -H "Content-Type: application/json" \
+  -d '{"gameType": "tic-tac-toe"}'
+```
+
+### Protected vs Public Endpoints
+
+When `AUTH_ENABLED=true`:
+
+**Protected Endpoints** (require authentication):
+- `POST /api/games` - Create a new game
+- `POST /api/games/:gameId/moves` - Make a move
+- `POST /api/games/:gameId/join` - Join a game
+
+**Public Endpoints** (no authentication required):
+- `GET /api/games` - List games
+- `GET /api/games/:gameId` - View game state
+- `GET /api/games/:gameId/board.svg` - View board rendering
+- `GET /api/games/:gameId/board.png` - View board rendering
+- `GET /api/games/:gameId/moves` - View move history
+- `GET /api/game-types` - List available game types
+- `GET /health` - Health check
+
+### Authentication Errors
+
+When authentication is enabled and a request fails authentication:
+
+**401 Unauthorized - Missing Token:**
+```json
+{
+  "success": false,
+  "error": {
+    "message": "Authentication required",
+    "code": "AUTHENTICATION_REQUIRED"
+  }
+}
+```
+
+**401 Unauthorized - Invalid Token:**
+```json
+{
+  "success": false,
+  "error": {
+    "message": "Invalid authentication token",
+    "code": "INVALID_TOKEN"
+  }
+}
+```
+
+**403 Forbidden - Not Authorized:**
+```json
+{
+  "success": false,
+  "error": {
+    "message": "Forbidden: Not a participant in this game",
+    "code": "FORBIDDEN"
+  }
+}
+```
+
 ## Response Format
 
 All API responses follow a consistent JSON format:
@@ -68,6 +152,8 @@ Create a new game instance.
 
 **Endpoint:** `POST /api/games`
 
+**Authentication:** Required when `AUTH_ENABLED=true`
+
 **Request Body:**
 ```json
 {
@@ -116,9 +202,25 @@ Create a new game instance.
 }
 ```
 
-**Example:**
+**Example (without authentication):**
 ```bash
 curl -X POST http://localhost:3000/api/games \
+  -H "Content-Type: application/json" \
+  -d '{
+    "gameType": "tic-tac-toe",
+    "config": {
+      "players": [
+        {"id": "player1", "name": "Alice"},
+        {"id": "player2", "name": "Bob"}
+      ]
+    }
+  }'
+```
+
+**Example (with authentication):**
+```bash
+curl -X POST http://localhost:3000/api/games \
+  -H "Authorization: Bearer <clerk_session_token>" \
   -H "Content-Type: application/json" \
   -d '{
     "gameType": "tic-tac-toe",
@@ -216,6 +318,8 @@ Add a player to an existing game.
 
 **Endpoint:** `POST /api/games/:gameId/join`
 
+**Authentication:** Required when `AUTH_ENABLED=true`
+
 **Parameters:**
 - `gameId` (path): The unique identifier of the game
 
@@ -244,9 +348,17 @@ Add a player to an existing game.
 }
 ```
 
-**Example:**
+**Example (without authentication):**
 ```bash
 curl -X POST http://localhost:3000/api/games/game-123/join \
+  -H "Content-Type: application/json" \
+  -d '{"id": "player3", "name": "Charlie"}'
+```
+
+**Example (with authentication):**
+```bash
+curl -X POST http://localhost:3000/api/games/game-123/join \
+  -H "Authorization: Bearer <clerk_session_token>" \
   -H "Content-Type: application/json" \
   -d '{"id": "player3", "name": "Charlie"}'
 ```
@@ -305,6 +417,10 @@ Apply a move to a game.
 
 **Endpoint:** `POST /api/games/:gameId/moves`
 
+**Authentication:** Required when `AUTH_ENABLED=true`
+
+**Authorization:** When authenticated, the user must be a participant in the game
+
 **Parameters:**
 - `gameId` (path): The unique identifier of the game
 
@@ -346,13 +462,29 @@ Apply a move to a game.
 
 **Error Responses:**
 - `400 Bad Request`: Invalid move
-- `403 Forbidden`: Not player's turn or player not in game
+- `401 Unauthorized`: Authentication required (when AUTH_ENABLED=true)
+- `403 Forbidden`: Not player's turn, player not in game, or not authorized
 - `404 Not Found`: Game not found
 - `409 Conflict`: Version mismatch (optimistic locking failure)
 
-**Example:**
+**Example (without authentication):**
 ```bash
 curl -X POST http://localhost:3000/api/games/game-123/moves \
+  -H "Content-Type: application/json" \
+  -d '{
+    "playerId": "player1",
+    "move": {
+      "action": "place",
+      "parameters": {"row": 0, "col": 0}
+    },
+    "version": 5
+  }'
+```
+
+**Example (with authentication):**
+```bash
+curl -X POST http://localhost:3000/api/games/game-123/moves \
+  -H "Authorization: Bearer <clerk_session_token>" \
   -H "Content-Type: application/json" \
   -d '{
     "playerId": "player1",
@@ -461,7 +593,11 @@ Games progress through the following lifecycle states:
 |-------------|------------|-------------|
 | 400 | `INVALID_REQUEST` | Request validation failed |
 | 400 | `INVALID_MOVE` | Move is not valid according to game rules |
+| 401 | `AUTHENTICATION_REQUIRED` | Authentication required but not provided |
+| 401 | `INVALID_TOKEN` | Authentication token is invalid or malformed |
+| 401 | `TOKEN_EXPIRED` | Authentication token has expired |
 | 403 | `UNAUTHORIZED_MOVE` | Player not authorized to make this move |
+| 403 | `FORBIDDEN` | User is authenticated but not authorized for this resource |
 | 404 | `GAME_NOT_FOUND` | Game with specified ID does not exist |
 | 404 | `PLAYER_NOT_FOUND` | Player with specified ID does not exist |
 | 409 | `CONCURRENCY_ERROR` | Version mismatch (optimistic locking) |
@@ -512,6 +648,41 @@ async function makeMove(gameId, playerId, move) {
 
 Currently, no rate limiting is implemented. This may be added in future versions.
 
-## Authentication
+## Getting Started with Authentication
 
-Currently, no authentication is required. Player IDs are provided by clients and trusted. In a production environment, you should implement proper authentication and authorization.
+### For Local Development (No Authentication)
+
+1. Copy `.env.example` to `.env`
+2. Ensure `AUTH_ENABLED=false` (default)
+3. Start the server: `npm run dev`
+4. Make API requests without authentication headers
+
+### For Production (With Authentication)
+
+1. **Set up Clerk:**
+   - Create account at [https://clerk.com](https://clerk.com)
+   - Create a new application
+   - Configure OAuth providers (Discord, Google, GitHub)
+   - Get your API keys from the dashboard
+
+2. **Configure Backend:**
+   ```bash
+   # In .env
+   AUTH_ENABLED=true
+   CLERK_PUBLISHABLE_KEY=pk_test_your_key_here
+   CLERK_SECRET_KEY=sk_test_your_key_here
+   ```
+
+3. **Configure Web Client:**
+   ```bash
+   # In web-client/.env
+   VITE_CLERK_PUBLISHABLE_KEY=pk_test_your_key_here
+   ```
+
+4. **Test Authentication:**
+   - Start the server: `npm run dev`
+   - Open web client: `http://localhost:5173`
+   - Click "Sign In" and authenticate with OAuth provider
+   - Create games and make moves (tokens handled automatically by web client)
+
+For detailed setup instructions, see [CLERK_SETUP_GUIDE.md](../CLERK_SETUP_GUIDE.md).
