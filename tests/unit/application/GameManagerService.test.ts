@@ -413,4 +413,39 @@ describe('GameManagerService', () => {
       });
     });
   });
+
+  describe('createGame with authenticated creator', () => {
+    it('should create game without creator when creator not provided', async () => {
+      const plugin = new MockGameEngine('tic-tac-toe').withMinPlayers(2).withMaxPlayers(2);
+      registry.register(plugin);
+
+      const game = await service.createGame('tic-tac-toe', {});
+
+      expect(game.gameId).toBeDefined();
+      expect(game.metadata.creatorPlayerId).toBeUndefined();
+    });
+
+    it('should associate game with creator when creator provided', async () => {
+      const plugin = new MockGameEngine('tic-tac-toe').withMinPlayers(2).withMaxPlayers(2);
+      registry.register(plugin);
+
+      const creator = { id: 'player-123', username: 'Alice' };
+      const game = await service.createGame('tic-tac-toe', {}, creator);
+
+      expect(game.gameId).toBeDefined();
+      expect(game.metadata.creatorPlayerId).toBe('player-123');
+    });
+
+    it('should store creator information in repository', async () => {
+      const plugin = new MockGameEngine('tic-tac-toe').withMinPlayers(2).withMaxPlayers(2);
+      registry.register(plugin);
+
+      const creator = { id: 'player-456', username: 'Bob' };
+      const game = await service.createGame('tic-tac-toe', {}, creator);
+
+      const retrieved = await repository.findById(game.gameId);
+      expect(retrieved).not.toBeNull();
+      expect(retrieved?.metadata.creatorPlayerId).toBe('player-456');
+    });
+  });
 });

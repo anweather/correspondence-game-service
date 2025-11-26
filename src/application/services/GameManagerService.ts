@@ -30,14 +30,14 @@ export class GameManagerService {
    * Create a new game instance
    * @param gameType - The type of game to create
    * @param config - Configuration for the game
-   * @param _creator - Optional authenticated user who is creating the game (will be used in task 11)
+   * @param creator - Optional authenticated user who is creating the game
    * @returns The created game state
    * @throws Error if game type is not supported
    */
   async createGame(
     gameType: string,
     config: GameConfig,
-    _creator?: { id: string; username: string }
+    creator?: { id: string; username: string }
   ): Promise<GameState> {
     const plugin = this.registry.get(gameType);
 
@@ -62,6 +62,12 @@ export class GameManagerService {
     // Initialize game state using plugin
     const initialState = plugin.initializeGame(players, config);
 
+    // Prepare metadata with creator information if provided
+    const metadata = {
+      ...initialState.metadata,
+      ...(creator && { creatorPlayerId: creator.id }),
+    };
+
     // Override with our managed fields
     const gameState: GameState = {
       ...initialState,
@@ -69,6 +75,7 @@ export class GameManagerService {
       gameType,
       lifecycle,
       players,
+      metadata,
       winner: null,
       version: 1,
       createdAt: new Date(),

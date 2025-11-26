@@ -241,20 +241,20 @@ Tests are NOT optional - they are the specification for the implementation.
     - Verify test FAILS before implementation
     - _Requirements: 6.3_
 
-- [ ] 11. Update GameManagerService to handle authenticated users
-  - [ ] 11.1 Update createGame method
+- [x] 11. Update GameManagerService to handle authenticated users
+  - [x] 11.1 Update createGame method
     - Accept optional `creatorPlayerId` parameter
     - Associate game with creator when provided
     - Store creator_player_id in database
     - _Requirements: 6.2_
 
-  - [ ] 11.2 Update makeMove method
+  - [x] 11.2 Update makeMove method
     - Accept `playerId` parameter
     - Validate player is participant in game
     - Return 403 error if not authorized
     - _Requirements: 6.3_
 
-  - [ ] 11.3 Write unit tests for GameManagerService changes (RED)
+  - [x] 11.3 Write unit tests for GameManagerService changes (RED)
     - Test createGame with and without creator
     - Test makeMove authorization logic
     - Test makeMove rejection for non-participants
