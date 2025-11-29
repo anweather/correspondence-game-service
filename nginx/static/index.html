@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Async Boardgame Service - Test Page</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .status {
+            background: #10b981;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+        
+        .info-grid {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .info-item {
+            background: #f3f4f6;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: #374151;
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            color: #6b7280;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .next-steps {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+        
+        .next-steps h2 {
+            color: #92400e;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .next-steps ol {
+            margin-left: 20px;
+            color: #78350f;
+        }
+        
+        .next-steps li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #9ca3af;
+            font-size: 0.9em;
+        }
+        
+        code {
+            background: #1f2937;
+            color: #10b981;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        
+        .check-icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background: #10b981;
+            border-radius: 50%;
+            color: white;
+            text-align: center;
+            line-height: 20px;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Async Boardgame Service</h1>
+        <p class="subtitle">Nginx + Cloudflare Origin Test Page</p>
+        
+        <div class="status">
+            <span class="check-icon">✓</span>
+            Nginx is running successfully!
+        </div>
+        
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Server</div>
+                <div class="info-value" id="server">mediabox</div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-label">Protocol</div>
+                <div class="info-value" id="protocol">Loading...</div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-label">Port</div>
+                <div class="info-value" id="port">Loading...</div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-label">Cloudflare Status</div>
+                <div class="info-value" id="cloudflare">Checking...</div>
+            </div>
+        </div>
+        
+        <div class="next-steps">
+            <h2>📋 Next Steps</h2>
+            <ol>
+                <li>
+                    <strong>Add Cloudflare Origin Certificate:</strong><br>
+                    Place your certificate files at:
+                    <ul style="margin-top: 5px;">
+                        <li><code>/etc/nginx/ssl/cloudflare-origin.pem</code></li>
+                        <li><code>/etc/nginx/ssl/cloudflare-origin.key</code></li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Test HTTPS:</strong><br>
+                    Visit <code>https://yourdomain.com:8443</code>
+                </li>
+                <li>
+                    <strong>Configure Cloudflare:</strong><br>
+                    Set SSL/TLS mode to "Full (strict)" in Cloudflare dashboard
+                </li>
+                <li>
+                    <strong>Connect to Docker:</strong><br>
+                    Uncomment the proxy sections in <code>cloudflare-origin.conf</code>
+                </li>
+            </ol>
+        </div>
+        
+        <div class="footer">
+            <p>Async Boardgame Service v1.0</p>
+            <p>Ready for Cloudflare integration</p>
+        </div>
+    </div>
+    
+    <script>
+        // Detect protocol and port
+        const protocol = window.location.protocol.replace(':', '');
+        const port = window.location.port || (protocol === 'https' ? '443' : '80');
+        
+        document.getElementById('protocol').textContent = protocol.toUpperCase();
+        document.getElementById('port').textContent = port;
+        
+        // Check if behind Cloudflare
+        fetch('/health')
+            .then(response => response.headers)
+            .then(headers => {
+                const cfRay = headers.get('cf-ray');
+                const cloudflareStatus = cfRay ? 
+                    `✓ Connected (Ray: ${cfRay})` : 
+                    '⚠ Direct connection (not through Cloudflare)';
+                document.getElementById('cloudflare').textContent = cloudflareStatus;
+            })
+            .catch(() => {
+                document.getElementById('cloudflare').textContent = '⚠ Unable to check';
+            });
+    </script>
+</body>
+</html>

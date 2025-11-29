@@ -489,8 +489,8 @@ server {
     listen 443 ssl http2;
     server_name boardgame.example.com;
     
-    ssl_certificate /etc/letsencrypt/live/boardgame.example.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/boardgame.example.com/privkey.pem;
+    ssl_certificate /etc/ssl/cloudflare/origin.pem;
+    ssl_certificate_key /etc/ssl/cloudflare/origin-key.pem;
     
     location / {
         proxy_pass http://localhost:3000;

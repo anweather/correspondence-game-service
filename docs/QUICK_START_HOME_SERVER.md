@@ -1,27 +1,20 @@
-## Quick Start: Home Server Deployment
+## Quick Start: Home Server Deployment with Cloudflare
 
-This is a condensed guide to get your Async Boardgame Service running on a home server with a custom domain in under 30 minutes.
+This is a condensed guide to get your Async Boardgame Service running on a home server with Cloudflare in under 30 minutes.
 
 ## Prerequisites Checklist
 
 - [ ] Linux server (Ubuntu 20.04+ recommended)
-- [ ] Domain name (e.g., `games.yourdomain.com`)
-- [ ] Router access for port forwarding
+- [ ] Domain name configured in Cloudflare
+- [ ] Cloudflare Origin Certificate generated
+- [ ] Router access for port forwarding (8080, 8443)
 - [ ] 30 minutes of time
 
-## One-Command Setup
+## Setup Overview
 
-```bash
-# Download and run the full setup script
-curl -fsSL https://raw.githubusercontent.com/your-repo/main/scripts/full-setup.sh | sudo bash -s -- \
-  --domain games.yourdomain.com \
-  --email your@email.com \
-  --db-password "YourSecurePassword123!"
-```
-
-That's it! The script will:
-1. Install Docker, Nginx, and dependencies
-2. Configure SSL with Let's Encrypt
+The setup uses Cloudflare for SSL/TLS termination and DDoS protection:
+1. Install Docker and Nginx
+2. Configure Nginx with Cloudflare Origin Certificate
 3. Deploy the application
 4. Set up automated backups
 5. Configure monitoring
@@ -30,24 +23,20 @@ That's it! The script will:
 
 If you prefer to run each step manually:
 
-### 1. Prepare Your Domain (5 minutes)
+### 1. Prepare Cloudflare (10 minutes)
 
-```bash
-# Get your public IP
-curl ifconfig.me
-
-# Add DNS A record:
-# Type: A
-# Name: games (or @ for root)
-# Value: <your-public-ip>
-# TTL: 3600
-```
+Follow the [Cloudflare Setup Guide](./CLOUDFLARE_SETUP_GUIDE.md):
+1. Add domain to Cloudflare
+2. Generate Origin Certificate
+3. Configure DNS (A/AAAA record with proxy enabled)
+4. Set SSL/TLS mode to "Full (strict)"
+5. Configure Origin Rules (443 → 8443)
 
 ### 2. Configure Router (5 minutes)
 
 Forward these ports to your server's local IP:
-- Port 80 → Server IP:80
-- Port 443 → Server IP:443
+- Port 8080 → Server IP:8080 (HTTP)
+- Port 8443 → Server IP:8443 (HTTPS)
 
 ### 3. Clone Repository (2 minutes)
 
@@ -64,8 +53,15 @@ git clone <your-repo-url> .
 # Install dependencies
 sudo ./scripts/setup-server.sh
 
-# Configure Nginx and SSL
-sudo ./scripts/setup-nginx.sh games.yourdomain.com your@email.com
+# Install Cloudflare Origin Certificate
+sudo mkdir -p /etc/ssl/cloudflare
+sudo nano /etc/ssl/cloudflare/origin.pem      # Paste certificate
+sudo nano /etc/ssl/cloudflare/origin-key.pem  # Paste private key
+sudo chmod 644 /etc/ssl/cloudflare/origin.pem
+sudo chmod 600 /etc/ssl/cloudflare/origin-key.pem
+
+# Configure Nginx for Cloudflare
+sudo ./scripts/setup-nginx-cloudflare.sh yourdomain.com full
 
 # Configure environment
 cp .env.example .env
@@ -89,9 +85,10 @@ docker-compose ps
 
 # Test locally
 curl http://localhost:3000/health
+curl -k https://localhost:8443/health
 
-# Test publicly
-curl https://games.yourdomain.com/health
+# Test through Cloudflare
+curl https://yourdomain.com/health
 ```
 
 ## GitHub Actions Auto-Deployment
@@ -162,24 +159,28 @@ docker-compose ps
 ### Can't access site from internet
 
 ```bash
-# Check DNS
-nslookup games.yourdomain.com
+# Check DNS (should return Cloudflare IPs)
+nslookup yourdomain.com
 
-# Check port forwarding
-curl -I http://<your-public-ip>
+# Check Cloudflare proxy status (should be enabled)
+# Visit Cloudflare Dashboard → DNS
 
 # Check Nginx
 sudo systemctl status nginx
+sudo nginx -t
 ```
 
 ### SSL certificate issues
 
 ```bash
-# Check certificate
-sudo certbot certificates
+# Check Cloudflare Origin Certificate
+sudo openssl x509 -in /etc/ssl/cloudflare/origin.pem -text -noout
 
-# Renew certificate
-sudo certbot renew
+# Verify SSL/TLS mode in Cloudflare Dashboard
+# Should be "Full (strict)"
+
+# Check Nginx SSL configuration
+sudo nginx -t
 ```
 
 ### Application not starting
@@ -200,10 +201,13 @@ docker-compose up -d --build
 - [ ] Configure backups to remote location
 - [ ] Set up monitoring alerts
 - [ ] Add custom domain to Clerk dashboard
+- [ ] Configure Cloudflare firewall rules
+- [ ] Enable Cloudflare caching for static assets
 
 ## Full Documentation
 
-- [Complete Home Server Guide](./HOME_SERVER_DEPLOYMENT.md)
+- [Cloudflare Setup Guide](./CLOUDFLARE_SETUP_GUIDE.md)
+- [Cloudflare Architecture](./CLOUDFLARE_ARCHITECTURE.md)
 - [GitHub Actions Setup](./GITHUB_ACTIONS_SETUP.md)
 - [Authentication Guide](./AUTHENTICATION.md)
 

@@ -52,9 +52,7 @@ apt install -y \
     vim \
     htop \
     ufw \
-    fail2ban \
-    certbot \
-    python3-certbot-nginx
+    fail2ban
 
 # Install Docker
 if ! command -v docker &> /dev/null; then
@@ -95,9 +93,9 @@ fi
 # Configure firewall
 log_info "Configuring firewall..."
 ufw --force enable
-ufw allow 22/tcp   # SSH
-ufw allow 80/tcp   # HTTP
-ufw allow 443/tcp  # HTTPS
+ufw allow 22/tcp    # SSH
+ufw allow 8080/tcp  # HTTP (Cloudflare origin)
+ufw allow 8443/tcp  # HTTPS (Cloudflare origin)
 ufw reload
 
 # Configure fail2ban
@@ -125,8 +123,11 @@ log_info "Server setup complete!"
 log_info ""
 log_info "Next steps:"
 log_info "1. Clone your repository to /opt/async-boardgame-service"
-log_info "2. Run ./scripts/setup-nginx.sh <domain> <email>"
-log_info "3. Configure .env file"
-log_info "4. Run ./scripts/deploy.sh"
+log_info "2. Install Cloudflare Origin Certificate to /etc/ssl/cloudflare/"
+log_info "3. Run ./scripts/setup-nginx-cloudflare.sh <domain> full"
+log_info "4. Configure .env file"
+log_info "5. Run ./scripts/deploy.sh"
+log_info ""
+log_info "See docs/CLOUDFLARE_SETUP_GUIDE.md for detailed instructions"
 log_info ""
 log_info "Note: You may need to log out and back in for Docker group changes to take effect"

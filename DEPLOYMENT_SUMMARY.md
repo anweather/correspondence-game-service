@@ -6,19 +6,14 @@ Your Async Boardgame Service now has **complete home server deployment automatio
 
 ## Quick Start Options
 
-### Option 1: Fully Automated (Recommended)
+### Option 1: Cloudflare Setup (Recommended)
 
-One command does everything:
+Follow the Cloudflare setup guide for production deployment:
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/your-repo/main/scripts/full-setup.sh | sudo bash -s -- \
-  --domain games.yourdomain.com \
-  --email your@email.com \
-  --db-password "YourSecurePassword123!"
-```
+See: [docs/CLOUDFLARE_SETUP_GUIDE.md](docs/CLOUDFLARE_SETUP_GUIDE.md)
 
-**Time**: 15-20 minutes  
-**What it does**: Everything! Server setup, SSL, deployment, backups, monitoring
+**Time**: 20-30 minutes  
+**What it does**: Sets up Nginx with Cloudflare Origin Certificate, deployment, backups, monitoring
 
 ### Option 2: Step-by-Step
 
@@ -28,20 +23,25 @@ Run scripts individually for more control:
 # 1. Install dependencies
 sudo ./scripts/setup-server.sh
 
-# 2. Configure Nginx + SSL
-sudo ./scripts/setup-nginx.sh games.yourdomain.com your@email.com
+# 2. Install Cloudflare Origin Certificate
+sudo mkdir -p /etc/ssl/cloudflare
+sudo nano /etc/ssl/cloudflare/origin.pem      # Paste certificate
+sudo nano /etc/ssl/cloudflare/origin-key.pem  # Paste private key
 
-# 3. Deploy application
+# 3. Configure Nginx for Cloudflare
+sudo ./scripts/setup-nginx-cloudflare.sh yourdomain.com full
+
+# 4. Deploy application
 ./scripts/deploy.sh
 
-# 4. Setup backups
+# 5. Setup backups
 sudo ./scripts/setup-backups.sh
 
-# 5. Setup monitoring
+# 6. Setup monitoring
 sudo ./scripts/setup-monitoring.sh
 ```
 
-**Time**: 30 minutes  
+**Time**: 30-40 minutes  
 **What it does**: Same as Option 1, but with more visibility
 
 ### Option 3: GitHub Actions Auto-Deploy
@@ -68,8 +68,8 @@ git push origin main
 
 ### 📦 Infrastructure Setup
 - ✅ Docker and Docker Compose installation
-- ✅ Nginx reverse proxy with SSL (Let's Encrypt)
-- ✅ Automatic SSL certificate renewal
+- ✅ Nginx reverse proxy with Cloudflare Origin Certificate
+- ✅ Cloudflare SSL/TLS (no renewal needed - 15 year cert)
 - ✅ Firewall configuration (UFW)
 - ✅ Fail2ban for security
 - ✅ PostgreSQL database with persistent storage
@@ -131,8 +131,9 @@ async-boardgame-service/
 ## Documentation
 
 ### Quick References
+- **[Cloudflare Setup Guide](./docs/CLOUDFLARE_SETUP_GUIDE.md)** - Complete Cloudflare setup
+- **[Cloudflare Architecture](./docs/CLOUDFLARE_ARCHITECTURE.md)** - Architecture overview
 - **[Quick Start](./docs/QUICK_START_HOME_SERVER.md)** - Get running in 30 minutes
-- **[Complete Guide](./docs/HOME_SERVER_DEPLOYMENT.md)** - Detailed setup with troubleshooting
 - **[GitHub Actions](./docs/GITHUB_ACTIONS_SETUP.md)** - Auto-deployment setup
 
 ### Detailed Guides
@@ -168,8 +169,8 @@ ls /opt/backups/async-boardgame-service/  # List backups
 ### Maintenance
 ```bash
 sudo systemctl status nginx      # Check Nginx
-sudo certbot certificates        # Check SSL
-sudo certbot renew              # Renew SSL
+sudo nginx -t                    # Test Nginx config
+sudo openssl x509 -in /etc/ssl/cloudflare/origin.pem -text -noout  # Check cert
 docker system prune -a          # Clean up Docker
 ```
 
@@ -182,12 +183,12 @@ Before you start, make sure you have:
   - Static local IP address
 
 - [ ] **Domain Name**
-  - DNS A record pointing to your public IP
-  - Can use DuckDNS for free dynamic DNS
+  - Domain configured in Cloudflare
+  - DNS A/AAAA record with proxy enabled (orange cloud)
 
 - [ ] **Router Access**
-  - Port forwarding: 80 → server:80
-  - Port forwarding: 443 → server:443
+  - Port forwarding: 8080 → server:8080 (HTTP)
+  - Port forwarding: 8443 → server:8443 (HTTPS)
 
 - [ ] **Optional: Clerk Account**
   - For authentication (can skip for local dev)
@@ -212,7 +213,8 @@ If you encounter issues:
 ## Security Notes
 
 The setup includes:
-- ✅ HTTPS with Let's Encrypt SSL
+- ✅ HTTPS with Cloudflare Origin Certificate (15-year validity)
+- ✅ Cloudflare DDoS protection and WAF
 - ✅ Firewall configuration (UFW)
 - ✅ Fail2ban for brute force protection
 - ✅ Security headers in Nginx
@@ -234,14 +236,15 @@ The setup includes:
 **Ongoing**:
 - Electricity: ~$5-10/month
 - Internet: $0 (using existing)
-- SSL Certificate: $0 (Let's Encrypt is free)
+- Cloudflare: $0 (Free tier)
+- SSL Certificate: $0 (Cloudflare Origin Certificate)
 
 **Total**: ~$10-15/year + electricity
 
 ## What Makes This Special
 
-✨ **Fully Automated**: One command does everything  
-🔒 **Secure by Default**: SSL, firewall, fail2ban included  
+✨ **Cloudflare Integration**: Enterprise-grade CDN and security  
+🔒 **Secure by Default**: Origin Certificate, DDoS protection, WAF  
 🔄 **Zero Downtime**: Updates without service interruption  
 💾 **Automatic Backups**: Daily backups with retention  
 📊 **Self-Healing**: Auto-restart on failure  

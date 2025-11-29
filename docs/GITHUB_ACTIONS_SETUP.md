@@ -324,9 +324,10 @@ GitHub automatically sends email notifications for workflow failures to reposito
    ```
 3. Check SSL certificate:
    ```bash
-   sudo certbot certificates
+   sudo openssl x509 -in /etc/ssl/cloudflare/origin.pem -text -noout
    ```
-4. Verify DNS is pointing to your server
+4. Verify DNS is pointing to Cloudflare (should return Cloudflare IPs)
+5. Check Cloudflare proxy status (orange cloud should be enabled)
 
 ## Security Best Practices
 
