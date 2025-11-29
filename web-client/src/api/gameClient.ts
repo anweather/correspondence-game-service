@@ -1,3 +1,4 @@
+import process from 'process';
 import type {
   GameState,
   GameType,
@@ -133,6 +134,13 @@ export class GameClient {
     try {
       // Get Clerk session token if available
       const token = this.getToken ? await this.getToken() : null;
+      
+      // Debug logging for authentication
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[GameClient] Request to:', url);
+        console.log('[GameClient] Token available:', !!token);
+        console.log('[GameClient] Token preview:', token ? `${token.substring(0, 20)}...` : 'none');
+      }
       
       // Add Authorization header if token exists
       const headers = new Headers(options?.headers);
