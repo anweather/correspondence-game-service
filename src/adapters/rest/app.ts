@@ -240,7 +240,7 @@ export function addApiRoutes(app: Express, apiRouter: express.Router): void {
  * @param app - Express application instance
  */
 export function addStaticFileServing(app: Express): void {
-  const webClientPath = path.join(__dirname, '..', '..', '..', 'web-client', 'dist');
+  const webClientPath = path.join(__dirname, '..', '..', '..', '..', 'web-client', 'dist');
 
   // Serve static files from web-client/dist
   app.use(express.static(webClientPath));
@@ -252,7 +252,7 @@ export function addStaticFileServing(app: Express): void {
  * @param app - Express application instance
  */
 function addSpaFallback(app: Express): void {
-  const webClientPath = path.join(__dirname, '..', '..', '..', 'web-client', 'dist');
+  const webClientPath = path.join(__dirname, '..', '..', '..', '..', 'web-client', 'dist');
 
   // SPA fallback: serve index.html for all non-API routes
   app.get('*', (req: Request, res: Response, next: NextFunction) => {
