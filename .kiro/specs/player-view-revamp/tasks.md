@@ -97,15 +97,15 @@
     - Refactor for code quality
     - _Requirements: 13.1, 13.2, 13.3, 13.4, 13.5_
 
-- [ ] 7. WebSocket server (TDD)
-  - [ ] 7.1 Write tests for WebSocketManager
+- [x] 7. WebSocket server (TDD)
+  - [x] 7.1 Write tests for WebSocketManager
     - Write tests in tests/unit/infrastructure/WebSocketManager.test.ts
     - Test connection management
     - Test subscription/unsubscription
     - Test broadcast logic
     - Test connection cleanup
     - _Requirements: 14.1, 14.2, 14.3, 14.4, 14.5, 15.1, 15.2, 15.3, 15.4, 15.5_
-  - [ ] 7.2 Implement WebSocketManager
+  - [x] 7.2 Implement WebSocketManager
     - Create WebSocketManager in src/infrastructure/websocket/
     - Implement connection handling
     - Implement methods to pass all tests
