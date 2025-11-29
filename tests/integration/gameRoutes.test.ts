@@ -8,6 +8,7 @@ import { RendererService } from '@infrastructure/rendering/RendererService';
 import { GameLockManager } from '@application/GameLockManager';
 import { PluginRegistry } from '@application/PluginRegistry';
 import { InMemoryGameRepository } from '@infrastructure/persistence/InMemoryGameRepository';
+import { InMemoryPlayerIdentityRepository } from '@infrastructure/persistence/InMemoryPlayerIdentityRepository';
 import { TicTacToeEngine } from '@games/tic-tac-toe/engine';
 
 // Mock config to disable auth by default for existing tests
@@ -910,6 +911,7 @@ describe('Protected Game Routes Integration', () => {
   let gameManagerService: GameManagerService;
   let stateManagerService: StateManagerService;
   let repository: InMemoryGameRepository;
+  let playerIdentityRepository: InMemoryPlayerIdentityRepository;
   let registry: PluginRegistry;
   let lockManager: GameLockManager;
 
@@ -929,6 +931,7 @@ describe('Protected Game Routes Integration', () => {
 
     // Set up real dependencies
     repository = new InMemoryGameRepository();
+    playerIdentityRepository = new InMemoryPlayerIdentityRepository();
     registry = new PluginRegistry();
     lockManager = new GameLockManager();
 
@@ -939,8 +942,8 @@ describe('Protected Game Routes Integration', () => {
     gameManagerService = new GameManagerService(registry, repository);
     stateManagerService = new StateManagerService(repository, registry, lockManager);
 
-    // Create app with real routes
-    app = createApp();
+    // Create app with real routes - pass playerIdentityRepository when auth is enabled
+    app = createApp(playerIdentityRepository);
     const gameRouter = createGameRoutes(gameManagerService, repository, stateManagerService);
     addApiRoutes(app, gameRouter);
     finalizeApp(app);
