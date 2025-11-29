@@ -43,27 +43,27 @@
 
 ## Phase 2: Backend Infrastructure Layer (TDD)
 
-- [ ] 3. PlayerProfile repository (TDD)
-  - [ ] 3.1 Write tests for PostgresPlayerProfileRepository
+- [x] 3. PlayerProfile repository (TDD)
+  - [x] 3.1 Write tests for PostgresPlayerProfileRepository
     - Write tests in tests/unit/infrastructure/PostgresPlayerProfileRepository.test.ts
     - Test createProfile, getProfile, updateDisplayName
     - Test display name uniqueness constraint
     - Test default name generation
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
-  - [ ] 3.2 Implement PostgresPlayerProfileRepository
+  - [x] 3.2 Implement PostgresPlayerProfileRepository
     - Create PostgresPlayerProfileRepository in src/infrastructure/persistence/
     - Implement methods to pass all tests
     - Refactor for code quality
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
 
-- [ ] 4. Invitation repository (TDD)
-  - [ ] 4.1 Write tests for PostgresInvitationRepository
+- [-] 4. Invitation repository (TDD)
+  - [x] 4.1 Write tests for PostgresInvitationRepository
     - Write tests in tests/unit/infrastructure/PostgresInvitationRepository.test.ts
     - Test createInvitation, getInvitations, updateStatus
     - Test filtering by status
     - Test expiration logic
     - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
-  - [ ] 4.2 Implement PostgresInvitationRepository
+  - [x] 4.2 Implement PostgresInvitationRepository
     - Create PostgresInvitationRepository
     - Implement methods to pass all tests
     - Refactor for code quality
