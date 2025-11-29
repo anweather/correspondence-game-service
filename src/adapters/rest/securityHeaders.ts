@@ -6,14 +6,14 @@ import { Request, Response, NextFunction } from 'express';
  */
 export function securityHeadersMiddleware(_req: Request, res: Response, next: NextFunction): void {
   // Content Security Policy
-  // Allow Clerk domains for authentication
+  // Allow Clerk domains for authentication and Cloudflare services
   const csp = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.clerk.accounts.dev https://clerk.async-boardgames.org https://challenges.cloudflare.com",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.clerk.accounts.dev https://challenges.cloudflare.com https://static.cloudflareinsights.com",
     "style-src 'self' 'unsafe-inline' https://*.clerk.accounts.dev",
     "img-src 'self' data: https: blob:",
     "font-src 'self' data:",
-    "connect-src 'self' https://*.clerk.accounts.dev https://clerk.async-boardgames.org wss://*.clerk.accounts.dev",
+    "connect-src 'self' https://*.clerk.accounts.dev wss://*.clerk.accounts.dev https://cloudflareinsights.com",
     "frame-src 'self' https://*.clerk.accounts.dev https://challenges.cloudflare.com",
     "worker-src 'self' blob:",
   ].join('; ');
