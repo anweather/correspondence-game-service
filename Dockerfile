@@ -24,6 +24,10 @@ FROM node:20-alpine AS web-builder
 
 WORKDIR /app
 
+# Accept Clerk publishable key as build arg
+ARG VITE_CLERK_PUBLISHABLE_KEY
+ENV VITE_CLERK_PUBLISHABLE_KEY=$VITE_CLERK_PUBLISHABLE_KEY
+
 # Copy root tsconfig.json (needed by games/*/tsconfig.json extends)
 COPY tsconfig.json ./
 
@@ -44,7 +48,7 @@ COPY web-client/public ./web-client/public
 # Copy games directory (needed for path aliases in vite.config.ts)
 COPY games ./games
 
-# Build web client
+# Build web client (Vite will embed VITE_CLERK_PUBLISHABLE_KEY at build time)
 RUN cd web-client && npm run build
 
 # Stage 3: Production image
