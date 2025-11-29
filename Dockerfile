@@ -65,8 +65,8 @@ RUN npm install tsconfig-paths
 # Copy built backend artifacts from backend-builder
 COPY --from=backend-builder /app/dist ./dist
 
-# Copy SQL migration files (not compiled by TypeScript)
-COPY --from=backend-builder /app/dist/src/infrastructure/persistence/migrations ./dist/src/infrastructure/persistence/migrations
+# Copy SQL migration files (not compiled by TypeScript, copy from source)
+COPY --from=backend-builder /app/src/infrastructure/persistence/migrations ./dist/src/infrastructure/persistence/migrations
 
 # Create a production tsconfig for path alias resolution
 RUN echo '{"compilerOptions":{"baseUrl":"./dist","paths":{"@domain/*":["src/domain/*"],"@application/*":["src/application/*"],"@infrastructure/*":["src/infrastructure/*"],"@adapters/*":["src/adapters/*"],"@games/*":["games/*"]}}}' > tsconfig.json

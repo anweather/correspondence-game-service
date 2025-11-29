@@ -171,6 +171,13 @@ export class DatabaseMigrator {
         if (statement.includes('INSERT INTO schema_migrations')) {
           continue;
         }
+
+        // Debug logging
+        const logger = getLogger();
+        logger.info('Executing SQL statement', {
+          statement: statement.substring(0, 100) + (statement.length > 100 ? '...' : ''),
+        });
+
         await client.query(statement);
       }
 
