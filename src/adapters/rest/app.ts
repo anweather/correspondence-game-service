@@ -9,6 +9,7 @@ import {
 } from '@domain/errors';
 import { requestIdMiddleware } from './requestIdMiddleware';
 import { requestLoggingMiddleware } from './requestLoggingMiddleware';
+import { securityHeadersMiddleware } from './securityHeaders';
 import { getLogger } from '../../infrastructure/logging/Logger';
 import { clerkMiddleware } from './auth/clerkMiddleware';
 import { loadConfig } from '../../config';
@@ -198,6 +199,9 @@ export function createApp(): Express {
   // Middleware setup
   app.use(express.json());
   app.use(cors());
+
+  // Security headers (must be early in the chain)
+  app.use(securityHeadersMiddleware);
 
   // Request ID middleware (must be early in the chain)
   app.use(requestIdMiddleware);
