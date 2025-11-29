@@ -1,3 +1,9 @@
+// Export PlayerProfile
+export * from './PlayerProfile';
+
+// Export GameInvitation
+export * from './GameInvitation';
+
 /**
  * Game lifecycle states
  */

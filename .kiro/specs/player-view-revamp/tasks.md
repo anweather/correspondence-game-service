@@ -23,18 +23,18 @@
     - Run migration and verify schema
     - _Requirements: 13.1, 13.2, 13.3, 13.4, 13.5_
 
-- [ ] 2. Domain models and interfaces (TDD)
-  - [ ] 2.1 Create PlayerProfile domain model with tests
+- [x] 2. Domain models and interfaces (TDD)
+  - [x] 2.1 Create PlayerProfile domain model with tests
     - Write tests for PlayerProfile model in tests/unit/domain/PlayerProfile.test.ts
     - Test model creation, validation, display name format
     - Create PlayerProfile model in src/domain/models/PlayerProfile.ts to pass tests
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
-  - [ ] 2.2 Create GameInvitation domain model with tests
+  - [x] 2.2 Create GameInvitation domain model with tests
     - Write tests for GameInvitation model
     - Test invitation states, expiration logic
     - Create GameInvitation model to pass tests
     - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
-  - [ ] 2.3 Create domain interfaces
+  - [x] 2.3 Create domain interfaces
     - Create IPlayerProfileRepository interface in src/domain/interfaces/
     - Create IInvitationRepository interface
     - Create INotificationChannel interface

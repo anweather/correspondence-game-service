@@ -3,6 +3,18 @@ import { GameState, Player, Move } from '@domain/models';
 // Export authentication interfaces
 export * from './authentication';
 
+// Export player profile repository interface
+export * from './IPlayerProfileRepository';
+
+// Export invitation repository interface
+export * from './IInvitationRepository';
+
+// Export notification channel interface
+export * from './INotificationChannel';
+
+// Export WebSocket service interface
+export * from './IWebSocketService';
+
 /**
  * Configuration for initializing a game
  */
