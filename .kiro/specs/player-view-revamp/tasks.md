@@ -69,15 +69,15 @@
     - Refactor for code quality
     - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
 
-- [ ] 5. Stats repository (TDD)
-  - [ ] 5.1 Write tests for PostgresStatsRepository
+- [x] 5. Stats repository (TDD)
+  - [x] 5.1 Write tests for PostgresStatsRepository
     - Write tests in tests/unit/infrastructure/PostgresStatsRepository.test.ts
     - Test getPlayerStats with various game states
     - Test win rate calculation edge cases (0 games, all wins, all losses)
     - Test getLeaderboard with ranking
     - Test getGameHistory with filtering
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 7.1, 7.2, 7.3, 7.4, 7.5_
-  - [ ] 5.2 Implement PostgresStatsRepository
+  - [x] 5.2 Implement PostgresStatsRepository
     - Create PostgresStatsRepository
     - Implement aggregation queries
     - Implement methods to pass all tests
