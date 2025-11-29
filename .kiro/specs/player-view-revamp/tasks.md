@@ -84,14 +84,14 @@
     - Refactor for code quality
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 7.1, 7.2, 7.3, 7.4, 7.5_
 
-- [ ] 6. Notification infrastructure (TDD)
-  - [ ] 6.1 Write tests for InAppNotificationChannel
+- [x] 6. Notification infrastructure (TDD)
+  - [x] 6.1 Write tests for InAppNotificationChannel
     - Write tests in tests/unit/infrastructure/InAppNotificationChannel.test.ts
     - Test notification creation and storage
     - Test notification retrieval
     - Test notification status updates
     - _Requirements: 13.1, 13.2, 13.3, 13.4, 13.5_
-  - [ ] 6.2 Implement InAppNotificationChannel
+  - [x] 6.2 Implement InAppNotificationChannel
     - Create InAppNotificationChannel
     - Implement methods to pass all tests
     - Refactor for code quality
