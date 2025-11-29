@@ -18,6 +18,7 @@ import { requireGameParticipant } from '../../../../../src/adapters/rest/auth/re
 import { AuthenticatedRequest } from '../../../../../src/adapters/rest/auth/types';
 import { AuthenticatedUser } from '../../../../../src/domain/interfaces/authentication';
 import { InMemoryGameRepository } from '../../../../../src/infrastructure/persistence/InMemoryGameRepository';
+import { InMemoryPlayerIdentityRepository } from '../../../../../src/infrastructure/persistence/InMemoryPlayerIdentityRepository';
 import { GameState, Player, GameLifecycle } from '../../../../../src/domain/models';
 
 // Mock Clerk SDK
@@ -43,6 +44,7 @@ describe('clerkMiddleware', () => {
   let mockRequest: Partial<AuthenticatedRequest>;
   let mockResponse: Partial<Response>;
   let mockNext: NextFunction;
+  let mockRepository: InMemoryPlayerIdentityRepository;
 
   beforeEach(() => {
     mockRequest = {
@@ -53,6 +55,7 @@ describe('clerkMiddleware', () => {
       json: jest.fn(),
     };
     mockNext = jest.fn();
+    mockRepository = new InMemoryPlayerIdentityRepository();
 
     // Reset mocks
     jest.clearAllMocks();
@@ -72,7 +75,7 @@ describe('clerkMiddleware', () => {
     });
 
     it('should bypass authentication and call next()', async () => {
-      const middleware = clerkMiddleware();
+      const middleware = clerkMiddleware(mockRepository);
       await middleware(mockRequest as any, mockResponse as Response, mockNext);
 
       expect(mockNext).toHaveBeenCalledWith();
@@ -80,7 +83,7 @@ describe('clerkMiddleware', () => {
     });
 
     it('should not call Clerk SDK when auth is disabled', async () => {
-      const middleware = clerkMiddleware();
+      const middleware = clerkMiddleware(mockRepository);
       await middleware(mockRequest as any, mockResponse as Response, mockNext);
 
       expect(getAuth).not.toHaveBeenCalled();
@@ -116,7 +119,7 @@ describe('clerkMiddleware', () => {
         lastName: 'User',
       });
 
-      const middleware = clerkMiddleware();
+      const middleware = clerkMiddleware(mockRepository);
       await middleware(mockRequest as any, mockResponse as Response, mockNext);
 
       expect(mockRequest.user).toBeDefined();
@@ -131,7 +134,7 @@ describe('clerkMiddleware', () => {
         sessionId: null,
       });
 
-      const middleware = clerkMiddleware();
+      const middleware = clerkMiddleware(mockRepository);
       await middleware(mockRequest as any, mockResponse as Response, mockNext);
 
       expect(mockRequest.user).toBeUndefined();
@@ -154,7 +157,7 @@ describe('clerkMiddleware', () => {
         lastName: 'User',
       });
 
-      const middleware = clerkMiddleware();
+      const middleware = clerkMiddleware(mockRepository);
       await middleware(mockRequest as any, mockResponse as Response, mockNext);
 
       expect(mockRequest.user).toMatchObject({

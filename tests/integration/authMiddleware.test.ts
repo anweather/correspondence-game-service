@@ -15,6 +15,7 @@ import { Express } from 'express';
 import { createApp, addApiRoutes, finalizeApp } from '../../src/adapters/rest/app';
 import express from 'express';
 import { AuthenticatedRequest } from '../../src/adapters/rest/auth/types';
+import { InMemoryPlayerIdentityRepository } from '../../src/infrastructure/persistence/InMemoryPlayerIdentityRepository';
 
 // Mock Clerk SDK
 jest.mock('@clerk/express', () => ({
@@ -57,7 +58,8 @@ describe('Authentication Middleware Integration', () => {
         },
       });
 
-      app = createApp();
+      const mockRepository = new InMemoryPlayerIdentityRepository();
+      app = createApp(mockRepository);
 
       // Add a test middleware to track execution order
       app.use((_req, _res, next) => {
@@ -98,7 +100,8 @@ describe('Authentication Middleware Integration', () => {
         },
       });
 
-      app = createApp();
+      const mockRepository = new InMemoryPlayerIdentityRepository();
+      app = createApp(mockRepository);
 
       const testRouter = express.Router();
       testRouter.get('/test', (req: any, res) => {
@@ -144,7 +147,8 @@ describe('Authentication Middleware Integration', () => {
         lastName: 'User',
       });
 
-      app = createApp();
+      const mockRepository = new InMemoryPlayerIdentityRepository();
+      app = createApp(mockRepository);
 
       const testRouter = express.Router();
       testRouter.get('/protected', (req: AuthenticatedRequest, res) => {
@@ -181,7 +185,8 @@ describe('Authentication Middleware Integration', () => {
         lastName: 'User',
       });
 
-      app = createApp();
+      const mockRepository = new InMemoryPlayerIdentityRepository();
+      app = createApp(mockRepository);
 
       const testRouter = express.Router();
       testRouter.get('/me', (req: AuthenticatedRequest, res) => {
@@ -228,7 +233,8 @@ describe('Authentication Middleware Integration', () => {
         sessionId: null,
       });
 
-      app = createApp();
+      const mockRepository = new InMemoryPlayerIdentityRepository();
+      app = createApp(mockRepository);
 
       const testRouter = express.Router();
       testRouter.get('/protected', (req: AuthenticatedRequest, res) => {
@@ -259,7 +265,8 @@ describe('Authentication Middleware Integration', () => {
         sessionId: null,
       });
 
-      app = createApp();
+      const mockRepository = new InMemoryPlayerIdentityRepository();
+      app = createApp(mockRepository);
 
       const testRouter = express.Router();
       testRouter.get('/check', (req: AuthenticatedRequest, res) => {
@@ -287,7 +294,8 @@ describe('Authentication Middleware Integration', () => {
         },
       });
 
-      app = createApp();
+      const mockRepository = new InMemoryPlayerIdentityRepository();
+      app = createApp(mockRepository);
 
       const testRouter = express.Router();
       testRouter.get('/public', (req: AuthenticatedRequest, res) => {
@@ -322,7 +330,8 @@ describe('Authentication Middleware Integration', () => {
         sessionId: null,
       });
 
-      app = createApp();
+      const mockRepository = new InMemoryPlayerIdentityRepository();
+      app = createApp(mockRepository);
 
       const testRouter = express.Router();
       testRouter.get('/protected', (req: AuthenticatedRequest, res) => {
@@ -362,7 +371,8 @@ describe('Authentication Middleware Integration', () => {
         throw new Error('Clerk SDK error');
       });
 
-      app = createApp();
+      const mockRepository = new InMemoryPlayerIdentityRepository();
+      app = createApp(mockRepository);
 
       const testRouter = express.Router();
       testRouter.get('/test', (req: AuthenticatedRequest, res) => {

@@ -13,6 +13,7 @@ import { securityHeadersMiddleware } from './securityHeaders';
 import { getLogger } from '../../infrastructure/logging/Logger';
 import { clerkMiddleware } from './auth/clerkMiddleware';
 import { loadConfig } from '../../config';
+import { PlayerIdentityRepository } from '../../domain/interfaces/PlayerIdentityRepository';
 
 /**
  * In-flight request tracker for graceful shutdown
@@ -190,9 +191,10 @@ export function notFoundHandler(_req: Request, res: Response): void {
 
 /**
  * Creates and configures the Express application
+ * @param playerIdentityRepository - Repository for player identity persistence (required if auth enabled)
  * @returns Configured Express app instance
  */
-export function createApp(): Express {
+export function createApp(playerIdentityRepository?: PlayerIdentityRepository): Express {
   const app = express();
   const config = loadConfig();
 
@@ -215,6 +217,10 @@ export function createApp(): Express {
   logger.info('Setting up authentication', { authEnabled: config.auth.enabled });
 
   if (config.auth.enabled) {
+    if (!playerIdentityRepository) {
+      throw new Error('playerIdentityRepository is required when AUTH_ENABLED=true');
+    }
+
     // First, register Clerk's base middleware
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { clerkMiddleware: baseClerkMiddleware } = require('@clerk/express');
@@ -222,7 +228,7 @@ export function createApp(): Express {
     logger.info('Registered Clerk base middleware');
 
     // Then, register our custom middleware that uses getAuth()
-    app.use(clerkMiddleware());
+    app.use(clerkMiddleware(playerIdentityRepository));
     logger.info('Registered custom Clerk middleware');
   } else {
     // Log warning when authentication is disabled

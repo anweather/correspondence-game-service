@@ -4,7 +4,7 @@ import {
   ExternalAuthUser,
 } from '../../../../domain/interfaces/authentication';
 import { PlayerIdentity } from '../../../../domain/models/PlayerIdentity';
-import { InMemoryPlayerIdentityRepository } from '../../../../infrastructure/persistence/InMemoryPlayerIdentityRepository';
+import { PlayerIdentityRepository } from '../../../../domain/interfaces/PlayerIdentityRepository';
 
 /**
  * Clerk-specific implementation of AuthenticationService
@@ -17,7 +17,7 @@ import { InMemoryPlayerIdentityRepository } from '../../../../infrastructure/per
  * - Isolate all Clerk-specific code to this adapter
  */
 export class ClerkAuthenticationService implements AuthenticationService {
-  constructor(private playerIdentityRepository: InMemoryPlayerIdentityRepository) {}
+  constructor(private playerIdentityRepository: PlayerIdentityRepository) {}
 
   /**
    * Find or create PlayerIdentity from external auth provider

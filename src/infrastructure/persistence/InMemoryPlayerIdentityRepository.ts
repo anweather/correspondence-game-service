@@ -1,21 +1,15 @@
 import { PlayerIdentity } from '@domain/models/PlayerIdentity';
-
-/**
- * Parameters for creating a new player identity
- */
-export interface CreatePlayerIdentityParams {
-  name: string;
-  externalAuthProvider?: string;
-  externalAuthId?: string;
-  email?: string;
-}
+import {
+  PlayerIdentityRepository,
+  CreatePlayerIdentityParams,
+} from '@domain/interfaces/PlayerIdentityRepository';
 
 /**
  * In-memory repository for player identities
  * Maps player names to their persistent IDs
  * Supports external authentication provider integration
  */
-export class InMemoryPlayerIdentityRepository {
+export class InMemoryPlayerIdentityRepository implements PlayerIdentityRepository {
   private identities: Map<string, PlayerIdentity> = new Map();
   private externalAuthIndex: Map<string, PlayerIdentity> = new Map();
 

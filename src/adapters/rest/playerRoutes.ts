@@ -1,12 +1,12 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { InMemoryPlayerIdentityRepository } from '@infrastructure/persistence/InMemoryPlayerIdentityRepository';
+import { PlayerIdentityRepository } from '@domain/interfaces/PlayerIdentityRepository';
 
 /**
  * Creates player identity routes
  * @param playerIdentityRepo - Repository for player identities
  * @returns Express router with player identity routes
  */
-export function createPlayerRoutes(playerIdentityRepo: InMemoryPlayerIdentityRepository): Router {
+export function createPlayerRoutes(playerIdentityRepo: PlayerIdentityRepository): Router {
   const router = Router();
 
   /**

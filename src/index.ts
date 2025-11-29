@@ -11,9 +11,8 @@ import { PluginRegistry } from './application/PluginRegistry';
 import { GameLockManager } from './application/GameLockManager';
 import { GameManagerService } from './application/services/GameManagerService';
 import { StateManagerService } from './application/services/StateManagerService';
-import { InMemoryGameRepository } from './infrastructure/persistence/InMemoryGameRepository';
 import { PostgresGameRepository } from './infrastructure/persistence/PostgresGameRepository';
-import { InMemoryPlayerIdentityRepository } from './infrastructure/persistence/InMemoryPlayerIdentityRepository';
+import { PostgresPlayerIdentityRepository } from './infrastructure/persistence/PostgresPlayerIdentityRepository';
 import { RendererService } from './infrastructure/rendering/RendererService';
 import { TicTacToeEngine } from '@games/tic-tac-toe/engine';
 import { ConnectFourEngine } from '@games/connect-four/engine';
@@ -42,6 +41,7 @@ async function startApplication() {
   // Initialize database connection and repository based on configuration
   let dbConnection: DatabaseConnection | null = null;
   let gameRepository: GameRepository;
+  let playerIdentityRepository: PostgresPlayerIdentityRepository;
 
   if (config.database.url) {
     logger.info('Initializing database connection', {
@@ -77,17 +77,20 @@ async function startApplication() {
       throw error;
     }
 
-    // Use PostgreSQL repository
-    logger.info('Using PostgreSQL for game state persistence');
+    // Use PostgreSQL repositories
+    logger.info('Using PostgreSQL for game state and player identity persistence');
     gameRepository = new PostgresGameRepository(config.database.url, config.database.poolSize);
+    playerIdentityRepository = new PostgresPlayerIdentityRepository(
+      config.database.url,
+      config.database.poolSize
+    );
   } else {
-    logger.info('No DATABASE_URL configured, using in-memory storage');
-    gameRepository = new InMemoryGameRepository();
+    logger.error('DATABASE_URL is required for player identity persistence');
+    throw new Error('DATABASE_URL must be configured');
   }
 
   // Initialize dependencies
   const pluginRegistry = new PluginRegistry();
-  const playerIdentityRepository = new InMemoryPlayerIdentityRepository();
   const gameLockManager = new GameLockManager();
   const rendererService = new RendererService(pluginRegistry, gameRepository);
 
@@ -113,7 +116,7 @@ async function startApplication() {
   );
 
   // Create Express app
-  const app = createApp();
+  const app = createApp(playerIdentityRepository);
 
   // Create API routes
   const gameRouter = createGameRoutes(
@@ -199,7 +202,13 @@ async function startApplication() {
       // Close repository connections (PostgresGameRepository has its own pool)
       if (gameRepository instanceof PostgresGameRepository) {
         await gameRepository.close();
-        logger.info('Repository connection pool closed');
+        logger.info('Game repository connection pool closed');
+      }
+
+      // Close player identity repository connections
+      if (playerIdentityRepository instanceof PostgresPlayerIdentityRepository) {
+        await playerIdentityRepository.close();
+        logger.info('Player identity repository connection pool closed');
       }
 
       const shutdownDuration = Date.now() - shutdownStartTime;

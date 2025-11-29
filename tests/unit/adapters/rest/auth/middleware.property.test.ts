@@ -18,6 +18,7 @@ import { clerkMiddleware } from '../../../../../src/adapters/rest/auth/clerkMidd
 import { requireAuth } from '../../../../../src/adapters/rest/auth/requireAuth';
 import { AuthenticatedRequest } from '../../../../../src/adapters/rest/auth/types';
 import { AuthenticatedUser } from '../../../../../src/domain/interfaces/authentication';
+import { InMemoryPlayerIdentityRepository } from '../../../../../src/infrastructure/persistence/InMemoryPlayerIdentityRepository';
 
 // Mock Clerk SDK
 jest.mock('@clerk/express', () => ({
@@ -110,7 +111,8 @@ describe('Property 1: Authentication bypass when disabled', () => {
           const mockNext = jest.fn();
 
           // Execute middleware
-          const middleware = clerkMiddleware();
+          const mockRepository = new InMemoryPlayerIdentityRepository();
+          const middleware = clerkMiddleware(mockRepository);
           middleware(mockRequest as any, mockResponse as Response, mockNext);
 
           // Property: next() should always be called (request proceeds)
@@ -242,7 +244,8 @@ describe('Property 8: Request context population', () => {
           const mockNext = jest.fn();
 
           // Execute middleware
-          const middleware = clerkMiddleware();
+          const mockRepository = new InMemoryPlayerIdentityRepository();
+          const middleware = clerkMiddleware(mockRepository);
           await middleware(mockRequest as any, mockResponse as Response, mockNext);
 
           // Property: req.user should be populated

@@ -16,7 +16,7 @@ import { getAuth } from '@clerk/express';
 import { loadConfig } from '../../../config';
 import { AuthenticatedRequest } from './types';
 import { ClerkAuthenticationService } from './clerk/ClerkAuthenticationService';
-import { InMemoryPlayerIdentityRepository } from '../../../infrastructure/persistence/InMemoryPlayerIdentityRepository';
+import { PlayerIdentityRepository } from '../../../domain/interfaces/PlayerIdentityRepository';
 import { getLogger } from '../../../infrastructure/logging/Logger';
 
 /**
@@ -24,9 +24,10 @@ import { getLogger } from '../../../infrastructure/logging/Logger';
  * When AUTH_ENABLED is false, this middleware is a no-op
  * When AUTH_ENABLED is true, it validates Clerk session and populates req.user
  *
+ * @param playerIdentityRepository - Repository for player identity persistence
  * @returns Express middleware function
  */
-export function clerkMiddleware() {
+export function clerkMiddleware(playerIdentityRepository: PlayerIdentityRepository) {
   const config = loadConfig();
 
   // If auth is disabled, return a no-op middleware
@@ -37,7 +38,6 @@ export function clerkMiddleware() {
   }
 
   // Create authentication service for user lookup
-  const playerIdentityRepository = new InMemoryPlayerIdentityRepository();
   const authService = new ClerkAuthenticationService(playerIdentityRepository);
 
   // Return middleware that wraps Clerk SDK
