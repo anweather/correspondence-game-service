@@ -66,10 +66,10 @@ RUN npm install tsconfig-paths
 COPY --from=backend-builder /app/dist ./dist
 
 # Copy SQL migration files (not compiled by TypeScript)
-COPY --from=backend-builder /app/src/infrastructure/persistence/migrations ./dist/infrastructure/persistence/migrations
+COPY --from=backend-builder /app/dist/src/infrastructure/persistence/migrations ./dist/src/infrastructure/persistence/migrations
 
 # Create a production tsconfig for path alias resolution
-RUN echo '{"compilerOptions":{"baseUrl":"./dist","paths":{"@domain/*":["domain/*"],"@application/*":["application/*"],"@infrastructure/*":["infrastructure/*"],"@adapters/*":["adapters/*"]}}}' > tsconfig.json
+RUN echo '{"compilerOptions":{"baseUrl":"./dist","paths":{"@domain/*":["src/domain/*"],"@application/*":["src/application/*"],"@infrastructure/*":["src/infrastructure/*"],"@adapters/*":["src/adapters/*"],"@games/*":["games/*"]}}}' > tsconfig.json
 
 # Copy built web client artifacts from web-builder
 COPY --from=web-builder /app/web-client/dist ./web-client/dist
@@ -89,4 +89,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
   CMD node -e "require('http').get('http://localhost:3000/health', (r) => { process.exit(r.statusCode === 200 ? 0 : 1); }).on('error', () => process.exit(1))"
 
 # Start the application with tsconfig-paths support for path aliases
-CMD ["node", "-r", "tsconfig-paths/register", "dist/index.js"]
+CMD ["node", "-r", "tsconfig-paths/register", "dist/src/index.js"]
