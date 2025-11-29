@@ -226,35 +226,27 @@ curl -X POST http://localhost:3000/api/games \
 
 For detailed Clerk setup instructions, see [CLERK_SETUP_GUIDE.md](./CLERK_SETUP_GUIDE.md).
 
-## Home Server Deployment
+## Production Deployment
 
-Deploy to your own home server with a custom domain:
+### Home Server with Cloudflare
 
-**Quick Start** (30 minutes):
-```bash
-curl -fsSL https://raw.githubusercontent.com/your-repo/main/scripts/full-setup.sh | sudo bash -s -- \
-  --domain games.yourdomain.com \
-  --email your@email.com \
-  --db-password "YourSecurePassword123!"
-```
+Deploy to your own home server with Cloudflare for enterprise-grade security and CDN:
 
-This automated script will:
-- ✅ Install Docker, Nginx, and all dependencies
-- ✅ Configure SSL with Let's Encrypt (automatic HTTPS)
-- ✅ Deploy the application with PostgreSQL
-- ✅ Set up automated daily backups
-- ✅ Configure health monitoring and auto-restart
-- ✅ Configure firewall rules
+**What you get**:
+- ✅ Free SSL/TLS with Cloudflare Origin Certificate (15-year validity)
+- ✅ DDoS protection and Web Application Firewall
+- ✅ Global CDN for faster loading
+- ✅ Automated backups and monitoring
+- ✅ GitHub Actions CI/CD
 
 **What you need**:
 - Linux server (Ubuntu 20.04+)
-- Domain name pointing to your server
-- Router with port forwarding (80, 443)
+- Domain name configured in Cloudflare
+- Router with port forwarding (8080, 8443)
 
-**Documentation**:
-- [Quick Start Guide](./docs/QUICK_START_HOME_SERVER.md) - Get running in 30 minutes
-- [Complete Home Server Guide](./docs/HOME_SERVER_DEPLOYMENT.md) - Detailed setup and troubleshooting
-- [GitHub Actions Auto-Deployment](./docs/GITHUB_ACTIONS_SETUP.md) - Push to deploy
+**Quick Start** (30 minutes):
+
+See the [Cloudflare Setup Guide](./docs/CLOUDFLARE_SETUP_GUIDE.md) for step-by-step instructions.
 
 ## Docker Deployment
 
@@ -533,6 +525,34 @@ const mockEngine = new MockGameEngine('test-game')
 ```
 
 See [TESTING.md](./docs/TESTING.md) for complete testing documentation.
+
+## Documentation
+
+### Getting Started
+- **[README.md](./README.md)** - You are here (project overview)
+- **[Quick Start](./docs/QUICK_START_HOME_SERVER.md)** - Deploy in 30 minutes
+- **[Architecture Overview](./docs/ARCHITECTURE.md)** - Simple system architecture diagram
+
+### Deployment Guides
+- **[Docker Deployment](./DEPLOYMENT.md)** - Comprehensive Docker guide
+- **[Cloudflare Setup](./docs/CLOUDFLARE_SETUP_GUIDE.md)** - Step-by-step Cloudflare configuration
+- **[Cloudflare Architecture](./docs/CLOUDFLARE_ARCHITECTURE.md)** - Detailed architecture with Cloudflare
+- **[GitHub Actions CI/CD](./docs/GITHUB_ACTIONS_SETUP.md)** - Automated deployment setup
+
+### Development
+- **[API Documentation](./docs/API.md)** - Complete REST API reference
+- **[Plugin Development](./docs/PLUGIN_DEVELOPMENT.md)** - Create custom game plugins
+- **[Testing Guide](./docs/TESTING.md)** - Testing strategies and utilities
+- **[Development Tooling](./docs/DEVELOPMENT_TOOLING.md)** - IDE setup and tools
+
+### Authentication
+- **[Authentication Guide](./docs/AUTHENTICATION.md)** - Clerk authentication overview
+- **[Clerk Setup Guide](./CLERK_SETUP_GUIDE.md)** - Detailed Clerk configuration
+
+### Game Development
+- **[Game Backlog](./docs/GAME_BACKLOG.md)** - Planned game implementations
+- **[Tic-Tac-Toe](./games/tic-tac-toe/README.md)** - Example game plugin
+- **[Connect Four](./games/connect-four/README.md)** - Advanced game plugin
 
 ## Contributing
 
