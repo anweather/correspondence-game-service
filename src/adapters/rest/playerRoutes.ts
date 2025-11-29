@@ -12,9 +12,27 @@ export function createPlayerRoutes(playerIdentityRepo: InMemoryPlayerIdentityRep
   /**
    * POST /api/players/identity
    * Get or create a player identity by name
+   * When authenticated, returns the authenticated user's player identity
    */
   router.post('/players/identity', async (req: Request, res: Response, next: NextFunction) => {
     try {
+      // If user is authenticated, return their player identity from req.user
+      // This was populated by the Clerk middleware
+      console.log('[PlayerRoutes] req.user:', (req as any).user);
+
+      if ((req as any).user) {
+        const authenticatedUser = (req as any).user;
+        console.log('[PlayerRoutes] Returning authenticated user identity:', authenticatedUser.id);
+        res.json({
+          id: authenticatedUser.id,
+          name: authenticatedUser.username || authenticatedUser.email || 'Player',
+        });
+        return;
+      }
+
+      console.log('[PlayerRoutes] No authenticated user, creating random identity');
+
+      // Fallback for non-authenticated users (when AUTH_ENABLED=false)
       const { name } = req.body;
 
       if (!name || typeof name !== 'string' || !name.trim()) {

@@ -211,17 +211,21 @@ export function createApp(): Express {
 
   // Clerk authentication middleware (if enabled)
   // This must come after logging but before routes
+  const logger = getLogger();
+  logger.info('Setting up authentication', { authEnabled: config.auth.enabled });
+
   if (config.auth.enabled) {
     // First, register Clerk's base middleware
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { clerkMiddleware: baseClerkMiddleware } = require('@clerk/express');
     app.use(baseClerkMiddleware());
+    logger.info('Registered Clerk base middleware');
 
     // Then, register our custom middleware that uses getAuth()
     app.use(clerkMiddleware());
+    logger.info('Registered custom Clerk middleware');
   } else {
     // Log warning when authentication is disabled
-    const logger = getLogger();
     logger.warn('Authentication is disabled (AUTH_ENABLED=false)');
   }
 

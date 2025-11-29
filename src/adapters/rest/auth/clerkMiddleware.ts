@@ -17,6 +17,7 @@ import { loadConfig } from '../../../config';
 import { AuthenticatedRequest } from './types';
 import { ClerkAuthenticationService } from './clerk/ClerkAuthenticationService';
 import { InMemoryPlayerIdentityRepository } from '../../../infrastructure/persistence/InMemoryPlayerIdentityRepository';
+import { getLogger } from '../../../infrastructure/logging/Logger';
 
 /**
  * Clerk middleware wrapper that handles authentication
@@ -41,18 +42,25 @@ export function clerkMiddleware() {
 
   // Return middleware that wraps Clerk SDK
   return async (req: AuthenticatedRequest, _res: Response, next: NextFunction): Promise<void> => {
+    const logger = getLogger();
     try {
       // Get Clerk auth from request (cast to any to work with Clerk SDK)
       const auth = getAuth(req as any);
+      logger.info('clerkMiddleware: checking auth', { hasAuth: !!auth, userId: auth?.userId });
 
       // If user is authenticated, populate req.user
       if (auth && auth.userId) {
+        logger.info('clerkMiddleware: User authenticated', { userId: auth.userId });
         // Get user from Clerk
         const externalUser = await authService.getUserById(auth.userId);
+        logger.info('clerkMiddleware: Got external user', { externalUserId: externalUser?.id });
 
         if (externalUser) {
           // Find or create player identity
           const playerIdentity = await authService.findOrCreatePlayer(externalUser);
+          logger.info('clerkMiddleware: Got player identity', {
+            playerIdentityId: playerIdentity.id,
+          });
 
           // Populate req.user with generic AuthenticatedUser
           req.user = {
@@ -61,14 +69,19 @@ export function clerkMiddleware() {
             username: externalUser.username,
             email: externalUser.email,
           };
+          logger.info('clerkMiddleware: Set req.user', { userId: req.user.id });
         }
+      } else {
+        logger.info('clerkMiddleware: No authenticated user');
       }
 
       next();
     } catch (error) {
       // Log error but don't block request
       // Authentication errors will be caught by requireAuth middleware
-      console.error('Error in clerkMiddleware:', error);
+      logger.error('Error in clerkMiddleware', {
+        error: error instanceof Error ? error.message : String(error),
+      });
       next();
     }
   };
