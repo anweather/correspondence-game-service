@@ -39,7 +39,7 @@ docker-compose down
 
 The service will be available at `http://localhost:3000` with data persisted in a Docker volume.
 
-For detailed deployment instructions, troubleshooting, and production configuration, see [DEPLOYMENT.md](./DEPLOYMENT.md).
+For detailed deployment instructions, troubleshooting, and production configuration, see [DEPLOYMENT.md](./docs/DEPLOYMENT.md).
 
 ### Option 2: Local Development
 
@@ -224,7 +224,7 @@ curl -X POST http://localhost:3000/api/games \
   -d '{"gameType": "tic-tac-toe"}'
 ```
 
-For detailed Clerk setup instructions, see [CLERK_SETUP_GUIDE.md](./CLERK_SETUP_GUIDE.md).
+For detailed Clerk setup instructions, see [CLERK_SETUP_GUIDE.md](./docs/CLERK_SETUP_GUIDE.md).
 
 ## Production Deployment
 
@@ -354,7 +354,7 @@ For production deployment:
 5. Set up regular database backups
 6. Monitor logs and health endpoint
 
-See [DEPLOYMENT.md](./DEPLOYMENT.md) for comprehensive deployment documentation including:
+See [DEPLOYMENT.md](./docs/DEPLOYMENT.md) for comprehensive deployment documentation including:
 - Detailed setup instructions
 - Security best practices
 - Backup and restore procedures
@@ -534,7 +534,7 @@ See [TESTING.md](./docs/TESTING.md) for complete testing documentation.
 - **[Architecture Overview](./docs/ARCHITECTURE.md)** - Simple system architecture diagram
 
 ### Deployment Guides
-- **[Docker Deployment](./DEPLOYMENT.md)** - Comprehensive Docker guide
+- **[Docker Deployment](./docs/DEPLOYMENT.md)** - Comprehensive Docker guide
 - **[Cloudflare Setup](./docs/CLOUDFLARE_SETUP_GUIDE.md)** - Step-by-step Cloudflare configuration
 - **[Cloudflare Architecture](./docs/CLOUDFLARE_ARCHITECTURE.md)** - Detailed architecture with Cloudflare
 - **[GitHub Actions CI/CD](./docs/GITHUB_ACTIONS_SETUP.md)** - Automated deployment setup
@@ -543,11 +543,12 @@ See [TESTING.md](./docs/TESTING.md) for complete testing documentation.
 - **[API Documentation](./docs/API.md)** - Complete REST API reference
 - **[Plugin Development](./docs/PLUGIN_DEVELOPMENT.md)** - Create custom game plugins
 - **[Testing Guide](./docs/TESTING.md)** - Testing strategies and utilities
+- **[Manual Testing Guide](./docs/MANUAL_TEST_GUIDE.md)** - Manual testing procedures
 - **[Development Tooling](./docs/DEVELOPMENT_TOOLING.md)** - IDE setup and tools
 
 ### Authentication
 - **[Authentication Guide](./docs/AUTHENTICATION.md)** - Clerk authentication overview
-- **[Clerk Setup Guide](./CLERK_SETUP_GUIDE.md)** - Detailed Clerk configuration
+- **[Clerk Setup Guide](./docs/CLERK_SETUP_GUIDE.md)** - Detailed Clerk configuration
 
 ### Game Development
 - **[Game Backlog](./docs/GAME_BACKLOG.md)** - Planned game implementations
