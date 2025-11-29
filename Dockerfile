@@ -13,30 +13,39 @@ RUN npm ci
 # Copy backend source code
 COPY src ./src
 
+# Copy games directory (needed for @games/* path aliases in tsconfig.json)
+COPY games ./games
+
 # Build backend TypeScript
 RUN npm run build
 
 # Stage 2: Build web client
 FROM node:20-alpine AS web-builder
 
-WORKDIR /app/web-client
+WORKDIR /app
+
+# Copy root tsconfig.json (needed by games/*/tsconfig.json extends)
+COPY tsconfig.json ./
 
 # Copy web client package files
-COPY web-client/package*.json ./
+COPY web-client/package*.json ./web-client/
 
 # Install web client dependencies
-RUN npm ci
+RUN cd web-client && npm ci
 
 # Copy web client configuration files
-COPY web-client/tsconfig.json web-client/tsconfig.app.json web-client/tsconfig.node.json ./
-COPY web-client/vite.config.ts web-client/index.html ./
+COPY web-client/tsconfig.json web-client/tsconfig.app.json web-client/tsconfig.node.json ./web-client/
+COPY web-client/vite.config.ts web-client/index.html ./web-client/
 
 # Copy web client source code
-COPY web-client/src ./src
-COPY web-client/public ./public
+COPY web-client/src ./web-client/src
+COPY web-client/public ./web-client/public
+
+# Copy games directory (needed for path aliases in vite.config.ts)
+COPY games ./games
 
 # Build web client
-RUN npm run build
+RUN cd web-client && npm run build
 
 # Stage 3: Production image
 FROM node:20-alpine

@@ -27,6 +27,8 @@
       "@games/tic-tac-toe/shared": ["games/tic-tac-toe/shared"],
       "@games/tic-tac-toe/engine": ["games/tic-tac-toe/engine"],
       "@games/tic-tac-toe/ui": ["games/tic-tac-toe/ui"],
+      "@games/connect-four/engine": ["games/connect-four/engine"],
+      "@games/connect-four/ui": ["games/connect-four/ui"],
       "@games/*": ["games/*"]
     }
   },
