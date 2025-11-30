@@ -97,6 +97,161 @@ describe('Game Management Routes Integration', () => {
     });
   });
 
+  describe('POST /api/games - Game Metadata', () => {
+    it('should accept game name and description when creating a game', async () => {
+      const response = await request(app)
+        .post('/api/games')
+        .send({
+          gameType: 'tic-tac-toe',
+          gameName: 'Epic Battle',
+          gameDescription: 'A friendly match between Alice and Bob',
+          config: {
+            players: [
+              { id: 'player1', name: 'Alice', joinedAt: new Date() },
+              { id: 'player2', name: 'Bob', joinedAt: new Date() },
+            ],
+          },
+        })
+        .expect(201);
+
+      expect(response.body.gameId).toBeDefined();
+      expect(response.body.metadata.gameName).toBe('Epic Battle');
+      expect(response.body.metadata.gameDescription).toBe('A friendly match between Alice and Bob');
+    });
+
+    it('should reject empty game name when provided', async () => {
+      const response = await request(app)
+        .post('/api/games')
+        .send({
+          gameType: 'tic-tac-toe',
+          gameName: '',
+          gameDescription: 'A game with empty name',
+          config: {
+            players: [
+              { id: 'player1', name: 'Alice', joinedAt: new Date() },
+              { id: 'player2', name: 'Bob', joinedAt: new Date() },
+            ],
+          },
+        })
+        .expect(400);
+
+      expect(response.body.error.message).toContain('Game name is required');
+    });
+
+    it('should allow optional game description', async () => {
+      const response = await request(app)
+        .post('/api/games')
+        .send({
+          gameType: 'tic-tac-toe',
+          gameName: 'Quick Game',
+          config: {
+            players: [
+              { id: 'player1', name: 'Alice', joinedAt: new Date() },
+              { id: 'player2', name: 'Bob', joinedAt: new Date() },
+            ],
+          },
+        })
+        .expect(201);
+
+      expect(response.body.metadata.gameName).toBe('Quick Game');
+      expect(response.body.metadata.gameDescription).toBeUndefined();
+    });
+
+    it('should enforce maximum description length of 500 characters', async () => {
+      const longDescription = 'a'.repeat(501);
+
+      const response = await request(app)
+        .post('/api/games')
+        .send({
+          gameType: 'tic-tac-toe',
+          gameName: 'Test Game',
+          gameDescription: longDescription,
+          config: {
+            players: [
+              { id: 'player1', name: 'Alice', joinedAt: new Date() },
+              { id: 'player2', name: 'Bob', joinedAt: new Date() },
+            ],
+          },
+        })
+        .expect(400);
+
+      expect(response.body.error.message).toContain(
+        'Game description must not exceed 500 characters'
+      );
+    });
+
+    it('should accept description at exactly 500 characters', async () => {
+      const maxDescription = 'a'.repeat(500);
+
+      const response = await request(app)
+        .post('/api/games')
+        .send({
+          gameType: 'tic-tac-toe',
+          gameName: 'Test Game',
+          gameDescription: maxDescription,
+          config: {
+            players: [
+              { id: 'player1', name: 'Alice', joinedAt: new Date() },
+              { id: 'player2', name: 'Bob', joinedAt: new Date() },
+            ],
+          },
+        })
+        .expect(201);
+
+      expect(response.body.metadata.gameDescription).toBe(maxDescription);
+    });
+  });
+
+  describe('GET /api/games - Game Metadata', () => {
+    it('should include game metadata in list response', async () => {
+      // Create a game with metadata
+      await request(app)
+        .post('/api/games')
+        .send({
+          gameType: 'tic-tac-toe',
+          gameName: 'Test Game',
+          gameDescription: 'A test game',
+          config: {
+            players: [
+              { id: 'player1', name: 'Alice', joinedAt: new Date() },
+              { id: 'player2', name: 'Bob', joinedAt: new Date() },
+            ],
+          },
+        });
+
+      const response = await request(app).get('/api/games').expect(200);
+
+      expect(response.body.items).toHaveLength(1);
+      expect(response.body.items[0].metadata.gameName).toBe('Test Game');
+      expect(response.body.items[0].metadata.gameDescription).toBe('A test game');
+    });
+  });
+
+  describe('GET /api/games/:gameId - Game Metadata', () => {
+    it('should include game metadata in single game response', async () => {
+      const createResponse = await request(app)
+        .post('/api/games')
+        .send({
+          gameType: 'tic-tac-toe',
+          gameName: 'Epic Match',
+          gameDescription: 'The ultimate showdown',
+          config: {
+            players: [
+              { id: 'player1', name: 'Alice', joinedAt: new Date() },
+              { id: 'player2', name: 'Bob', joinedAt: new Date() },
+            ],
+          },
+        });
+
+      const gameId = createResponse.body.gameId;
+
+      const response = await request(app).get(`/api/games/${gameId}`).expect(200);
+
+      expect(response.body.metadata.gameName).toBe('Epic Match');
+      expect(response.body.metadata.gameDescription).toBe('The ultimate showdown');
+    });
+  });
+
   describe('GET /api/games', () => {
     it('should return empty list when no games exist', async () => {
       const response = await request(app).get('/api/games').expect(200);

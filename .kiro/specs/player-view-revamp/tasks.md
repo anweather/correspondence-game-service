@@ -251,14 +251,14 @@
     - Refactor for code quality
     - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
 
-- [ ] 16. Update game routes for metadata (TDD)
-  - [ ] 16.1 Write tests for game metadata
+- [x] 16. Update game routes for metadata (TDD)
+  - [x] 16.1 Write tests for game metadata
     - Update tests in tests/integration/gameRoutes.test.ts
     - Test POST /api/games with name and description
     - Test GET /api/games includes metadata
     - Test validation (name required, description max length)
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 9.1, 9.2, 9.3, 9.4, 9.5_
-  - [ ] 16.2 Implement game metadata support
+  - [x] 16.2 Implement game metadata support
     - Update gameRoutes.ts to accept metadata
     - Update GameManagerService to store metadata
     - Implement to pass all tests

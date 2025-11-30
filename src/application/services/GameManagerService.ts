@@ -31,13 +31,17 @@ export class GameManagerService {
    * @param gameType - The type of game to create
    * @param config - Configuration for the game
    * @param creator - Optional authenticated user who is creating the game
+   * @param gameName - Required name for the game
+   * @param gameDescription - Optional description for the game
    * @returns The created game state
    * @throws Error if game type is not supported
    */
   async createGame(
     gameType: string,
     config: GameConfig,
-    creator?: { id: string; username: string }
+    creator?: { id: string; username: string },
+    gameName?: string,
+    gameDescription?: string
   ): Promise<GameState> {
     const plugin = this.registry.get(gameType);
 
@@ -62,10 +66,12 @@ export class GameManagerService {
     // Initialize game state using plugin
     const initialState = plugin.initializeGame(players, config);
 
-    // Prepare metadata with creator information if provided
+    // Prepare metadata with creator information and game metadata
     const metadata = {
       ...initialState.metadata,
       ...(creator && { creatorPlayerId: creator.id }),
+      ...(gameName && { gameName }),
+      ...(gameDescription && { gameDescription }),
     };
 
     // Override with our managed fields

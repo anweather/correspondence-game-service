@@ -37,18 +37,61 @@ export function createGameRoutes(
    * POST /api/games
    * Create a new game instance
    * Requires authentication (when enabled)
+   * Accepts optional gameName and gameDescription for game metadata
    */
   router.post(
     '/games',
     ...authMiddleware,
-    async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
       try {
-        const { gameType, config } = req.body;
+        const { gameType, config, gameName, gameDescription } = req.body;
+
+        // Validate game name if provided
+        if (gameName !== undefined && gameName !== null) {
+          if (typeof gameName !== 'string' || gameName.trim() === '') {
+            res.status(400).json({
+              error: {
+                code: 'VALIDATION_ERROR',
+                message: 'Game name is required',
+              },
+            });
+            return;
+          }
+        }
+
+        // Validate game description length if provided
+        if (gameDescription !== undefined && gameDescription !== null) {
+          if (typeof gameDescription !== 'string') {
+            res.status(400).json({
+              error: {
+                code: 'VALIDATION_ERROR',
+                message: 'Game description must be a string',
+              },
+            });
+            return;
+          }
+          if (gameDescription.length > 500) {
+            res.status(400).json({
+              error: {
+                code: 'VALIDATION_ERROR',
+                message: 'Game description must not exceed 500 characters',
+              },
+            });
+            return;
+          }
+        }
+
         // Extract authenticated user from request (if auth is enabled)
         const user = req.user; // May be undefined if auth is disabled
 
-        // Pass user to GameManagerService (will be used for creator association)
-        const game = await gameManagerService.createGame(gameType, config || {}, user);
+        // Pass user and metadata to GameManagerService
+        const game = await gameManagerService.createGame(
+          gameType,
+          config || {},
+          user,
+          gameName,
+          gameDescription
+        );
         res.status(201).json(game);
       } catch (error) {
         next(error);
