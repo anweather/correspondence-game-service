@@ -321,8 +321,8 @@
 
 ## Phase 6: Frontend Context and Hooks (TDD)
 
-- [ ] 20. WebSocketContext (TDD)
-  - [ ] 20.1 Write tests for WebSocketContext
+- [x] 20. WebSocketContext (TDD)
+  - [x] 20.1 Write tests for WebSocketContext
     - Write tests in web-client/src/context/__tests__/WebSocketContext.test.tsx
     - Test connection establishment
     - Test subscribe/unsubscribe
@@ -330,7 +330,7 @@
     - Test fallback to polling
     - Test event emission on game updates
     - _Requirements: 14.1, 14.2, 14.3, 14.4, 14.5_
-  - [ ] 20.2 Implement WebSocketContext
+  - [x] 20.2 Implement WebSocketContext
     - Create WebSocketContext.tsx in web-client/src/context/
     - Implement connection management
     - Implement reconnection logic
@@ -338,15 +338,15 @@
     - Refactor for code quality
     - _Requirements: 14.1, 14.2, 14.3, 14.4, 14.5_
 
-- [ ] 21. NotificationContext (TDD)
-  - [ ] 21.1 Write tests for NotificationContext
+- [x] 21. NotificationContext (TDD)
+  - [x] 21.1 Write tests for NotificationContext
     - Write tests in web-client/src/context/__tests__/NotificationContext.test.tsx
     - Test notification state management
     - Test mark as read functionality
     - Test WebSocket integration
     - Test notification count
     - _Requirements: 13.3, 13.4_
-  - [ ] 21.2 Implement NotificationContext
+  - [x] 21.2 Implement NotificationContext
     - Create NotificationContext.tsx in web-client/src/context/
     - Implement notification state
     - Integrate with WebSocket
