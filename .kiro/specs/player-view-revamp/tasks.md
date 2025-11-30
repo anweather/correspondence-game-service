@@ -186,8 +186,8 @@
 
 ## Phase 4: Backend REST API (TDD)
 
-- [ ] 12. Player profile routes (TDD)
-  - [ ] 12.1 Write tests for player profile routes
+- [-] 12. Player profile routes (TDD)
+  - [x] 12.1 Write tests for player profile routes
     - Write tests in tests/integration/playerProfileRoutes.test.ts
     - Test POST /api/players/profile (create)
     - Test GET /api/players/profile (current user)
@@ -196,7 +196,7 @@
     - Test authentication requirement
     - Test validation errors
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 10.1, 10.2, 10.3, 10.4, 10.5_
-  - [ ] 12.2 Implement player profile routes
+  - [x] 12.2 Implement player profile routes
     - Create playerProfileRoutes.ts in src/adapters/rest/
     - Implement all endpoints
     - Add authentication middleware
