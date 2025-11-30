@@ -41,6 +41,8 @@
     "@types/pg": "^8.15.6",
     "@types/supertest": "^6.0.3",
     "@types/svgdom": "^0.1.2",
+    "@types/uuid": "^10.0.0",
+    "@types/ws": "^8.18.1",
     "@typescript-eslint/eslint-plugin": "^6.17.0",
     "@typescript-eslint/parser": "^6.17.0",
     "concurrently": "^9.2.1",
@@ -62,7 +64,9 @@
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "pg": "^8.16.3",
-    "svgdom": "^0.1.22"
+    "svgdom": "^0.1.22",
+    "uuid": "^13.0.0",
+    "ws": "^8.18.3"
   },
   "lint-staged": {
     "src/**/*.ts": [

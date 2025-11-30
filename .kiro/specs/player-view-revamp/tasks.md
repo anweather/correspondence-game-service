@@ -286,8 +286,8 @@
 
 ## Phase 5: WebSocket Integration (TDD)
 
-- [ ] 18. WebSocket server setup (TDD)
-  - [ ] 18.1 Write tests for WebSocket adapter
+- [x] 18. WebSocket server setup (TDD)
+  - [x] 18.1 Write tests for WebSocket adapter
     - Write tests in tests/integration/websocket.test.ts
     - Test WebSocket connection establishment
     - Test authentication requirement
@@ -295,7 +295,7 @@
     - Test ping/pong keepalive
     - Test connection cleanup on disconnect
     - _Requirements: 14.1, 15.1, 15.2, 15.3, 15.4, 15.5_
-  - [ ] 18.2 Implement WebSocket adapter
+  - [x] 18.2 Implement WebSocket adapter
     - Create websocketAdapter.ts in src/adapters/rest/
     - Mount WebSocket server at /api/ws
     - Implement authentication
