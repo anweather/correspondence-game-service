@@ -128,6 +128,86 @@ export class GameClient {
   }
 
   /**
+   * Get current player's profile
+   */
+  async getProfile(): Promise<{
+    userId: string;
+    displayName: string;
+    createdAt: Date;
+    updatedAt: Date;
+  }> {
+    const response = await this.request<{
+      userId: string;
+      displayName: string;
+      createdAt: string;
+      updatedAt: string;
+    }>(`${this.baseUrl}/players/profile`);
+    
+    // Convert date strings to Date objects
+    return {
+      ...response,
+      createdAt: new Date(response.createdAt),
+      updatedAt: new Date(response.updatedAt),
+    };
+  }
+
+  /**
+   * Create player profile
+   */
+  async createProfile(displayName?: string): Promise<{
+    userId: string;
+    displayName: string;
+    createdAt: Date;
+    updatedAt: Date;
+  }> {
+    const response = await this.request<{
+      userId: string;
+      displayName: string;
+      createdAt: string;
+      updatedAt: string;
+    }>(`${this.baseUrl}/players/profile`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(displayName ? { displayName } : {}),
+    });
+    
+    // Convert date strings to Date objects
+    return {
+      ...response,
+      createdAt: new Date(response.createdAt),
+      updatedAt: new Date(response.updatedAt),
+    };
+  }
+
+  /**
+   * Update player profile
+   */
+  async updateProfile(displayName: string): Promise<{
+    userId: string;
+    displayName: string;
+    createdAt: Date;
+    updatedAt: Date;
+  }> {
+    const response = await this.request<{
+      userId: string;
+      displayName: string;
+      createdAt: string;
+      updatedAt: string;
+    }>(`${this.baseUrl}/players/profile`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ displayName }),
+    });
+    
+    // Convert date strings to Date objects
+    return {
+      ...response,
+      createdAt: new Date(response.createdAt),
+      updatedAt: new Date(response.updatedAt),
+    };
+  }
+
+  /**
    * Generic request handler with error handling
    */
   private async request<T>(url: string, options?: RequestInit): Promise<T> {
@@ -192,7 +272,10 @@ export class GameClient {
       errorMessage = response.statusText || 'Request failed';
     }
     
-    throw new Error(errorMessage);
+    // Create error with status code
+    const error: any = new Error(errorMessage);
+    error.status = response.status;
+    throw error;
   }
 
   /**
