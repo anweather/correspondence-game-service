@@ -265,20 +265,20 @@
     - Refactor for code quality
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 9.1, 9.2, 9.3, 9.4, 9.5_
 
-- [ ] 17. Admin authorization (TDD)
-  - [ ] 17.1 Write tests for admin middleware
+- [x] 17. Admin authorization (TDD)
+  - [x] 17.1 Write tests for admin middleware
     - Write tests in tests/unit/adapters/rest/auth/requireAdmin.test.ts
     - Test authorized user access
     - Test unauthorized user rejection (403)
     - Test missing authentication
     - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
-  - [ ] 17.2 Implement admin middleware
+  - [x] 17.2 Implement admin middleware
     - Create requireAdmin.ts in src/adapters/rest/auth/
     - Read admin IDs from environment variable
     - Implement authorization check
     - Implement to pass all tests
     - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
-  - [ ] 17.3 Apply admin middleware to routes
+  - [x] 17.3 Apply admin middleware to routes
     - Add requireAdmin to admin-specific routes
     - Test authorization enforcement
     - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_

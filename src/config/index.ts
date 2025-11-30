@@ -26,6 +26,7 @@ export interface AppConfig {
   database: DatabaseConfig;
   logging: LoggingConfig;
   auth: AuthConfig;
+  adminUserIds: string[];
 }
 
 class ConfigurationError extends Error {
@@ -104,6 +105,13 @@ export function loadConfig(): AppConfig {
     }
   }
 
+  // Load admin user IDs from environment variable
+  const adminUserIdsString = process.env.ADMIN_USER_IDS || '';
+  const adminUserIds = adminUserIdsString
+    .split(',')
+    .map((id) => id.trim())
+    .filter((id) => id.length > 0);
+
   return {
     port,
     nodeEnv,
@@ -122,6 +130,7 @@ export function loadConfig(): AppConfig {
         secretKey: clerkSecretKey,
       },
     },
+    adminUserIds,
   };
 }
 
@@ -155,6 +164,7 @@ export function validateAndLogConfig(): AppConfig {
       console.log(`  CLERK_PUBLISHABLE_KEY: ${config.auth.clerk.publishableKey}`);
       console.log(`  CLERK_SECRET_KEY: ${maskedClerkSecret}`);
     }
+    console.log(`  ADMIN_USER_IDS: ${config.adminUserIds.length} admin(s) configured`);
 
     return config;
   } catch (error) {
