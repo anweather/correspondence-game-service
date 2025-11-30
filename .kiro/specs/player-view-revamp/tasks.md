@@ -133,8 +133,8 @@
     - Refactor for code quality
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 10.1, 10.2, 10.3, 10.4, 10.5_
 
-- [ ] 9. StatsService (TDD)
-  - [ ] 9.1 Write tests for StatsService
+- [x] 9. StatsService (TDD)
+  - [x] 9.1 Write tests for StatsService
     - Write tests in tests/unit/application/StatsService.test.ts
     - Test getPlayerStats calculation
     - Test win rate calculation with edge cases
@@ -142,7 +142,7 @@
     - Test getGameHistory filtering
     - Test per-game-type stats
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 7.1, 7.2, 7.3, 7.4, 7.5_
-  - [ ] 9.2 Implement StatsService
+  - [x] 9.2 Implement StatsService
     - Create StatsService in src/application/services/
     - Implement statistics calculation
     - Implement leaderboard ranking
@@ -150,8 +150,8 @@
     - Refactor for code quality
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 7.1, 7.2, 7.3, 7.4, 7.5_
 
-- [ ] 10. InvitationService (TDD)
-  - [ ] 10.1 Write tests for InvitationService
+- [x] 10. InvitationService (TDD)
+  - [x] 10.1 Write tests for InvitationService
     - Write tests in tests/unit/application/InvitationService.test.ts
     - Test createInvitation with validation
     - Test invitation recipient validation
@@ -159,7 +159,7 @@
     - Test invitation expiration
     - Test duplicate invitation prevention
     - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
-  - [ ] 10.2 Implement InvitationService
+  - [x] 10.2 Implement InvitationService
     - Create InvitationService in src/application/services/
     - Implement invitation management
     - Implement validation logic
