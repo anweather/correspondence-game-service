@@ -4,6 +4,22 @@ import { AdminView } from '../AdminView';
 import { AdminProvider } from '../../context/AdminContext';
 import type { GameState } from '../../types/game';
 
+// Mock Clerk
+vi.mock('@clerk/clerk-react', () => ({
+  ClerkProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  SignedIn: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  SignedOut: ({ children }: { children: React.ReactNode }) => null,
+  SignInButton: ({ children }: { children: React.ReactNode }) => <button>{children}</button>,
+  UserButton: () => <button data-testid="user-button">User</button>,
+  useUser: () => ({ 
+    isSignedIn: true, 
+    user: { id: 'user-1', primaryEmailAddress: { emailAddress: 'test@example.com' } },
+    isLoaded: true,
+  }),
+  useSession: () => ({ session: { id: 'session-1' } }),
+  useAuth: () => ({ getToken: vi.fn().mockResolvedValue('mock-token') }),
+}));
+
 // Mock child components
 vi.mock('../../components/GameList/GameList', () => ({
   GameList: ({ games, onSelect, onDelete }: any) => (

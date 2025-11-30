@@ -4,6 +4,11 @@ import type { ReactNode } from 'react';
 import { AdminProvider, useAdmin } from '../AdminContext';
 import type { GameState } from '../../types/game';
 
+// Mock Clerk
+vi.mock('@clerk/clerk-react', () => ({
+  useAuth: () => ({ getToken: vi.fn().mockResolvedValue(null) }),
+}));
+
 // Create mock functions that will be shared across all tests
 const mockGetGameTypes = vi.fn();
 const mockCreateGame = vi.fn();
