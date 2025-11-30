@@ -115,8 +115,8 @@
 
 ## Phase 3: Backend Application Services (TDD)
 
-- [ ] 8. PlayerProfileService (TDD)
-  - [ ] 8.1 Write tests for PlayerProfileService
+- [x] 8. PlayerProfileService (TDD)
+  - [x] 8.1 Write tests for PlayerProfileService
     - Write tests in tests/unit/application/PlayerProfileService.test.ts
     - Test createProfile with default name generation
     - Test updateDisplayName with validation
@@ -124,7 +124,7 @@
     - Test reserved name rejection (admin, system, bot)
     - Test uniqueness handling
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 10.1, 10.2, 10.3, 10.4, 10.5_
-  - [ ] 8.2 Implement PlayerProfileService
+  - [x] 8.2 Implement PlayerProfileService
     - Create PlayerProfileService in src/application/services/
     - Implement profile management methods
     - Implement validation logic
