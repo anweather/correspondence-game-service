@@ -204,8 +204,8 @@
     - Refactor for code quality
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 10.1, 10.2, 10.3, 10.4, 10.5_
 
-- [ ] 13. Stats routes (TDD)
-  - [ ] 13.1 Write tests for stats routes
+- [x] 13. Stats routes (TDD)
+  - [x] 13.1 Write tests for stats routes
     - Write tests in tests/integration/statsRoutes.test.ts
     - Test GET /api/players/stats
     - Test GET /api/players/stats/:gameType
@@ -213,30 +213,30 @@
     - Test GET /api/players/:userId/stats
     - Test authentication requirement
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
-  - [ ] 13.2 Implement stats routes
+  - [x] 13.2 Implement stats routes
     - Create statsRoutes.ts in src/adapters/rest/
     - Implement all endpoints
     - Implement to pass all tests
     - Refactor for code quality
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 14. Leaderboard routes (TDD)
-  - [ ] 14.1 Write tests for leaderboard routes
+- [x] 14. Leaderboard routes (TDD)
+  - [x] 14.1 Write tests for leaderboard routes
     - Write tests in tests/integration/leaderboardRoutes.test.ts
     - Test GET /api/leaderboard
     - Test GET /api/leaderboard/:gameType
     - Test pagination
     - Test ranking order
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
-  - [ ] 14.2 Implement leaderboard routes
+  - [x] 14.2 Implement leaderboard routes
     - Create leaderboardRoutes.ts in src/adapters/rest/
     - Implement endpoints with pagination
     - Implement to pass all tests
     - Refactor for code quality
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
 
-- [ ] 15. Invitation routes (TDD)
-  - [ ] 15.1 Write tests for invitation routes
+- [x] 15. Invitation routes (TDD)
+  - [x] 15.1 Write tests for invitation routes
     - Write tests in tests/integration/invitationRoutes.test.ts
     - Test POST /api/invitations (create)
     - Test GET /api/invitations (list)
@@ -244,7 +244,7 @@
     - Test PUT /api/invitations/:id/decline
     - Test authentication and authorization
     - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
-  - [ ] 15.2 Implement invitation routes
+  - [x] 15.2 Implement invitation routes
     - Create invitationRoutes.ts in src/adapters/rest/
     - Implement all endpoints
     - Implement to pass all tests
