@@ -167,8 +167,8 @@
     - Refactor for code quality
     - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
 
-- [ ] 11. NotificationService (TDD)
-  - [ ] 11.1 Write tests for NotificationService
+- [x] 11. NotificationService (TDD)
+  - [x] 11.1 Write tests for NotificationService
     - Write tests in tests/unit/application/NotificationService.test.ts
     - Test turn notification with delay
     - Test notification scheduling
@@ -176,7 +176,7 @@
     - Test multiple notification channels
     - Test notification failure handling
     - _Requirements: 13.1, 13.2, 13.3, 13.4, 13.5_
-  - [ ] 11.2 Implement NotificationService
+  - [x] 11.2 Implement NotificationService
     - Create NotificationService in src/application/services/
     - Implement pluggable notification channels
     - Implement scheduling logic
