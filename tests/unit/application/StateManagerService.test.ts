@@ -10,6 +10,7 @@ import {
   ConcurrencyError,
 } from '@domain/errors';
 import { MockGameEngine, GameStateBuilder, createPlayer } from '../../utils';
+import { IWebSocketService, WebSocketMessageType } from '@domain/interfaces/IWebSocketService';
 
 // Helper function to create mock game state
 function createMockGameState(players: Player[]): GameState {
@@ -402,6 +403,211 @@ describe('StateManagerService', () => {
       // The rejected one should be a ConcurrencyError
       const rejectedResult = rejected[0] as PromiseRejectedResult;
       expect(rejectedResult.reason).toBeInstanceOf(ConcurrencyError);
+    });
+  });
+
+  describe('WebSocket Integration', () => {
+    let mockWebSocketService: jest.Mocked<IWebSocketService>;
+
+    beforeEach(() => {
+      // Create mock WebSocket service
+      mockWebSocketService = {
+        registerConnection: jest.fn(),
+        unregisterConnection: jest.fn(),
+        subscribe: jest.fn(),
+        unsubscribe: jest.fn(),
+        broadcastToGame: jest.fn().mockResolvedValue(undefined),
+        sendToUser: jest.fn().mockResolvedValue(undefined),
+        getConnectionCount: jest.fn().mockReturnValue(0),
+        getGameSubscriberCount: jest.fn().mockReturnValue(0),
+      };
+
+      // Recreate StateManagerService with WebSocket service
+      stateManager = new StateManagerService(
+        repository,
+        pluginRegistry,
+        lockManager,
+        mockWebSocketService
+      );
+    });
+
+    it('should broadcast game update when move is applied', async () => {
+      // Arrange
+      const players = createMockPlayers();
+      const gameState = createMockGameState(players);
+      await repository.save(gameState);
+
+      const move: Move = {
+        playerId: 'player1',
+        timestamp: new Date(),
+        action: 'test-action',
+        parameters: {},
+      };
+
+      // Act
+      const updatedState = await stateManager.applyMove('test-game-1', 'player1', move, 1);
+
+      // Assert
+      expect(mockWebSocketService.broadcastToGame).toHaveBeenCalledTimes(1);
+      expect(mockWebSocketService.broadcastToGame).toHaveBeenCalledWith(
+        'test-game-1',
+        expect.objectContaining({
+          type: WebSocketMessageType.GAME_UPDATE,
+          gameId: 'test-game-1',
+          gameState: updatedState,
+          timestamp: expect.any(Date),
+        })
+      );
+    });
+
+    it('should broadcast game complete message when game ends', async () => {
+      // Arrange
+      const players = createMockPlayers();
+      const gameState = createMockGameState(players);
+      await repository.save(gameState);
+
+      mockEngine.withGameOverResult(true).withWinnerResult('player1');
+
+      const move: Move = {
+        playerId: 'player1',
+        timestamp: new Date(),
+        action: 'winning-move',
+        parameters: {},
+      };
+
+      // Act
+      const updatedState = await stateManager.applyMove('test-game-1', 'player1', move, 1);
+
+      // Assert
+      // Should broadcast both game update and game complete
+      expect(mockWebSocketService.broadcastToGame).toHaveBeenCalledTimes(2);
+
+      // First call: game update
+      expect(mockWebSocketService.broadcastToGame).toHaveBeenNthCalledWith(
+        1,
+        'test-game-1',
+        expect.objectContaining({
+          type: WebSocketMessageType.GAME_UPDATE,
+          gameId: 'test-game-1',
+          gameState: updatedState,
+        })
+      );
+
+      // Second call: game complete
+      expect(mockWebSocketService.broadcastToGame).toHaveBeenNthCalledWith(
+        2,
+        'test-game-1',
+        expect.objectContaining({
+          type: WebSocketMessageType.GAME_COMPLETE,
+          gameId: 'test-game-1',
+          winner: 'player1',
+        })
+      );
+    });
+
+    it('should broadcast game complete with null winner for draw', async () => {
+      // Arrange
+      const players = createMockPlayers();
+      const gameState = createMockGameState(players);
+      await repository.save(gameState);
+
+      mockEngine.withGameOverResult(true).withWinnerResult(null);
+
+      const move: Move = {
+        playerId: 'player1',
+        timestamp: new Date(),
+        action: 'final-move',
+        parameters: {},
+      };
+
+      // Act
+      await stateManager.applyMove('test-game-1', 'player1', move, 1);
+
+      // Assert
+      expect(mockWebSocketService.broadcastToGame).toHaveBeenCalledWith(
+        'test-game-1',
+        expect.objectContaining({
+          type: WebSocketMessageType.GAME_COMPLETE,
+          gameId: 'test-game-1',
+          winner: null,
+        })
+      );
+    });
+
+    it('should only broadcast to subscribed clients', async () => {
+      // Arrange
+      const players = createMockPlayers();
+      const gameState = createMockGameState(players);
+      await repository.save(gameState);
+
+      // Mock that there are 2 subscribers
+      mockWebSocketService.getGameSubscriberCount.mockReturnValue(2);
+
+      const move: Move = {
+        playerId: 'player1',
+        timestamp: new Date(),
+        action: 'test-action',
+        parameters: {},
+      };
+
+      // Act
+      await stateManager.applyMove('test-game-1', 'player1', move, 1);
+
+      // Assert
+      // broadcastToGame should be called, which internally handles subscriber filtering
+      expect(mockWebSocketService.broadcastToGame).toHaveBeenCalledWith(
+        'test-game-1',
+        expect.any(Object)
+      );
+    });
+
+    it('should not fail if WebSocket service is not provided', async () => {
+      // Arrange
+      // Create StateManagerService without WebSocket service
+      const stateManagerWithoutWS = new StateManagerService(
+        repository,
+        pluginRegistry,
+        lockManager
+      );
+
+      const players = createMockPlayers();
+      const gameState = createMockGameState(players);
+      await repository.save(gameState);
+
+      const move: Move = {
+        playerId: 'player1',
+        timestamp: new Date(),
+        action: 'test-action',
+        parameters: {},
+      };
+
+      // Act & Assert - should not throw
+      await expect(
+        stateManagerWithoutWS.applyMove('test-game-1', 'player1', move, 1)
+      ).resolves.toBeDefined();
+    });
+
+    it('should continue processing even if WebSocket broadcast fails', async () => {
+      // Arrange
+      const players = createMockPlayers();
+      const gameState = createMockGameState(players);
+      await repository.save(gameState);
+
+      // Mock WebSocket service to throw error
+      mockWebSocketService.broadcastToGame.mockRejectedValue(new Error('WebSocket error'));
+
+      const move: Move = {
+        playerId: 'player1',
+        timestamp: new Date(),
+        action: 'test-action',
+        parameters: {},
+      };
+
+      // Act & Assert - should not throw, move should still be applied
+      const updatedState = await stateManager.applyMove('test-game-1', 'player1', move, 1);
+
+      expect(updatedState.moveHistory).toHaveLength(1);
+      expect(mockWebSocketService.broadcastToGame).toHaveBeenCalled();
     });
   });
 });

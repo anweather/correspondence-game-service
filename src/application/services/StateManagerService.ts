@@ -3,6 +3,12 @@ import { PluginRegistry } from '@application/PluginRegistry';
 import { GameRepository, ValidationResult } from '@domain/interfaces';
 import { GameState, Move, GameLifecycle } from '@domain/models';
 import { GameNotFoundError, InvalidMoveError, UnauthorizedMoveError } from '@domain/errors';
+import {
+  IWebSocketService,
+  WebSocketMessageType,
+  GameUpdateMessage,
+  GameCompleteMessage,
+} from '@domain/interfaces/IWebSocketService';
 
 /**
  * Service for managing game state updates and move processing
@@ -12,7 +18,8 @@ export class StateManagerService {
   constructor(
     private repository: GameRepository,
     private registry: PluginRegistry,
-    private lockManager: GameLockManager
+    private lockManager: GameLockManager,
+    private webSocketService?: IWebSocketService
   ) {}
 
   /**
@@ -142,6 +149,14 @@ export class StateManagerService {
       // Save to repository with optimistic locking
       const savedState = await this.repository.update(gameId, updatedState, expectedVersion);
 
+      // Broadcast game update via WebSocket (non-blocking)
+      if (this.webSocketService) {
+        this.broadcastGameUpdate(gameId, savedState).catch((error) => {
+          // Log error but don't fail the move
+          console.error(`Failed to broadcast game update for ${gameId}:`, error);
+        });
+      }
+
       // Invoke afterApplyMove hook if present
       if (plugin.afterApplyMove) {
         plugin.afterApplyMove(game, savedState, move);
@@ -150,9 +165,56 @@ export class StateManagerService {
       // Invoke onGameEnded hook if game just completed
       if (savedState.lifecycle === GameLifecycle.COMPLETED) {
         plugin.onGameEnded(savedState);
+
+        // Broadcast game completion
+        if (this.webSocketService) {
+          this.broadcastGameComplete(gameId, savedState.winner).catch((error) => {
+            console.error(`Failed to broadcast game completion for ${gameId}:`, error);
+          });
+        }
       }
 
       return savedState;
     });
+  }
+
+  /**
+   * Broadcast game update to all subscribers
+   * @param gameId - The game ID
+   * @param gameState - The updated game state
+   */
+  private async broadcastGameUpdate(gameId: string, gameState: GameState): Promise<void> {
+    if (!this.webSocketService) {
+      return;
+    }
+
+    const message: GameUpdateMessage = {
+      type: WebSocketMessageType.GAME_UPDATE,
+      gameId,
+      gameState,
+      timestamp: new Date(),
+    };
+
+    await this.webSocketService.broadcastToGame(gameId, message);
+  }
+
+  /**
+   * Broadcast game completion to all subscribers
+   * @param gameId - The game ID
+   * @param winner - The winner player ID (null for draw)
+   */
+  private async broadcastGameComplete(gameId: string, winner: string | null): Promise<void> {
+    if (!this.webSocketService) {
+      return;
+    }
+
+    const message: GameCompleteMessage = {
+      type: WebSocketMessageType.GAME_COMPLETE,
+      gameId,
+      winner,
+      timestamp: new Date(),
+    };
+
+    await this.webSocketService.broadcastToGame(gameId, message);
   }
 }

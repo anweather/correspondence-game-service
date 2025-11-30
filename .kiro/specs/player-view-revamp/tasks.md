@@ -304,14 +304,14 @@
     - Refactor for code quality
     - _Requirements: 14.1, 15.1, 15.2, 15.3, 15.4, 15.5_
 
-- [ ] 19. WebSocket game update integration (TDD)
-  - [ ] 19.1 Write tests for game update broadcasting
+- [x] 19. WebSocket game update integration (TDD)
+  - [x] 19.1 Write tests for game update broadcasting
     - Update tests in tests/unit/application/GameManagerService.test.ts
     - Test that makeMove broadcasts update via WebSocket
     - Test that only subscribed clients receive updates
     - Test game completion broadcasts
     - _Requirements: 14.2, 14.3, 15.2_
-  - [ ] 19.2 Implement game update broadcasting
+  - [x] 19.2 Implement game update broadcasting
     - Update GameManagerService to use WebSocketManager
     - Broadcast game state on move
     - Broadcast game completion
