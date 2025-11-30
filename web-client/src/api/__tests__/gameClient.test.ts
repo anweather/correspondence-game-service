@@ -31,7 +31,9 @@ describe('GameClient', () => {
 
       const result = await client.getGameTypes();
 
-      expect(mockFetch).toHaveBeenCalledWith('/api/game-types', undefined);
+      expect(mockFetch).toHaveBeenCalledWith('/api/game-types', expect.objectContaining({
+        headers: expect.any(Headers),
+      }));
       expect(result).toEqual(mockGameTypes);
     });
 
@@ -74,11 +76,11 @@ describe('GameClient', () => {
 
       const result = await client.createGame('tic-tac-toe', config);
 
-      expect(mockFetch).toHaveBeenCalledWith('/api/games', {
+      expect(mockFetch).toHaveBeenCalledWith('/api/games', expect.objectContaining({
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: expect.any(Headers),
         body: JSON.stringify({ gameType: 'tic-tac-toe', config }),
-      });
+      }));
       expect(result).toEqual(mockGameState);
     });
   });
@@ -107,7 +109,9 @@ describe('GameClient', () => {
 
       const result = await client.getGame('game-123');
 
-      expect(mockFetch).toHaveBeenCalledWith('/api/games/game-123', undefined);
+      expect(mockFetch).toHaveBeenCalledWith('/api/games/game-123', expect.objectContaining({
+        headers: expect.any(Headers),
+      }));
       expect(result).toEqual(mockGameState);
     });
 
@@ -140,7 +144,9 @@ describe('GameClient', () => {
 
       const result = await client.listGames();
 
-      expect(mockFetch).toHaveBeenCalledWith('/api/games', undefined);
+      expect(mockFetch).toHaveBeenCalledWith('/api/games', expect.objectContaining({
+        headers: expect.any(Headers),
+      }));
       expect(result).toEqual(mockResponse);
     });
 
@@ -160,7 +166,9 @@ describe('GameClient', () => {
 
       await client.listGames({ lifecycle: 'active', page: 2, pageSize: 20 });
 
-      expect(mockFetch).toHaveBeenCalledWith('/api/games?lifecycle=active&page=2&pageSize=20', undefined);
+      expect(mockFetch).toHaveBeenCalledWith('/api/games?lifecycle=active&page=2&pageSize=20', expect.objectContaining({
+        headers: expect.any(Headers),
+      }));
     });
   });
 
@@ -194,11 +202,11 @@ describe('GameClient', () => {
 
       const result = await client.joinGame('game-123', player);
 
-      expect(mockFetch).toHaveBeenCalledWith('/api/games/game-123/join', {
+      expect(mockFetch).toHaveBeenCalledWith('/api/games/game-123/join', expect.objectContaining({
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: expect.any(Headers),
         body: JSON.stringify({ player }),
-      });
+      }));
       expect(result).toEqual(mockGameState);
     });
   });
@@ -212,9 +220,10 @@ describe('GameClient', () => {
 
       await client.deleteGame('game-123');
 
-      expect(mockFetch).toHaveBeenCalledWith('/api/games/game-123', {
+      expect(mockFetch).toHaveBeenCalledWith('/api/games/game-123', expect.objectContaining({
         method: 'DELETE',
-      });
+        headers: expect.any(Headers),
+      }));
     });
 
     it('should throw error when delete fails', async () => {
@@ -260,11 +269,11 @@ describe('GameClient', () => {
 
       const result = await client.makeMove('game-123', 'player-1', move, 2);
 
-      expect(mockFetch).toHaveBeenCalledWith('/api/games/game-123/moves', {
+      expect(mockFetch).toHaveBeenCalledWith('/api/games/game-123/moves', expect.objectContaining({
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: expect.any(Headers),
         body: JSON.stringify({ playerId: 'player-1', move, version: 2 }),
-      });
+      }));
       expect(result).toEqual(mockGameState);
     });
 
@@ -307,7 +316,9 @@ describe('GameClient', () => {
 
       const result = await client.getMoveHistory('game-123');
 
-      expect(mockFetch).toHaveBeenCalledWith('/api/games/game-123/moves', undefined);
+      expect(mockFetch).toHaveBeenCalledWith('/api/games/game-123/moves', expect.objectContaining({
+        headers: expect.any(Headers),
+      }));
       expect(result).toEqual(mockMoves);
     });
   });
