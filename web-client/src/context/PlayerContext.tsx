@@ -9,6 +9,7 @@ import type { ReactNode } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { GameClient } from '../api/gameClient';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { useProfile } from '../hooks/useProfile';
 import type { GameState, MoveInput } from '../types/game';
 
 /**
@@ -18,6 +19,8 @@ interface PlayerContextState {
   currentGame: GameState | null;
   playerId: string | null;
   playerName: string | null;
+  displayName: string | null;
+  isNewUser: boolean;
   loading: boolean;
   error: string | null;
 }
@@ -71,7 +74,33 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
     null
   );
 
+  // Integrate profile management
+  const { profile } = useProfile();
+
   const client = useMemo(() => new GameClient('/api', getToken), [getToken]);
+
+  /**
+   * Compute display name from profile or fall back to player name
+   */
+  const displayName = useMemo(() => {
+    if (profile?.displayName) {
+      return profile.displayName;
+    }
+    return playerName;
+  }, [profile, playerName]);
+
+  /**
+   * Determine if this is a new user (no cached profile)
+   */
+  const isNewUser = useMemo(() => {
+    // Check if we have a cached profile in localStorage
+    try {
+      const cached = localStorage.getItem('playerProfile');
+      return !cached;
+    } catch {
+      return true;
+    }
+  }, []); // Empty dependency array - only check once on mount
 
   /**
    * Handle API errors with specific authentication error handling
@@ -169,7 +198,14 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
    */
   const createGame = useCallback(
     async (gameType: string) => {
-      if (!playerName || !playerId) {
+      if (!playerId) {
+        setError('Please login first');
+        return;
+      }
+
+      // Use display name if available, otherwise fall back to player name
+      const nameToUse = displayName || playerName;
+      if (!nameToUse) {
         setError('Please login first');
         return;
       }
@@ -180,10 +216,10 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
         // Create the game
         const newGame = await client.createGame(gameType, {});
         
-        // Join as the first player using existing player ID
+        // Join as the first player using existing player ID and display name
         const joinedGame = await client.joinGame(newGame.gameId, {
           id: playerId,
-          name: playerName,
+          name: nameToUse,
           joinedAt: new Date().toISOString(),
         });
 
@@ -196,7 +232,7 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
         setLoading(false);
       }
     },
-    [client, playerName, playerId, setCurrentGameId, handleError]
+    [client, displayName, playerName, playerId, setCurrentGameId, handleError]
   );
 
   /**
@@ -204,7 +240,14 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
    */
   const joinGame = useCallback(
     async (gameId: string) => {
-      if (!playerName || !playerId) {
+      if (!playerId) {
+        setError('Please login first');
+        return;
+      }
+
+      // Use display name if available, otherwise fall back to player name
+      const nameToUse = displayName || playerName;
+      if (!nameToUse) {
         setError('Please login first');
         return;
       }
@@ -212,10 +255,10 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
       setLoading(true);
       setError(null);
       try {
-        // Join using existing player ID
+        // Join using existing player ID and display name
         const joinedGame = await client.joinGame(gameId, {
           id: playerId,
-          name: playerName,
+          name: nameToUse,
           joinedAt: new Date().toISOString(),
         });
 
@@ -228,7 +271,7 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
         setLoading(false);
       }
     },
-    [client, playerName, playerId, setCurrentGameId, handleError]
+    [client, displayName, playerName, playerId, setCurrentGameId, handleError]
   );
 
   /**
@@ -343,6 +386,8 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
     currentGame,
     playerId,
     playerName,
+    displayName,
+    isNewUser,
     loading,
     error,
     login,

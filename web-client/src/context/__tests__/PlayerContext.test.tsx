@@ -21,6 +21,9 @@ const mockGetMoveHistory = vi.fn();
 const mockGetBoardSvgUrl = vi.fn();
 const mockGetOrCreatePlayerIdentity = vi.fn();
 const mockGetKnownPlayers = vi.fn();
+const mockGetProfile = vi.fn();
+const mockUpdateProfile = vi.fn();
+const mockCreateProfile = vi.fn();
 
 // Mock the GameClient module
 vi.mock('../../api/gameClient', () => {
@@ -37,6 +40,9 @@ vi.mock('../../api/gameClient', () => {
       getBoardSvgUrl = mockGetBoardSvgUrl;
       getOrCreatePlayerIdentity = mockGetOrCreatePlayerIdentity;
       getKnownPlayers = mockGetKnownPlayers;
+      getProfile = mockGetProfile;
+      updateProfile = mockUpdateProfile;
+      createProfile = mockCreateProfile;
     },
   };
 });
@@ -49,6 +55,8 @@ describe('PlayerContext', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     localStorage.clear();
+    // Default: no profile exists (404)
+    mockGetProfile.mockRejectedValue({ status: 404 });
   });
 
   afterEach(() => {
@@ -535,6 +543,225 @@ describe('PlayerContext', () => {
 
       await waitFor(() => {
         expect(result.current.error).toBe('No game to refresh');
+      });
+    });
+  });
+
+  describe('Profile Integration', () => {
+    it('should expose display name from profile', () => {
+      // Set up cached profile
+      const mockProfile = {
+        userId: 'user-123',
+        displayName: 'CoolPlayer',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      localStorage.setItem('playerProfile', JSON.stringify(mockProfile));
+
+      const { result } = renderHook(() => usePlayer(), { wrapper });
+
+      // Should have access to display name
+      expect(result.current.displayName).toBeDefined();
+    });
+
+    it('should use display name instead of player name when available', async () => {
+      const mockProfile = {
+        userId: 'user-123',
+        displayName: 'CoolPlayer',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      localStorage.setItem('playerProfile', JSON.stringify(mockProfile));
+      localStorage.setItem('player.name', JSON.stringify('OldName'));
+
+      const { result } = renderHook(() => usePlayer(), { wrapper });
+
+      // Display name should take precedence
+      expect(result.current.displayName).toBe('CoolPlayer');
+    });
+
+    it('should fall back to player name when no profile exists', () => {
+      localStorage.setItem('player.name', JSON.stringify('Alice'));
+
+      const { result } = renderHook(() => usePlayer(), { wrapper });
+
+      // Should fall back to player name
+      expect(result.current.displayName).toBe('Alice');
+    });
+
+    it('should cache profile data in localStorage', () => {
+      const mockProfile = {
+        userId: 'user-123',
+        displayName: 'CoolPlayer',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      localStorage.setItem('playerProfile', JSON.stringify(mockProfile));
+
+      const { result } = renderHook(() => usePlayer(), { wrapper });
+
+      // Profile should be loaded from cache
+      expect(result.current.displayName).toBe('CoolPlayer');
+      expect(localStorage.getItem('playerProfile')).toBeTruthy();
+    });
+  });
+
+  describe('Authentication Loading State', () => {
+    it('should not show loading state for returning users with cached profile', () => {
+      const mockProfile = {
+        userId: 'user-123',
+        displayName: 'CoolPlayer',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      localStorage.setItem('playerProfile', JSON.stringify(mockProfile));
+      localStorage.setItem('player.id', JSON.stringify('user-123'));
+
+      const { result } = renderHook(() => usePlayer(), { wrapper });
+
+      // Should not be in loading state since profile is cached
+      expect(result.current.isNewUser).toBe(false);
+    });
+
+    it('should identify new users without cached profile', () => {
+      const { result } = renderHook(() => usePlayer(), { wrapper });
+
+      // Should identify as new user
+      expect(result.current.isNewUser).toBe(true);
+    });
+
+    it('should distinguish between initial auth and returning user', () => {
+      // First render - new user
+      const { result: result1 } = renderHook(() => usePlayer(), { wrapper });
+      expect(result1.current.isNewUser).toBe(true);
+
+      // Set up profile
+      const mockProfile = {
+        userId: 'user-123',
+        displayName: 'CoolPlayer',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      localStorage.setItem('playerProfile', JSON.stringify(mockProfile));
+
+      // Second render - returning user
+      const { result: result2 } = renderHook(() => usePlayer(), { wrapper });
+      expect(result2.current.isNewUser).toBe(false);
+    });
+
+    it('should cache player identity to prevent re-initialization', () => {
+      const mockProfile = {
+        userId: 'user-123',
+        displayName: 'CoolPlayer',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      localStorage.setItem('playerProfile', JSON.stringify(mockProfile));
+      localStorage.setItem('player.id', JSON.stringify('user-123'));
+
+      const { result, rerender } = renderHook(() => usePlayer(), { wrapper });
+
+      const initialDisplayName = result.current.displayName;
+
+      // Rerender should not cause re-initialization
+      rerender();
+
+      expect(result.current.displayName).toBe(initialDisplayName);
+      expect(result.current.isNewUser).toBe(false);
+    });
+  });
+
+  describe('Display Name Usage', () => {
+    it('should use display name in game creation', async () => {
+      const mockProfile = {
+        userId: 'user-123',
+        displayName: 'CoolPlayer',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      localStorage.setItem('playerProfile', JSON.stringify(mockProfile));
+      localStorage.setItem('player.id', JSON.stringify('user-123'));
+
+      const mockGame: GameState = {
+        gameId: 'new-game',
+        gameType: 'tic-tac-toe',
+        lifecycle: 'waiting_for_players',
+        players: [
+          { id: 'user-123', name: 'CoolPlayer', joinedAt: '2024-01-01T00:00:00Z' },
+        ],
+        currentPlayerIndex: 0,
+        phase: 'setup',
+        board: { spaces: [], metadata: {} },
+        moveHistory: [],
+        metadata: {},
+        version: 1,
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+      };
+
+      mockCreateGame.mockResolvedValue(mockGame);
+      mockJoinGame.mockResolvedValue(mockGame);
+
+      const { result } = renderHook(() => usePlayer(), { wrapper });
+
+      await act(async () => {
+        await result.current.createGame('tic-tac-toe');
+      });
+
+      await waitFor(() => {
+        expect(mockJoinGame).toHaveBeenCalledWith(
+          'new-game',
+          expect.objectContaining({
+            id: 'user-123',
+            name: 'CoolPlayer',
+          })
+        );
+      });
+    });
+
+    it('should use display name in game joining', async () => {
+      const mockProfile = {
+        userId: 'user-123',
+        displayName: 'CoolPlayer',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      localStorage.setItem('playerProfile', JSON.stringify(mockProfile));
+      localStorage.setItem('player.id', JSON.stringify('user-123'));
+
+      const mockGame: GameState = {
+        gameId: 'existing-game',
+        gameType: 'tic-tac-toe',
+        lifecycle: 'active',
+        players: [
+          { id: 'user-123', name: 'CoolPlayer', joinedAt: '2024-01-01T00:00:00Z' },
+        ],
+        currentPlayerIndex: 0,
+        phase: 'playing',
+        board: { spaces: [], metadata: {} },
+        moveHistory: [],
+        metadata: {},
+        version: 1,
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+      };
+
+      mockJoinGame.mockResolvedValue(mockGame);
+
+      const { result } = renderHook(() => usePlayer(), { wrapper });
+
+      await act(async () => {
+        await result.current.joinGame('existing-game');
+      });
+
+      await waitFor(() => {
+        expect(mockJoinGame).toHaveBeenCalledWith(
+          'existing-game',
+          expect.objectContaining({
+            id: 'user-123',
+            name: 'CoolPlayer',
+          })
+        );
       });
     });
   });
