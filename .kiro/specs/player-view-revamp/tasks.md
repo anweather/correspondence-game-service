@@ -548,14 +548,14 @@
 
 ## Phase 11: Frontend Stats View (TDD)
 
-- [ ] 32. StatsOverview component (TDD)
-  - [ ] 32.1 Write tests for StatsOverview component
+- [x] 32. StatsOverview component (TDD)
+  - [x] 32.1 Write tests for StatsOverview component
     - Write tests in web-client/src/components/Stats/__tests__/StatsOverview.test.tsx
     - Test aggregate stats display
     - Test per-game-type breakdown
     - Test edge cases (no games)
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
-  - [ ] 32.2 Implement StatsOverview component
+  - [x] 32.2 Implement StatsOverview component
     - Create StatsOverview.tsx in web-client/src/components/Stats/
     - Implement stats display
     - Style with CSS modules
