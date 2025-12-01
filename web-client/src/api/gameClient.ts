@@ -8,6 +8,12 @@ import type {
   GameConfig,
   GameFilters,
   GameListResponse,
+  PlayerStats,
+  LeaderboardEntry,
+  PaginatedResult,
+  GameHistoryFilters,
+  GameInvitation,
+  InvitationStatus,
 } from '../types/game';
 
 /**
@@ -208,6 +214,114 @@ export class GameClient {
   }
 
   /**
+   * Get public profile by user ID
+   */
+  async getPublicProfile(userId: string): Promise<{
+    userId: string;
+    displayName: string;
+    createdAt: Date;
+    updatedAt: Date;
+  }> {
+    const response = await this.request<{
+      userId: string;
+      displayName: string;
+      createdAt: string;
+      updatedAt: string;
+    }>(`${this.baseUrl}/players/${userId}/profile`);
+    
+    // Convert date strings to Date objects
+    return {
+      ...response,
+      createdAt: new Date(response.createdAt),
+      updatedAt: new Date(response.updatedAt),
+    };
+  }
+
+  /**
+   * Get player statistics
+   */
+  async getPlayerStats(gameType?: string): Promise<PlayerStats> {
+    const url = gameType
+      ? `${this.baseUrl}/players/stats/${gameType}`
+      : `${this.baseUrl}/players/stats`;
+    return this.request<PlayerStats>(url);
+  }
+
+  /**
+   * Get game history for current player
+   */
+  async getGameHistory(filters?: GameHistoryFilters): Promise<PaginatedResult<GameState>> {
+    const queryParams = this.buildHistoryQueryParams(filters);
+    const url = queryParams
+      ? `${this.baseUrl}/players/history?${queryParams}`
+      : `${this.baseUrl}/players/history`;
+    return this.request<PaginatedResult<GameState>>(url);
+  }
+
+  /**
+   * Get leaderboard
+   */
+  async getLeaderboard(
+    gameType?: string,
+    pagination?: { page?: number; pageSize?: number }
+  ): Promise<PaginatedResult<LeaderboardEntry>> {
+    let url = gameType
+      ? `${this.baseUrl}/leaderboard/${gameType}`
+      : `${this.baseUrl}/leaderboard`;
+    
+    if (pagination) {
+      const params = new URLSearchParams();
+      if (pagination.page !== undefined) params.append('page', pagination.page.toString());
+      if (pagination.pageSize !== undefined) params.append('pageSize', pagination.pageSize.toString());
+      const queryString = params.toString();
+      if (queryString) url += `?${queryString}`;
+    }
+    
+    return this.request<PaginatedResult<LeaderboardEntry>>(url);
+  }
+
+  /**
+   * Create a game invitation
+   */
+  async createInvitation(gameId: string, inviteeId: string): Promise<GameInvitation> {
+    return this.request<GameInvitation>(`${this.baseUrl}/invitations`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ gameId, inviteeId }),
+    });
+  }
+
+  /**
+   * Get invitations for current user
+   */
+  async getInvitations(status?: InvitationStatus): Promise<GameInvitation[]> {
+    const url = status
+      ? `${this.baseUrl}/invitations?status=${status}`
+      : `${this.baseUrl}/invitations`;
+    return this.request<GameInvitation[]>(url);
+  }
+
+  /**
+   * Accept an invitation
+   */
+  async acceptInvitation(invitationId: string): Promise<GameInvitation> {
+    return this.request<GameInvitation>(`${this.baseUrl}/invitations/${invitationId}/accept`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  /**
+   * Decline an invitation
+   */
+  async declineInvitation(invitationId: string): Promise<GameInvitation> {
+    return this.request<GameInvitation>(`${this.baseUrl}/invitations/${invitationId}/decline`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  /**
    * Generic request handler with error handling
    */
   private async request<T>(url: string, options?: RequestInit): Promise<T> {
@@ -287,6 +401,22 @@ export class GameClient {
     const params = new URLSearchParams();
 
     if (filters.playerId) params.append('playerId', filters.playerId);
+    if (filters.gameType) params.append('gameType', filters.gameType);
+    if (filters.lifecycle) params.append('lifecycle', filters.lifecycle);
+    if (filters.page !== undefined) params.append('page', filters.page.toString());
+    if (filters.pageSize !== undefined) params.append('pageSize', filters.pageSize.toString());
+
+    return params.toString();
+  }
+
+  /**
+   * Build query string from history filters object
+   */
+  private buildHistoryQueryParams(filters?: GameHistoryFilters): string {
+    if (!filters) return '';
+
+    const params = new URLSearchParams();
+
     if (filters.gameType) params.append('gameType', filters.gameType);
     if (filters.lifecycle) params.append('lifecycle', filters.lifecycle);
     if (filters.page !== undefined) params.append('page', filters.page.toString());

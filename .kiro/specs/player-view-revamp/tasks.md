@@ -369,15 +369,15 @@
     - Refactor for code quality
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 10.1, 10.2, 10.3, 10.4, 10.5_
 
-- [ ] 23. Update PlayerContext (TDD)
-  - [ ] 23.1 Write tests for PlayerContext updates
+- [x] 23. Update PlayerContext (TDD)
+  - [x] 23.1 Write tests for PlayerContext updates
     - Update tests in web-client/src/context/__tests__/PlayerContext.test.tsx
     - Test profile integration
     - Test display name usage
     - Test authentication loading state fix
     - Test profile caching
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 4.1, 4.2, 4.3, 4.4, 4.5_
-  - [ ] 23.2 Implement PlayerContext updates
+  - [x] 23.2 Implement PlayerContext updates
     - Update PlayerContext.tsx
     - Integrate profile management
     - Fix authentication loading bug
@@ -387,41 +387,41 @@
 
 ## Phase 7: Frontend API Client (TDD)
 
-- [ ] 24. Update GameClient for new endpoints (TDD)
-  - [ ] 24.1 Write tests for profile API methods
+- [x] 24. Update GameClient for new endpoints (TDD)
+  - [x] 24.1 Write tests for profile API methods
     - Update tests in web-client/src/api/__tests__/gameClient.test.ts
     - Test createProfile, getProfile, updateProfile, getPublicProfile
     - Test error handling
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 10.1, 10.2, 10.3, 10.4, 10.5_
-  - [ ] 24.2 Implement profile API methods
+  - [x] 24.2 Implement profile API methods
     - Update GameClient in web-client/src/api/gameClient.ts
     - Add profile methods
     - Implement to pass all tests
     - Refactor for code quality
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 10.1, 10.2, 10.3, 10.4, 10.5_
-  - [ ] 24.3 Write tests for stats API methods
+  - [x] 24.3 Write tests for stats API methods
     - Add tests for getPlayerStats, getGameHistory, getLeaderboard
     - Test filtering and pagination
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 7.1, 7.2, 7.3, 7.4, 7.5_
-  - [ ] 24.4 Implement stats API methods
+  - [x] 24.4 Implement stats API methods
     - Add stats methods to GameClient
     - Implement to pass all tests
     - Refactor for code quality
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 7.1, 7.2, 7.3, 7.4, 7.5_
-  - [ ] 24.5 Write tests for invitation API methods
+  - [x] 24.5 Write tests for invitation API methods
     - Add tests for createInvitation, getInvitations, acceptInvitation, declineInvitation
     - Test error handling
     - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
-  - [ ] 24.6 Implement invitation API methods
+  - [x] 24.6 Implement invitation API methods
     - Add invitation methods to GameClient
     - Implement to pass all tests
     - Refactor for code quality
     - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
-  - [ ] 24.7 Write tests for game metadata
+  - [x] 24.7 Write tests for game metadata
     - Update createGame tests to include name and description
     - Test validation
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
-  - [ ] 24.8 Implement game metadata support
+  - [x] 24.8 Implement game metadata support
     - Update createGame method
     - Update type definitions
     - Implement to pass all tests

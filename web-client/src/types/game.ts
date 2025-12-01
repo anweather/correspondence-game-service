@@ -110,6 +110,8 @@ export interface GameType {
 export interface GameConfig {
   players?: Player[];
   customSettings?: Record<string, any>;
+  gameName?: string;
+  gameDescription?: string;
 }
 
 /**
@@ -147,4 +149,60 @@ export interface ApiError {
   message: string;
   statusCode: number;
   details?: Record<string, any>;
+}
+
+/**
+ * Player statistics
+ */
+export interface PlayerStats {
+  userId: string;
+  gameType?: string;
+  totalGames: number;
+  wins: number;
+  losses: number;
+  draws: number;
+  winRate: number;
+  totalTurns: number;
+  averageTurnsPerGame: number;
+}
+
+/**
+ * Leaderboard entry
+ */
+export interface LeaderboardEntry {
+  rank: number;
+  userId: string;
+  displayName: string;
+  totalGames: number;
+  wins: number;
+  losses: number;
+  winRate: number;
+}
+
+/**
+ * Filters for game history
+ */
+export interface GameHistoryFilters {
+  gameType?: string;
+  lifecycle?: GameLifecycle;
+  page?: number;
+  pageSize?: number;
+}
+
+/**
+ * Game invitation status
+ */
+export type InvitationStatus = 'pending' | 'accepted' | 'declined' | 'expired';
+
+/**
+ * Game invitation
+ */
+export interface GameInvitation {
+  invitationId: string;
+  gameId: string;
+  inviterId: string;
+  inviteeId: string;
+  status: InvitationStatus;
+  createdAt: string; // ISO 8601 timestamp
+  respondedAt?: string; // ISO 8601 timestamp
 }

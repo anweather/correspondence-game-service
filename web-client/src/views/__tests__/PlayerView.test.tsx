@@ -67,6 +67,11 @@ const mockJoinGame = vi.fn();
 const mockGetGame = vi.fn();
 const mockMakeMove = vi.fn();
 const mockListGames = vi.fn().mockResolvedValue({ items: [] });
+const mockGetOrCreatePlayerIdentity = vi.fn().mockResolvedValue({
+  id: 'player-1',
+  name: 'Alice',
+});
+const mockGetKnownPlayers = vi.fn().mockResolvedValue({ players: [] });
 
 vi.mock('../../api/gameClient', () => ({
   GameClient: class {
@@ -76,6 +81,8 @@ vi.mock('../../api/gameClient', () => ({
     getGame = mockGetGame;
     makeMove = mockMakeMove;
     listGames = mockListGames;
+    getOrCreatePlayerIdentity = mockGetOrCreatePlayerIdentity;
+    getKnownPlayers = mockGetKnownPlayers;
   },
 }));
 
@@ -423,14 +430,17 @@ describe('PlayerView', () => {
 
     it('should disable move input when it is not player turn', async () => {
       const user = userEvent.setup();
-      mockCreateGame.mockResolvedValue({
+      const gameWithBobsTurn = {
         ...mockGame,
         players: [
           { id: 'player-1', name: 'Alice', joinedAt: '2024-01-01T00:00:00Z' },
           { id: 'player-2', name: 'Bob', joinedAt: '2024-01-01T00:01:00Z' },
         ],
         currentPlayerIndex: 1, // Bob's turn
-      });
+      };
+      
+      mockCreateGame.mockResolvedValue(gameWithBobsTurn);
+      mockJoinGame.mockResolvedValue(gameWithBobsTurn);
 
       render(
         <PlayerProvider>

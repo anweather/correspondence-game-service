@@ -31,11 +31,18 @@ const mockGetGameTypes = vi.fn().mockResolvedValue([
 ]);
 
 const mockListGames = vi.fn().mockResolvedValue({ items: [] });
+const mockGetOrCreatePlayerIdentity = vi.fn().mockResolvedValue({
+  id: 'player-1',
+  name: 'TestPlayer',
+});
+const mockGetKnownPlayers = vi.fn().mockResolvedValue({ players: [] });
 
 vi.mock('../api/gameClient', () => ({
   GameClient: class {
     getGameTypes = mockGetGameTypes;
     listGames = mockListGames;
+    getOrCreatePlayerIdentity = mockGetOrCreatePlayerIdentity;
+    getKnownPlayers = mockGetKnownPlayers;
   },
 }));
 
