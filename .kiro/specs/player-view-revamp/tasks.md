@@ -496,15 +496,15 @@
     - Refactor for code quality
     - _Requirements: 2.2, 2.3_
 
-- [ ] 29. LobbyView component (TDD)
-  - [ ] 29.1 Write tests for LobbyView component
+- [x] 29. LobbyView component (TDD)
+  - [x] 29.1 Write tests for LobbyView component
     - Write tests in web-client/src/views/__tests__/LobbyView.test.tsx
     - Test game list rendering
     - Test filtering logic
     - Test loading and empty states
     - Test join game flow
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 16.1, 16.2, 16.3, 16.4, 16.5_
-  - [ ] 29.2 Implement LobbyView component
+  - [x] 29.2 Implement LobbyView component
     - Create LobbyView.tsx in web-client/src/views/
     - Integrate GameCard and GameFilters
     - Implement filtering logic
@@ -515,15 +515,15 @@
 
 ## Phase 10: Frontend Profile View (TDD)
 
-- [ ] 30. ProfileForm component (TDD)
-  - [ ] 30.1 Write tests for ProfileForm component
+- [-] 30. ProfileForm component (TDD)
+  - [x] 30.1 Write tests for ProfileForm component
     - Write tests in web-client/src/components/Profile/__tests__/ProfileForm.test.tsx
     - Test form rendering
     - Test display name validation
     - Test form submission
     - Test error display
     - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5_
-  - [ ] 30.2 Implement ProfileForm component
+  - [x] 30.2 Implement ProfileForm component
     - Create ProfileForm.tsx in web-client/src/components/Profile/
     - Implement validation (3-50 chars, alphanumeric + underscore)
     - Style with CSS modules
