@@ -113,7 +113,7 @@ export const GameHistory: React.FC<GameHistoryProps> = ({
     );
   }
 
-  if (games.length === 0) {
+  if (!games || games.length === 0) {
     const hasFilters = Object.keys(filters).length > 0;
     return (
       <div className={styles.container}>

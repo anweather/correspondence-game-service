@@ -8,14 +8,18 @@ import { createGameRoutes } from './adapters/rest/gameRoutes';
 import { createPlayerRoutes } from './adapters/rest/playerRoutes';
 import { createPlayerProfileRoutes } from './adapters/rest/playerProfileRoutes';
 import { createHealthRoutes } from './adapters/rest/healthRoutes';
+import { createStatsRoutes } from './adapters/rest/statsRoutes';
+import { createLeaderboardRoutes } from './adapters/rest/leaderboardRoutes';
 import { PluginRegistry } from './application/PluginRegistry';
 import { GameLockManager } from './application/GameLockManager';
 import { GameManagerService } from './application/services/GameManagerService';
 import { StateManagerService } from './application/services/StateManagerService';
 import { PlayerProfileService } from './application/services/PlayerProfileService';
+import { StatsService } from './application/services/StatsService';
 import { PostgresGameRepository } from './infrastructure/persistence/PostgresGameRepository';
 import { PostgresPlayerIdentityRepository } from './infrastructure/persistence/PostgresPlayerIdentityRepository';
 import { PostgresPlayerProfileRepository } from './infrastructure/persistence/PostgresPlayerProfileRepository';
+import { PostgresStatsRepository } from './infrastructure/persistence/PostgresStatsRepository';
 import { RendererService } from './infrastructure/rendering/RendererService';
 import { TicTacToeEngine } from '@games/tic-tac-toe/engine';
 import { ConnectFourEngine } from '@games/connect-four/engine';
@@ -46,6 +50,7 @@ async function startApplication() {
   let gameRepository: GameRepository;
   let playerIdentityRepository: PostgresPlayerIdentityRepository;
   let playerProfileRepository: PostgresPlayerProfileRepository;
+  let statsRepository: PostgresStatsRepository;
 
   if (config.database.url) {
     logger.info('Initializing database connection', {
@@ -92,6 +97,7 @@ async function startApplication() {
       config.database.url,
       config.database.poolSize
     );
+    statsRepository = new PostgresStatsRepository(config.database.url, config.database.poolSize);
   } else {
     logger.error('DATABASE_URL is required for player identity persistence');
     throw new Error('DATABASE_URL must be configured');
@@ -123,6 +129,7 @@ async function startApplication() {
     gameLockManager
   );
   const playerProfileService = new PlayerProfileService(playerProfileRepository);
+  const statsService = new StatsService(statsRepository);
 
   // Create Express app
   const app = createApp(playerIdentityRepository);
@@ -136,12 +143,16 @@ async function startApplication() {
   );
   const playerRouter = createPlayerRoutes(playerIdentityRepository);
   const playerProfileRouter = createPlayerProfileRoutes(playerProfileService);
+  const statsRouter = createStatsRoutes(statsService);
+  const leaderboardRouter = createLeaderboardRoutes(statsService);
   const healthRouter = createHealthRoutes(gameRepository);
 
   // Add routes to app
   app.use('/api', gameRouter);
   app.use('/api', playerRouter);
   app.use('/api', playerProfileRouter);
+  app.use('/api', statsRouter);
+  app.use('/api', leaderboardRouter);
   app.use(healthRouter); // Health check at root level (/health)
 
   // Add static file serving for React web client

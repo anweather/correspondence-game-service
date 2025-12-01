@@ -579,14 +579,14 @@
     - Refactor for code quality
     - _Requirements: 6.1, 6.2, 6.5, 11.1, 11.2, 11.3, 11.4, 11.5_
 
-- [ ] 34. StatsView component (TDD)
-  - [ ] 34.1 Write tests for StatsView component
+- [x] 34. StatsView component (TDD)
+  - [x] 34.1 Write tests for StatsView component
     - Write tests in web-client/src/views/__tests__/StatsView.test.tsx
     - Test overview and history integration
     - Test game type filtering
     - Test loading states
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 16.1, 16.2, 16.3, 16.4, 16.5_
-  - [ ] 34.2 Implement StatsView component
+  - [x] 34.2 Implement StatsView component
     - Create StatsView.tsx in web-client/src/views/
     - Integrate StatsOverview and GameHistory
     - Style with CSS modules
