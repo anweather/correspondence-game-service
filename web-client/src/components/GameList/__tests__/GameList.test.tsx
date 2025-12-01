@@ -24,13 +24,13 @@ const mockGames: GameState[] = [
   {
     gameId: 'game-2',
     gameType: 'tic-tac-toe',
-    lifecycle: 'completed',
+    lifecycle: 'active',
     players: [
       { id: 'p3', name: 'Charlie', joinedAt: '2024-01-02T00:00:00Z' },
       { id: 'p4', name: 'Diana', joinedAt: '2024-01-02T00:01:00Z' },
     ],
     currentPlayerIndex: 1,
-    phase: 'finished',
+    phase: 'playing',
     board: { spaces: [], metadata: {} },
     moveHistory: [
       { playerId: 'p3', timestamp: '2024-01-02T00:02:00Z', action: 'place', parameters: {} },
@@ -56,6 +56,26 @@ const mockGames: GameState[] = [
     createdAt: '2024-01-03T00:00:00Z',
     updatedAt: '2024-01-03T00:00:00Z',
   },
+  {
+    gameId: 'game-4',
+    gameType: 'tic-tac-toe',
+    lifecycle: 'completed',
+    players: [
+      { id: 'p6', name: 'Frank', joinedAt: '2024-01-04T00:00:00Z' },
+      { id: 'p7', name: 'Grace', joinedAt: '2024-01-04T00:01:00Z' },
+    ],
+    currentPlayerIndex: 1,
+    phase: 'finished',
+    board: { spaces: [], metadata: {} },
+    moveHistory: [
+      { playerId: 'p6', timestamp: '2024-01-04T00:02:00Z', action: 'place', parameters: {} },
+      { playerId: 'p7', timestamp: '2024-01-04T00:03:00Z', action: 'place', parameters: {} },
+    ],
+    metadata: {},
+    version: 5,
+    createdAt: '2024-01-04T00:00:00Z',
+    updatedAt: '2024-01-04T00:05:00Z',
+  },
 ];
 
 describe('GameList', () => {
@@ -77,15 +97,15 @@ describe('GameList', () => {
     render(<GameList games={mockGames} onSelect={onSelect} onDelete={onDelete} />);
 
     // Check game type
-    expect(screen.getAllByText(/tic-tac-toe/i)).toHaveLength(2);
+    expect(screen.getAllByText(/tic-tac-toe/i)).toHaveLength(3);
     expect(screen.getByText(/chess/i)).toBeInTheDocument();
 
     // Check player count
-    expect(screen.getAllByText(/2\/2/)).toHaveLength(2); // game-1 and game-2 have 2 players
+    expect(screen.getAllByText(/2\/2/)).toHaveLength(3); // game-1, game-2, and game-4 have 2 players
     expect(screen.getByText(/1\/2/)).toBeInTheDocument(); // game-3 has 1 player
 
     // Check status
-    expect(screen.getAllByText(/active/i)).toHaveLength(2);
+    expect(screen.getAllByText(/active/i)).toHaveLength(3);
     expect(screen.getByText(/completed/i)).toBeInTheDocument();
   });
 
@@ -194,9 +214,11 @@ describe('GameList', () => {
     render(<GameList games={mockGames} onSelect={onSelect} onDelete={onDelete} />);
 
     const gameIds = screen.getAllByText(/^game-\d+$/);
-    expect(gameIds).toHaveLength(3);
+    expect(gameIds).toHaveLength(4);
     expect(gameIds[0]).toHaveTextContent('game-1');
     expect(gameIds[1]).toHaveTextContent('game-2');
+    expect(gameIds[2]).toHaveTextContent('game-3');
+    expect(gameIds[3]).toHaveTextContent('game-4');
     expect(gameIds[2]).toHaveTextContent('game-3');
   });
 });

@@ -19,6 +19,26 @@ vi.mock('@clerk/clerk-react', () => ({
   useAuth: () => ({ getToken: vi.fn().mockResolvedValue('mock-token') }),
 }));
 
+// Mock GameClient
+const mockGetGameTypes = vi.fn().mockResolvedValue([
+  {
+    type: 'tic-tac-toe',
+    name: 'Tic Tac Toe',
+    description: 'Classic game',
+    minPlayers: 2,
+    maxPlayers: 2,
+  },
+]);
+
+const mockListGames = vi.fn().mockResolvedValue({ items: [] });
+
+vi.mock('../api/gameClient', () => ({
+  GameClient: class {
+    getGameTypes = mockGetGameTypes;
+    listGames = mockListGames;
+  },
+}));
+
 describe('App', () => {
   it('should render without crashing', () => {
     render(
@@ -48,8 +68,8 @@ describe('App', () => {
     );
 
     // PlayerView should have player-related content
-    // Check for the main "Player View" heading
-    expect(screen.getByRole('heading', { name: /^player view$/i })).toBeInTheDocument();
+    // Check for game setup elements (create/join game forms)
+    expect(screen.getByText(/create new game/i)).toBeInTheDocument();
   });
 
   it('should render PlayerView by default at root path', () => {
@@ -59,8 +79,8 @@ describe('App', () => {
       </MemoryRouter>
     );
 
-    // Default route should show PlayerView
-    expect(screen.getByRole('heading', { name: /^player view$/i })).toBeInTheDocument();
+    // Default route should show PlayerView with game setup
+    expect(screen.getByText(/create new game/i)).toBeInTheDocument();
   });
 
   it('should wrap routes with AdminProvider for admin view', () => {
@@ -82,6 +102,6 @@ describe('App', () => {
     );
 
     // PlayerProvider should be present - verify by checking PlayerView renders
-    expect(screen.getByRole('heading', { name: /^player view$/i })).toBeInTheDocument();
+    expect(screen.getByText(/create new game/i)).toBeInTheDocument();
   });
 });

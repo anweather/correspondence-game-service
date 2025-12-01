@@ -23,11 +23,16 @@ vi.mock('@clerk/clerk-react', () => ({
 
 // Mock child components
 vi.mock('../../components/GameDetail/GameDetail', () => ({
-  GameDetail: ({ game, currentPlayerId }: any) => (
+  GameDetail: ({ game, currentPlayerId, onMakeMoveClick }: any) => (
     <div data-testid="game-detail">
       <div>Game Detail Mock</div>
       <div>Game ID: {game.gameId}</div>
       <div>Current Player: {currentPlayerId || 'none'}</div>
+      {onMakeMoveClick && (
+        <button onClick={onMakeMoveClick} data-testid="make-move-button">
+          Make Move
+        </button>
+      )}
     </div>
   ),
 }));
@@ -61,6 +66,7 @@ const mockCreateGame = vi.fn();
 const mockJoinGame = vi.fn();
 const mockGetGame = vi.fn();
 const mockMakeMove = vi.fn();
+const mockListGames = vi.fn().mockResolvedValue({ items: [] });
 
 vi.mock('../../api/gameClient', () => ({
   GameClient: class {
@@ -69,6 +75,7 @@ vi.mock('../../api/gameClient', () => ({
     joinGame = mockJoinGame;
     getGame = mockGetGame;
     makeMove = mockMakeMove;
+    listGames = mockListGames;
   },
 }));
 
@@ -95,6 +102,12 @@ describe('PlayerView', () => {
     vi.clearAllMocks();
     // Clear localStorage
     localStorage.clear();
+    // Clear URL hash to prevent deep linking from previous tests
+    window.history.replaceState({}, '', window.location.pathname);
+    
+    // Set default mock behavior for joinGame to return mockGame
+    // This is critical because createGame() calls joinGame() and uses its return value
+    mockJoinGame.mockResolvedValue(mockGame);
   });
 
   describe('Game Setup Screen', () => {
@@ -260,6 +273,8 @@ describe('PlayerView', () => {
       // Set up localStorage to simulate a logged-in player (but no current game yet)
       localStorage.setItem('player.id', '"player-1"');
       localStorage.setItem('player.name', '"Alice"');
+      // Explicitly clear currentGame from localStorage
+      localStorage.removeItem('player.currentGame');
       // Don't set currentGame - let tests create/join games
       mockGetGame.mockResolvedValue(mockGame);
     });
@@ -356,6 +371,13 @@ describe('PlayerView', () => {
       await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
       await user.click(createButton);
 
+      // Wait for game to load and click Make Move button to open modal
+      await waitFor(() => {
+        expect(screen.getByTestId('make-move-button')).toBeInTheDocument();
+      });
+      
+      await user.click(screen.getByTestId('make-move-button'));
+
       await waitFor(() => {
         expect(screen.getByTestId('move-input')).toBeInTheDocument();
       });
@@ -386,6 +408,13 @@ describe('PlayerView', () => {
 
       await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
       await user.click(createButton);
+
+      // Wait for game to load and click Make Move button to open modal
+      await waitFor(() => {
+        expect(screen.getByTestId('make-move-button')).toBeInTheDocument();
+      });
+      
+      await user.click(screen.getByTestId('make-move-button'));
 
       await waitFor(() => {
         expect(screen.getByText(/enabled: yes/i)).toBeInTheDocument();
@@ -420,6 +449,13 @@ describe('PlayerView', () => {
 
       await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
       await user.click(createButton);
+
+      // Wait for game to load and click Make Move button to open modal
+      await waitFor(() => {
+        expect(screen.getByTestId('make-move-button')).toBeInTheDocument();
+      });
+      
+      await user.click(screen.getByTestId('make-move-button'));
 
       await waitFor(() => {
         expect(screen.getByText(/enabled: no/i)).toBeInTheDocument();
@@ -496,6 +532,13 @@ describe('PlayerView', () => {
       await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
       await user.click(createButton);
 
+      // Wait for game to load and click Make Move button to open modal
+      await waitFor(() => {
+        expect(screen.getByTestId('make-move-button')).toBeInTheDocument();
+      });
+      
+      await user.click(screen.getByTestId('make-move-button'));
+
       await waitFor(() => {
         expect(screen.getByTestId('move-input')).toBeInTheDocument();
       });
@@ -535,6 +578,13 @@ describe('PlayerView', () => {
 
       await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
       await user.click(createButton);
+
+      // Wait for game to load and click Make Move button to open modal
+      await waitFor(() => {
+        expect(screen.getByTestId('make-move-button')).toBeInTheDocument();
+      });
+      
+      await user.click(screen.getByTestId('make-move-button'));
 
       await waitFor(() => {
         expect(screen.getByTestId('move-input')).toBeInTheDocument();
@@ -579,6 +629,13 @@ describe('PlayerView', () => {
 
       await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
       await user.click(createButton);
+
+      // Wait for game to load and click Make Move button to open modal
+      await waitFor(() => {
+        expect(screen.getByTestId('make-move-button')).toBeInTheDocument();
+      });
+      
+      await user.click(screen.getByTestId('make-move-button'));
 
       await waitFor(() => {
         expect(screen.getByTestId('move-input')).toBeInTheDocument();

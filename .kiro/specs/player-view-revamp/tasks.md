@@ -354,15 +354,15 @@
     - Refactor for code quality
     - _Requirements: 13.3, 13.4_
 
-- [ ] 22. useProfile hook (TDD)
-  - [ ] 22.1 Write tests for useProfile hook
+- [-] 22. useProfile hook (TDD)
+  - [x] 22.1 Write tests for useProfile hook
     - Write tests in web-client/src/hooks/__tests__/useProfile.test.ts
     - Test profile loading
     - Test profile caching
     - Test profile update
     - Test error handling
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 10.1, 10.2, 10.3, 10.4, 10.5_
-  - [ ] 22.2 Implement useProfile hook
+  - [x] 22.2 Implement useProfile hook
     - Create useProfile.ts in web-client/src/hooks/
     - Implement profile data management
     - Implement to pass all tests
