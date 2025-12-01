@@ -563,15 +563,15 @@
     - Refactor for code quality
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 33. GameHistory component (TDD)
-  - [ ] 33.1 Write tests for GameHistory component
+- [x] 33. GameHistory component (TDD)
+  - [x] 33.1 Write tests for GameHistory component
     - Write tests in web-client/src/components/Stats/__tests__/GameHistory.test.tsx
     - Test game list rendering
     - Test filtering
     - Test pagination
     - Test empty state
     - _Requirements: 6.1, 6.2, 6.5, 11.1, 11.2, 11.3, 11.4, 11.5_
-  - [ ] 33.2 Implement GameHistory component
+  - [x] 33.2 Implement GameHistory component
     - Create GameHistory.tsx in web-client/src/components/Stats/
     - Implement game list
     - Style with CSS modules

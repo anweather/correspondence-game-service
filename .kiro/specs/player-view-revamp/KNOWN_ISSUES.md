@@ -140,6 +140,109 @@ This document tracks known issues and improvements needed for the player view re
 
 ---
 
+### 6. Join Game 500 Error
+**Status:** Open  
+**Priority:** High  
+**Description:** Joining a game returns a 500 Internal Server Error with "Cannot read properties of undefined (reading 'id')". The error occurs in GameManagerService.js:112 when checking existing players in the joinGame method.
+
+**Current Behavior:**
+- POST to `/api/games/[gameId]/join` returns 500 error
+- Backend throws TypeError: Cannot read properties of undefined (reading 'id')
+- Users cannot join existing games
+
+**Error Details:**
+```
+XHR POST http://localhost:3001/api/games/[gameId]/join
+[HTTP/1.1 500 Internal Server Error]
+error: { code: "INTERNAL_ERROR", message: "An unexpected error occurred" }
+
+Backend Stack Trace:
+TypeError: Cannot read properties of undefined (reading 'id')
+    at /app/dist/src/application/services/GameManagerService.js:112:54
+    at Array.some (<anonymous>)
+    at GameManagerService.joinGame
+```
+
+**Expected Behavior:**
+- Users should be able to join games successfully
+- Proper error handling for edge cases
+- Clear error messages if join fails for valid reasons
+
+**Technical Notes:**
+- Error occurs at line 112 in GameManagerService.joinGame
+- Likely accessing player.id on undefined player object
+- Need defensive programming for player data structure
+- May be related to player identity/profile data mismatch
+
+**Suggested Fix:**
+1. Add null/undefined checks before accessing player.id
+2. Validate player data structure before processing
+3. Add proper error handling and logging
+4. Review player data flow from authentication to game join
+
+---
+
+### 7. Profile Names Not Displayed in Game Lists
+**Status:** Open  
+**Priority:** Medium  
+**Description:** In the "My Games" section, player names show as email addresses instead of display names. This affects the Players list, current turn indicator, and turn history.
+
+**Current Behavior:**
+- Email addresses displayed instead of friendly display names
+- Affects multiple areas: Players list, current turn, turn history
+- Poor user experience with technical identifiers visible
+
+**Expected Behavior:**
+- Display names should be shown throughout the game UI
+- Email addresses should not be visible to other players
+- Consistent display name usage across all game components
+
+**Technical Notes:**
+- Game data may not include player profile information
+- Need to fetch and map player profiles to game data
+- Affects GameDetail, PlayerPanel, and related components
+- May need to join player_profiles data with game data
+
+**Suggested Fix:**
+1. Update game data fetching to include player profile data
+2. Create a mapping function from player IDs to display names
+3. Update GameDetail component to use display names
+4. Update PlayerPanel to show display names
+5. Ensure turn history uses display names instead of IDs
+6. Consider caching player profiles to reduce API calls
+
+---
+
+### 8. Notification Toggle Visual Feedback
+**Status:** Open  
+**Priority:** Low (Polish)  
+**Description:** The notification preference toggle in ProfileView doesn't provide visual feedback when clicked. The toggle state changes internally but the UI doesn't reflect the change immediately.
+
+**Current Behavior:**
+- Toggle appears to not respond to clicks
+- State changes but visual appearance doesn't update
+- Users may click multiple times thinking it's broken
+
+**Expected Behavior:**
+- Toggle should visually update immediately on click
+- Clear on/off states with distinct appearances
+- Smooth transition animation between states
+
+**Technical Notes:**
+- Issue likely in ProfileView.module.css
+- CSS `:checked` state may not be properly styled
+- Could be CSS selector specificity issue
+- May need to add transition animations
+
+**Suggested Fix:**
+1. Review CSS toggle implementation in ProfileView.module.css
+2. Ensure `:checked` pseudo-class has distinct styling
+3. Add transition property for smooth state changes
+4. Test with different browsers for consistency
+5. Consider using a controlled component approach if CSS fix doesn't work
+
+---
+
 ## Future Enhancements
 
 ### Error Boundary for Profile Loading
