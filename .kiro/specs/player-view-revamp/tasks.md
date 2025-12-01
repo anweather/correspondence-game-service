@@ -466,14 +466,14 @@
 
 ## Phase 9: Frontend Lobby View (TDD)
 
-- [ ] 27. GameCard component (TDD)
-  - [ ] 27.1 Write tests for GameCard component
+- [x] 27. GameCard component (TDD)
+  - [x] 27.1 Write tests for GameCard component
     - Write tests in web-client/src/components/Lobby/__tests__/GameCard.test.tsx
     - Test game info display (name, description, type, players, state)
     - Test join button
     - Test click handling
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
-  - [ ] 27.2 Implement GameCard component
+  - [x] 27.2 Implement GameCard component
     - Create GameCard.tsx in web-client/src/components/Lobby/
     - Implement game info display
     - Style with CSS modules
