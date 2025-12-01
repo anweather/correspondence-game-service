@@ -481,14 +481,14 @@
     - Refactor for code quality
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
 
-- [ ] 28. GameFilters component (TDD)
-  - [ ] 28.1 Write tests for GameFilters component
+- [-] 28. GameFilters component (TDD)
+  - [x] 28.1 Write tests for GameFilters component
     - Write tests in web-client/src/components/Lobby/__tests__/GameFilters.test.tsx
     - Test filter controls rendering
     - Test filter change callbacks
     - Test search input
     - _Requirements: 2.2, 2.3_
-  - [ ] 28.2 Implement GameFilters component
+  - [x] 28.2 Implement GameFilters component
     - Create GameFilters.tsx in web-client/src/components/Lobby/
     - Implement filter controls
     - Style with CSS modules
