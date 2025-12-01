@@ -1,3 +1,4 @@
+import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react';
 import { usePlayer } from '../../context/PlayerContext';
 import { useNotifications } from '../../context/NotificationContext';
 import styles from './Header.module.css';
@@ -26,42 +27,62 @@ export function Header({ currentView }: HeaderProps) {
   return (
     <header className={styles.header} role="banner">
       <nav className={styles.nav} role="navigation">
-        <div className={styles.navLinks}>
-          {navLinks.map((link) => (
-            <a
-              key={link.view}
-              href={link.path}
-              className={`${styles.navLink} ${
-                currentView === link.view ? styles.active : ''
-              }`}
-              aria-current={currentView === link.view ? 'page' : undefined}
-            >
-              {link.name}
-            </a>
-          ))}
-        </div>
+        <SignedIn>
+          <div className={styles.navLinks}>
+            {navLinks.map((link) => (
+              <a
+                key={link.view}
+                href={link.path}
+                className={`${styles.navLink} ${
+                  currentView === link.view ? styles.active : ''
+                }`}
+                aria-current={currentView === link.view ? 'page' : undefined}
+              >
+                {link.name}
+              </a>
+            ))}
+          </div>
+        </SignedIn>
+
+        <SignedOut>
+          <div className={styles.navLinks}>
+            <h1 className={styles.appTitle}>Async Boardgame</h1>
+          </div>
+        </SignedOut>
 
         <div className={styles.profileSection}>
-          <button
-            className={styles.notificationButton}
-            aria-label="Notifications"
-            type="button"
-          >
-            <span className={styles.bellIcon}>🔔</span>
-            {unreadCount > 0 && (
-              <span className={styles.badge}>{unreadCount}</span>
-            )}
-          </button>
+          <SignedIn>
+            <button
+              className={styles.notificationButton}
+              aria-label="Notifications"
+              type="button"
+            >
+              <span className={styles.bellIcon}>🔔</span>
+              {unreadCount > 0 && (
+                <span className={styles.badge}>{unreadCount}</span>
+              )}
+            </button>
 
-          <a
-            href="/profile"
-            className={`${styles.profileLink} ${
-              currentView === 'profile' ? styles.active : ''
-            }`}
-            aria-current={currentView === 'profile' ? 'page' : undefined}
-          >
-            <span className={styles.displayName}>{displayName}</span>
-          </a>
+            <a
+              href="/profile"
+              className={`${styles.profileLink} ${
+                currentView === 'profile' ? styles.active : ''
+              }`}
+              aria-current={currentView === 'profile' ? 'page' : undefined}
+            >
+              <span className={styles.displayName}>{displayName}</span>
+            </a>
+
+            <div className={styles.userButton}>
+              <UserButton afterSignOutUrl="/" />
+            </div>
+          </SignedIn>
+
+          <SignedOut>
+            <div className={styles.signInButton}>
+              <SignInButton mode="modal" />
+            </div>
+          </SignedOut>
         </div>
       </nav>
     </header>

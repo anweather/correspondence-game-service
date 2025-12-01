@@ -431,8 +431,8 @@
 
 ## Phase 8: Frontend Navigation and Header (TDD)
 
-- [ ] 25. Navigation Header component (TDD)
-  - [ ] 25.1 Write tests for Header component
+- [x] 25. Navigation Header component (TDD)
+  - [x] 25.1 Write tests for Header component
     - Write tests in web-client/src/components/common/__tests__/Header.test.tsx
     - Test navigation link rendering
     - Test active view highlighting
@@ -440,7 +440,7 @@
     - Test notification bell with count
     - Test responsive behavior
     - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 16.1, 16.2, 16.3, 16.4, 16.5_
-  - [ ] 25.2 Implement Header component
+  - [x] 25.2 Implement Header component
     - Create Header.tsx in web-client/src/components/common/
     - Implement navigation links
     - Integrate notification count
@@ -449,14 +449,14 @@
     - Refactor for code quality
     - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 16.1, 16.2, 16.3, 16.4, 16.5_
 
-- [ ] 26. Update App routing (TDD)
-  - [ ] 26.1 Write tests for App routing updates
+- [x] 26. Update App routing (TDD)
+  - [x] 26.1 Write tests for App routing updates
     - Update tests in web-client/src/__tests__/App.test.tsx
     - Test new routes (lobby, profile, stats, leaderboard)
     - Test header presence on all views
     - Test admin route protection
     - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 8.1, 8.2, 8.3, 8.4, 8.5_
-  - [ ] 26.2 Implement App routing updates
+  - [x] 26.2 Implement App routing updates
     - Update App.tsx with new routes
     - Add header to all views
     - Implement admin route protection

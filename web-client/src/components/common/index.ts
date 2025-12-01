@@ -10,3 +10,7 @@ export type { ToastProps } from './Toast';
 export { AuthHeader } from './AuthHeader';
 
 export { Header } from './Header';
+
+export { PlayerLayout } from './PlayerLayout';
+
+export { ProtectedAdminRoute } from './ProtectedAdminRoute';

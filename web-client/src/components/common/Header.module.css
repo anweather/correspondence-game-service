@@ -113,6 +113,23 @@
   white-space: nowrap;
 }
 
+.userButton {
+  display: flex;
+  align-items: center;
+}
+
+.appTitle {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.signInButton {
+  display: flex;
+  align-items: center;
+}
+
 /* Responsive Design - Tablet */
 @media (max-width: 1023px) {
   .nav {

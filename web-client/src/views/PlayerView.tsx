@@ -3,7 +3,7 @@ import { SignedIn, SignedOut, useUser } from '@clerk/clerk-react';
 import { usePlayer } from '../context/PlayerContext';
 import { GameDetail } from '../components/GameDetail/GameDetail';
 import { MoveInput } from '../components/MoveInput/MoveInput';
-import { Modal, AuthHeader } from '../components/common';
+import { Modal } from '../components/common';
 import type { MoveInput as MoveInputType, GameState } from '../types/game';
 import styles from './PlayerView.module.css';
 
@@ -218,8 +218,6 @@ export function PlayerView() {
   if (!playerName) {
     return (
       <div className={styles.playerView}>
-        <AuthHeader title="Welcome to Async Boardgame" />
-
         <SignedOut>
           <div className={styles.authPrompt}>
             <h2>Please sign in to continue</h2>
@@ -262,8 +260,6 @@ export function PlayerView() {
   if (!currentGame) {
     return (
       <div className={styles.playerView}>
-        <AuthHeader title={`Welcome, ${playerName}`} />
-
         {error && (
           <div className={styles.error} role="alert">
             {error}
@@ -395,7 +391,7 @@ export function PlayerView() {
 
   return (
     <div className={styles.playerView}>
-      <AuthHeader title={`Welcome, ${playerName}`}>
+      <div className={styles.gameActions}>
         <button
           className={styles.shareButton}
           onClick={handleCopyLink}
@@ -412,7 +408,7 @@ export function PlayerView() {
         >
           Refresh
         </button>
-      </AuthHeader>
+      </div>
 
       {error && (
         <div className={styles.error} role="alert">
