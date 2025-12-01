@@ -531,14 +531,14 @@
     - Refactor for code quality
     - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5_
 
-- [ ] 31. ProfileView component (TDD)
-  - [ ] 31.1 Write tests for ProfileView component
+- [x] 31. ProfileView component (TDD)
+  - [x] 31.1 Write tests for ProfileView component
     - Write tests in web-client/src/views/__tests__/ProfileView.test.tsx
     - Test profile display
     - Test profile update flow
     - Test notification preferences
     - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 16.1, 16.2, 16.3, 16.4, 16.5_
-  - [ ] 31.2 Implement ProfileView component
+  - [x] 31.2 Implement ProfileView component
     - Create ProfileView.tsx in web-client/src/views/
     - Integrate ProfileForm
     - Style with CSS modules

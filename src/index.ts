@@ -6,13 +6,16 @@
 import { createApp, addStaticFileServing, finalizeApp, inFlightTracker } from './adapters/rest/app';
 import { createGameRoutes } from './adapters/rest/gameRoutes';
 import { createPlayerRoutes } from './adapters/rest/playerRoutes';
+import { createPlayerProfileRoutes } from './adapters/rest/playerProfileRoutes';
 import { createHealthRoutes } from './adapters/rest/healthRoutes';
 import { PluginRegistry } from './application/PluginRegistry';
 import { GameLockManager } from './application/GameLockManager';
 import { GameManagerService } from './application/services/GameManagerService';
 import { StateManagerService } from './application/services/StateManagerService';
+import { PlayerProfileService } from './application/services/PlayerProfileService';
 import { PostgresGameRepository } from './infrastructure/persistence/PostgresGameRepository';
 import { PostgresPlayerIdentityRepository } from './infrastructure/persistence/PostgresPlayerIdentityRepository';
+import { PostgresPlayerProfileRepository } from './infrastructure/persistence/PostgresPlayerProfileRepository';
 import { RendererService } from './infrastructure/rendering/RendererService';
 import { TicTacToeEngine } from '@games/tic-tac-toe/engine';
 import { ConnectFourEngine } from '@games/connect-four/engine';
@@ -42,6 +45,7 @@ async function startApplication() {
   let dbConnection: DatabaseConnection | null = null;
   let gameRepository: GameRepository;
   let playerIdentityRepository: PostgresPlayerIdentityRepository;
+  let playerProfileRepository: PostgresPlayerProfileRepository;
 
   if (config.database.url) {
     logger.info('Initializing database connection', {
@@ -78,9 +82,13 @@ async function startApplication() {
     }
 
     // Use PostgreSQL repositories
-    logger.info('Using PostgreSQL for game state and player identity persistence');
+    logger.info('Using PostgreSQL for game state, player identity, and player profile persistence');
     gameRepository = new PostgresGameRepository(config.database.url, config.database.poolSize);
     playerIdentityRepository = new PostgresPlayerIdentityRepository(
+      config.database.url,
+      config.database.poolSize
+    );
+    playerProfileRepository = new PostgresPlayerProfileRepository(
       config.database.url,
       config.database.poolSize
     );
@@ -114,6 +122,7 @@ async function startApplication() {
     pluginRegistry,
     gameLockManager
   );
+  const playerProfileService = new PlayerProfileService(playerProfileRepository);
 
   // Create Express app
   const app = createApp(playerIdentityRepository);
@@ -126,11 +135,13 @@ async function startApplication() {
     rendererService
   );
   const playerRouter = createPlayerRoutes(playerIdentityRepository);
+  const playerProfileRouter = createPlayerProfileRoutes(playerProfileService);
   const healthRouter = createHealthRoutes(gameRepository);
 
   // Add routes to app
   app.use('/api', gameRouter);
   app.use('/api', playerRouter);
+  app.use('/api', playerProfileRouter);
   app.use(healthRouter); // Health check at root level (/health)
 
   // Add static file serving for React web client
@@ -209,6 +220,12 @@ async function startApplication() {
       if (playerIdentityRepository instanceof PostgresPlayerIdentityRepository) {
         await playerIdentityRepository.close();
         logger.info('Player identity repository connection pool closed');
+      }
+
+      // Close player profile repository connections
+      if (playerProfileRepository instanceof PostgresPlayerProfileRepository) {
+        await playerProfileRepository.close();
+        logger.info('Player profile repository connection pool closed');
       }
 
       const shutdownDuration = Date.now() - shutdownStartTime;
