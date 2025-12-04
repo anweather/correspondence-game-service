@@ -612,15 +612,15 @@
     - Refactor for code quality
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
 
-- [ ] 36. LeaderboardView component (TDD)
-  - [ ] 36.1 Write tests for LeaderboardView component
+- [x] 36. LeaderboardView component (TDD)
+  - [x] 36.1 Write tests for LeaderboardView component
     - Write tests in web-client/src/views/__tests__/LeaderboardView.test.tsx
     - Test leaderboard display
     - Test game type filtering
     - Test pagination
     - Test loading states
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 16.1, 16.2, 16.3, 16.4, 16.5_
-  - [ ] 36.2 Implement LeaderboardView component
+  - [x] 36.2 Implement LeaderboardView component
     - Create LeaderboardView.tsx in web-client/src/views/
     - Integrate LeaderboardTable
     - Style with CSS modules
