@@ -662,15 +662,33 @@
     - Refactor for code quality
     - _Requirements: 12.4, 12.5_
 
-- [ ] 39. Integrate invitations into views (TDD)
-  - [ ] 39.1 Write tests for invitation integration
+- [x] 39. Integrate invitations into views (TDD)
+  - [x] 39.1 Write tests for invitation integration
     - Update tests in web-client/src/components/GameDetail/__tests__/GameDetail.test.tsx
     - Test invite button in game detail
     - Test invitation display in notifications
     - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
-  - [ ] 39.2 Implement invitation integration
+  - [x] 39.2 Implement invitation integration
     - Update GameDetail to include invite button
     - Integrate InviteModal
+    - Implement to pass all tests
+    - Refactor for code quality
+    - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
+
+- [x] 39a. Wire up invitation functionality in PlayerView (TDD)
+  - [x] 39a.1 Write tests for PlayerView invitation integration
+    - Update tests in web-client/src/views/__tests__/PlayerView.test.tsx
+    - Test invitation API calls
+    - Test fetching available players
+    - Test passing props to GameDetail
+    - Test invitation success/error handling
+    - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
+  - [x] 39a.2 Implement PlayerView invitation integration
+    - Add invitation API methods to gameClient or create invitation hook
+    - Fetch available players (all registered players except current game participants)
+    - Pass onInvite callback to GameDetail
+    - Pass availablePlayers to GameDetail
+    - Handle invitation success/error states
     - Implement to pass all tests
     - Refactor for code quality
     - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_

@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { SignedIn, SignedOut, useUser } from '@clerk/clerk-react';
+import { SignedIn, SignedOut, useUser, useAuth } from '@clerk/clerk-react';
 import { usePlayer } from '../context/PlayerContext';
 import { GameDetail } from '../components/GameDetail/GameDetail';
 import { MoveInput } from '../components/MoveInput/MoveInput';
 import { Modal } from '../components/common';
+import { GameClient } from '../api/gameClient';
 import type { MoveInput as MoveInputType, GameState } from '../types/game';
 import styles from './PlayerView.module.css';
 
@@ -13,6 +14,7 @@ import styles from './PlayerView.module.css';
  */
 export function PlayerView() {
   const { user, isSignedIn } = useUser();
+  const { getToken } = useAuth();
   const {
     currentGame,
     playerId,
@@ -41,7 +43,14 @@ export function PlayerView() {
   const [loadingGames, setLoadingGames] = useState(false);
   const [knownPlayers, setKnownPlayers] = useState<string[]>([]);
   const [showMoveModal, setShowMoveModal] = useState(false);
+  const [availablePlayers, setAvailablePlayers] = useState<Array<{ userId: string; displayName: string }>>([]);
   const isInitialMount = useRef(true);
+
+  // Create GameClient instance for invitation functionality
+  const gameClient = useRef<GameClient | null>(null);
+  if (!gameClient.current) {
+    gameClient.current = new GameClient('/api', getToken);
+  }
 
   // Automatically login when user signs in with Clerk
   useEffect(() => {
@@ -152,6 +161,28 @@ export function PlayerView() {
     }
   }, [playerName, getKnownPlayerNames]);
 
+  // Load available players when game is loaded
+  useEffect(() => {
+    if (currentGame && gameClient.current) {
+      const loadAvailablePlayers = async () => {
+        try {
+          // Get all players
+          const allPlayers = await gameClient.current!.listAllPlayers();
+          
+          // Filter out players who are already in the current game
+          const currentPlayerIds = currentGame.players.map(p => p.id);
+          const available = allPlayers.filter(p => !currentPlayerIds.includes(p.userId));
+          
+          setAvailablePlayers(available);
+        } catch (err) {
+          console.error('Failed to load available players:', err);
+          // Don't set error state, just log it - invitation feature is optional
+        }
+      };
+      loadAvailablePlayers();
+    }
+  }, [currentGame]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (name.trim()) {
@@ -212,6 +243,27 @@ export function PlayerView() {
 
   const handleRefresh = () => {
     refreshGame();
+  };
+
+  const handleInvite = async (playerIds: string[]) => {
+    if (!currentGame || !gameClient.current) {
+      throw new Error('No game loaded');
+    }
+
+    try {
+      // Send invitations to all selected players
+      await Promise.all(
+        playerIds.map(playerId => 
+          gameClient.current!.createInvitation(currentGame.gameId, playerId)
+        )
+      );
+      
+      // Optionally refresh the game to see if any players joined
+      // For now, we'll just let the invitation be sent
+    } catch (err) {
+      // Re-throw the error so GameDetail can handle it
+      throw err;
+    }
   };
 
   // Show login screen if not logged in
@@ -423,6 +475,8 @@ export function PlayerView() {
           onRefresh={handleRefresh}
           currentPlayerId={playerId || undefined}
           onMakeMoveClick={currentGame.lifecycle === 'active' ? () => setShowMoveModal(true) : undefined}
+          onInvite={handleInvite}
+          availablePlayers={availablePlayers}
         />
         
         {currentGame.lifecycle !== 'active' && (

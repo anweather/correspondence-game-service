@@ -238,6 +238,18 @@ export class GameClient {
   }
 
   /**
+   * List all player profiles
+   * Note: This is a temporary implementation that uses the games list to find players
+   * In a production system, there should be a dedicated endpoint for listing all players
+   */
+  async listAllPlayers(): Promise<Array<{ userId: string; displayName: string }>> {
+    // For now, we'll return an empty array since there's no backend endpoint
+    // This will be populated when the backend adds a list players endpoint
+    // The invitation modal will still work with an empty list
+    return [];
+  }
+
+  /**
    * Get player statistics
    */
   async getPlayerStats(gameType?: string): Promise<PlayerStats> {

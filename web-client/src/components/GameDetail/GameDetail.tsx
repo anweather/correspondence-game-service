@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { GameState } from '../../types/game';
+import { InviteModal } from '../Invitations';
 import styles from './GameDetail.module.css';
 
 interface GameDetailProps {
@@ -12,6 +13,8 @@ interface GameDetailProps {
   onImpersonate?: (playerId: string) => void;
   onAddPlayer?: (playerName: string) => Promise<void>;
   maxPlayers?: number;
+  onInvite?: (playerIds: string[]) => Promise<void>;
+  availablePlayers?: Array<{ userId: string; displayName: string }>;
 }
 
 export function GameDetail({ 
@@ -23,10 +26,15 @@ export function GameDetail({
   impersonatedPlayer,
   onImpersonate,
   onAddPlayer,
-  maxPlayers
+  maxPlayers,
+  onInvite,
+  availablePlayers = []
 }: GameDetailProps) {
   const [newPlayerName, setNewPlayerName] = useState('');
   const [isAdding, setIsAdding] = useState(false);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [inviteLoading, setInviteLoading] = useState(false);
+  const [inviteError, setInviteError] = useState<string | null>(null);
 
   const boardSvgUrl = useMemo(() => {
     // Add version as cache-busting parameter to force image reload
@@ -67,6 +75,38 @@ export function GameDetail({
       onImpersonate(playerId);
     }
   };
+
+  const handleInviteClick = () => {
+    setIsInviteModalOpen(true);
+    setInviteError(null);
+  };
+
+  const handleInviteClose = () => {
+    setIsInviteModalOpen(false);
+    setInviteError(null);
+  };
+
+  const handleInviteSubmit = async (playerIds: string[]) => {
+    if (!onInvite) return;
+
+    setInviteLoading(true);
+    setInviteError(null);
+
+    try {
+      await onInvite(playerIds);
+      setIsInviteModalOpen(false);
+    } catch (error) {
+      setInviteError(error instanceof Error ? error.message : 'Failed to send invitation');
+    } finally {
+      setInviteLoading(false);
+    }
+  };
+
+  // Check if current player is a participant in the game
+  const isParticipant = currentPlayerId && game.players.some(p => p.id === currentPlayerId);
+  
+  // Show invite button only for participants in non-completed games
+  const showInviteButton = onInvite && isParticipant && game.lifecycle !== 'completed';
 
   return (
     <div className={styles.gameDetail}>
@@ -113,15 +153,26 @@ export function GameDetail({
             )}
           </div>
         )}
-        {onRefresh && (
-          <button 
-            className={styles.refreshButton} 
-            onClick={onRefresh}
-            aria-label="Refresh game"
-          >
-            Refresh
-          </button>
-        )}
+        <div className={styles.actionButtons}>
+          {onRefresh && (
+            <button 
+              className={styles.refreshButton} 
+              onClick={onRefresh}
+              aria-label="Refresh game"
+            >
+              Refresh
+            </button>
+          )}
+          {showInviteButton && (
+            <button
+              className={styles.inviteButton}
+              onClick={handleInviteClick}
+              aria-label="Invite player"
+            >
+              Invite Player
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Board Display */}
@@ -239,6 +290,19 @@ export function GameDetail({
           <h3>Admin Controls</h3>
           <p>Admin controls placeholder</p>
         </div>
+      )}
+
+      {/* Invite Modal */}
+      {onInvite && (
+        <InviteModal
+          isOpen={isInviteModalOpen}
+          gameId={game.gameId}
+          onClose={handleInviteClose}
+          onInvite={handleInviteSubmit}
+          availablePlayers={availablePlayers}
+          loading={inviteLoading}
+          error={inviteError}
+        />
       )}
     </div>
   );

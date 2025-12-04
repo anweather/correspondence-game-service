@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '../../../test/test-utils';
+import { render, screen, waitFor } from '../../../test/test-utils';
 import { GameDetail } from '../GameDetail';
 import type { GameState } from '../../../types/game';
 
@@ -297,6 +297,191 @@ describe('GameDetail', () => {
 
       expect(screen.queryByText(/your turn/i)).not.toBeInTheDocument();
       expect(screen.queryByText(/waiting/i)).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Invitation Integration', () => {
+    describe('Invite Button', () => {
+      it('should render invite button when onInvite is provided', () => {
+        const onInvite = vi.fn();
+        render(<GameDetail game={mockGame} onInvite={onInvite} currentPlayerId="p1" />);
+
+        expect(screen.getByRole('button', { name: /invite player/i })).toBeInTheDocument();
+      });
+
+      it('should not render invite button when onInvite is not provided', () => {
+        render(<GameDetail game={mockGame} currentPlayerId="p1" />);
+
+        expect(screen.queryByRole('button', { name: /invite player/i })).not.toBeInTheDocument();
+      });
+
+      it('should open modal when invite button is clicked', async () => {
+        const onInvite = vi.fn();
+        const availablePlayers = [
+          { userId: 'p3', displayName: 'Charlie' },
+        ];
+        render(
+          <GameDetail 
+            game={mockGame} 
+            onInvite={onInvite} 
+            currentPlayerId="p1" 
+            availablePlayers={availablePlayers}
+          />
+        );
+
+        const inviteButton = screen.getByRole('button', { name: /invite player/i });
+        inviteButton.click();
+
+        // Modal should open
+        await waitFor(() => {
+          expect(screen.getByText(/invite player to game/i)).toBeInTheDocument();
+        });
+      });
+
+      it('should not render invite button for completed games', () => {
+        const onInvite = vi.fn();
+        const completedGame = { ...mockGame, lifecycle: 'completed' as const };
+        render(<GameDetail game={completedGame} onInvite={onInvite} currentPlayerId="p1" />);
+
+        expect(screen.queryByRole('button', { name: /invite player/i })).not.toBeInTheDocument();
+      });
+
+      it('should render invite button for active games', () => {
+        const onInvite = vi.fn();
+        const activeGame = { ...mockGame, lifecycle: 'active' as const };
+        render(<GameDetail game={activeGame} onInvite={onInvite} currentPlayerId="p1" />);
+
+        expect(screen.getByRole('button', { name: /invite player/i })).toBeInTheDocument();
+      });
+
+      it('should render invite button for waiting games', () => {
+        const onInvite = vi.fn();
+        const waitingGame = { ...mockGame, lifecycle: 'waiting' as const };
+        render(<GameDetail game={waitingGame} onInvite={onInvite} currentPlayerId="p1" />);
+
+        expect(screen.getByRole('button', { name: /invite player/i })).toBeInTheDocument();
+      });
+
+      it('should only show invite button to game participants', () => {
+        const onInvite = vi.fn();
+        // currentPlayerId is not in the game
+        render(<GameDetail game={mockGame} onInvite={onInvite} currentPlayerId="p3" />);
+
+        expect(screen.queryByRole('button', { name: /invite player/i })).not.toBeInTheDocument();
+      });
+
+      it('should show invite button to game participants', () => {
+        const onInvite = vi.fn();
+        // currentPlayerId is p1, which is in the game
+        render(<GameDetail game={mockGame} onInvite={onInvite} currentPlayerId="p1" />);
+
+        expect(screen.getByRole('button', { name: /invite player/i })).toBeInTheDocument();
+      });
+    });
+
+    describe('InviteModal Integration', () => {
+      it('should open invite modal when invite button is clicked', async () => {
+        const onInvite = vi.fn();
+        const availablePlayers = [
+          { userId: 'p3', displayName: 'Charlie' },
+          { userId: 'p4', displayName: 'Diana' },
+        ];
+        render(
+          <GameDetail 
+            game={mockGame} 
+            onInvite={onInvite} 
+            currentPlayerId="p1" 
+            availablePlayers={availablePlayers}
+          />
+        );
+
+        const inviteButton = screen.getByRole('button', { name: /invite player/i });
+        inviteButton.click();
+
+        // Modal should be open - check for modal title
+        await waitFor(() => {
+          expect(screen.getByText(/invite player to game/i)).toBeInTheDocument();
+        });
+      });
+
+      it('should close invite modal when close button is clicked', async () => {
+        const onInvite = vi.fn();
+        const availablePlayers = [
+          { userId: 'p3', displayName: 'Charlie' },
+        ];
+        render(
+          <GameDetail 
+            game={mockGame} 
+            onInvite={onInvite} 
+            currentPlayerId="p1" 
+            availablePlayers={availablePlayers}
+          />
+        );
+
+        // Open modal
+        const inviteButton = screen.getByRole('button', { name: /invite player/i });
+        inviteButton.click();
+
+        await waitFor(() => {
+          expect(screen.getByText(/invite player to game/i)).toBeInTheDocument();
+        });
+
+        // Close modal using the X button
+        const closeButton = screen.getByRole('button', { name: /close modal/i });
+        closeButton.click();
+
+        // Modal should be closed
+        await waitFor(() => {
+          expect(screen.queryByText(/invite player to game/i)).not.toBeInTheDocument();
+        });
+      });
+
+      it('should pass gameId to invite modal', async () => {
+        const onInvite = vi.fn();
+        const availablePlayers = [
+          { userId: 'p3', displayName: 'Charlie' },
+        ];
+        render(
+          <GameDetail 
+            game={mockGame} 
+            onInvite={onInvite} 
+            currentPlayerId="p1" 
+            availablePlayers={availablePlayers}
+          />
+        );
+
+        const inviteButton = screen.getByRole('button', { name: /invite player/i });
+        inviteButton.click();
+
+        // Modal should be open with game context
+        await waitFor(() => {
+          expect(screen.getByText(/invite player to game/i)).toBeInTheDocument();
+        });
+      });
+
+      it('should handle invitation submission', async () => {
+        const onInvite = vi.fn().mockResolvedValue(undefined);
+        const availablePlayers = [
+          { userId: 'p3', displayName: 'Charlie' },
+        ];
+        render(
+          <GameDetail 
+            game={mockGame} 
+            onInvite={onInvite} 
+            currentPlayerId="p1" 
+            availablePlayers={availablePlayers}
+          />
+        );
+
+        // Open modal
+        const inviteButton = screen.getByRole('button', { name: /invite player/i });
+        inviteButton.click();
+
+        // Modal should be open
+        await waitFor(() => {
+          expect(screen.getByText(/invite player to game/i)).toBeInTheDocument();
+        });
+      });
     });
   });
 });

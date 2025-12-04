@@ -120,8 +120,13 @@
   display: block;
 }
 
+.actionButtons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
 .refreshButton {
-  align-self: flex-start;
   padding: 0.5rem 1rem;
   background-color: #3b82f6;
   color: white;
@@ -139,6 +144,27 @@
 
 .refreshButton:focus {
   outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.inviteButton {
+  padding: 0.5rem 1rem;
+  background-color: #8b5cf6;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.inviteButton:hover {
+  background-color: #7c3aed;
+}
+
+.inviteButton:focus {
+  outline: 2px solid #8b5cf6;
   outline-offset: 2px;
 }
 
