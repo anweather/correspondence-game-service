@@ -30,10 +30,33 @@ export function LeaderboardView() {
         gameType || undefined,
         { page, pageSize }
       );
-      setLeaderboard(data);
-      // Sync page state with response if different
-      if (data.page !== page) {
-        setPage(data.page);
+      
+      // Handle both array and paginated response formats defensively
+      if (Array.isArray(data)) {
+        // Backend returned array directly - wrap it in pagination structure
+        setLeaderboard({
+          items: data,
+          total: data.length,
+          page: 1,
+          pageSize: data.length,
+          totalPages: 1,
+        });
+      } else if (data && typeof data === 'object' && 'items' in data) {
+        // Backend returned paginated result
+        setLeaderboard(data);
+        // Sync page state with response if different
+        if (data.page !== page) {
+          setPage(data.page);
+        }
+      } else {
+        // Unexpected format - treat as empty
+        setLeaderboard({
+          items: [],
+          total: 0,
+          page: 1,
+          pageSize: pageSize,
+          totalPages: 0,
+        });
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load leaderboard');
