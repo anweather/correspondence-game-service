@@ -243,6 +243,128 @@ TypeError: Cannot read properties of undefined (reading 'id')
 
 ---
 
+### 9. Connect Four Validation Module Missing
+**Status:** Open  
+**Priority:** High  
+**Description:** Connect Four game engine tests are failing due to missing validation module. The `rules.ts` file attempts to require `./validation` which doesn't exist, causing all Connect Four tests to fail.
+
+**Current Behavior:**
+- Error: "Cannot find module './validation'"
+- Affects all Connect Four engine tests
+- Tests for move application, game flow, and state management all fail
+- Property-based tests cannot run
+
+**Expected Behavior:**
+- Validation module should exist and be properly imported
+- All Connect Four tests should pass
+- Game engine should function correctly
+
+**Technical Notes:**
+- Error occurs in `games/connect-four/engine/rules.ts:168`
+- Uses `require('./validation')` to avoid circular dependencies
+- Missing file: `games/connect-four/engine/validation.ts`
+- Affects multiple test files:
+  - `ConnectFourEngine.test.ts`
+  - `moveApplication.test.ts`
+
+**Suggested Fix:**
+1. Create `games/connect-four/engine/validation.ts` with `validateMove` function
+2. Or refactor to use proper ES6 imports and resolve circular dependencies
+3. Ensure all Connect Four tests pass after fix
+4. Review other game engines for similar issues
+
+---
+
+### 10. Header Component Tests Failing - Missing Clerk Mock
+**Status:** Open  
+**Priority:** High  
+**Description:** All Header component tests (26 tests) are failing because the `SignedIn` component from `@clerk/clerk-react` is not properly mocked in the test setup.
+
+**Current Behavior:**
+- Error: "No 'SignedIn' export is defined on the '@clerk/clerk-react' mock"
+- All 26 Header component tests fail
+- Tests cannot render the Header component
+
+**Expected Behavior:**
+- Header component tests should pass
+- Clerk components should be properly mocked
+- Tests should verify navigation, display name, and notification functionality
+
+**Technical Notes:**
+- Error occurs when rendering Header component
+- Missing mock for `SignedIn` component in test setup
+- May need to update mock in test file or global setup
+- Other Clerk components may also need mocking: `UserButton`, `SignInButton`
+
+**Suggested Fix:**
+```typescript
+vi.mock('@clerk/clerk-react', () => ({
+  useAuth: () => ({ getToken: vi.fn() }),
+  SignedIn: ({ children }: any) => children,
+  SignedOut: ({ children }: any) => null,
+  UserButton: () => <button data-testid="user-button">User</button>,
+}));
+```
+
+---
+
+### 11. PlayerView Tests Failing - Missing Welcome Message
+**Status:** Open  
+**Priority:** Medium  
+**Description:** PlayerView tests are failing because the welcome message with player name is not being rendered. Tests expect "Welcome, alice" but the component doesn't display this message.
+
+**Current Behavior:**
+- Test expects welcome message: "Welcome, alice"
+- Component doesn't render welcome message
+- Multiple authentication-related tests fail
+- UserButton not appearing in rendered output
+
+**Expected Behavior:**
+- PlayerView should display welcome message with player's display name
+- UserButton should be rendered when authenticated
+- Tests should pass for signed-in state
+
+**Technical Notes:**
+- Affects tests in `PlayerView.test.tsx` and `PlayerView.auth.test.tsx`
+- May be related to authentication state not being properly set in tests
+- Could be a component implementation issue or test setup issue
+- UserButton from Clerk may not be rendering in test environment
+
+**Suggested Fix:**
+1. Review PlayerView component to ensure welcome message is implemented
+2. Check if authentication state is properly passed to component
+3. Update tests to match actual component behavior
+4. Or update component to match test expectations
+5. Ensure Clerk components are properly mocked in tests
+
+---
+
+### 12. App Component Test Failing - Missing Lobby Content
+**Status:** Open  
+**Priority:** Medium  
+**Description:** App component test for lobby route is failing because expected content "browse and join available games" is not found in the rendered output.
+
+**Current Behavior:**
+- Test expects text: "browse and join available games"
+- LobbyView renders but doesn't include this text
+- Test fails when checking for PlayerProvider content
+
+**Expected Behavior:**
+- LobbyView should include descriptive text about browsing and joining games
+- Test should pass for lobby route rendering
+
+**Technical Notes:**
+- Affects `App.test.tsx` line 310
+- LobbyView component may need to add descriptive text
+- Or test expectations may need to be updated to match actual component
+
+**Suggested Fix:**
+1. Add descriptive text to LobbyView component
+2. Or update test to check for actual content that exists
+3. Ensure test expectations match component implementation
+
+---
+
 ## Future Enhancements
 
 ### Error Boundary for Profile Loading

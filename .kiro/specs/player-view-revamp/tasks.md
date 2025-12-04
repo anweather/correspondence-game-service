@@ -596,15 +596,15 @@
 
 ## Phase 12: Frontend Leaderboard View (TDD)
 
-- [ ] 35. LeaderboardTable component (TDD)
-  - [ ] 35.1 Write tests for LeaderboardTable component
+- [x] 35. LeaderboardTable component (TDD)
+  - [x] 35.1 Write tests for LeaderboardTable component
     - Write tests in web-client/src/components/Leaderboard/__tests__/LeaderboardTable.test.tsx
     - Test ranked list rendering
     - Test current player highlighting
     - Test sorting
     - Test empty state
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
-  - [ ] 35.2 Implement LeaderboardTable component
+  - [x] 35.2 Implement LeaderboardTable component
     - Create LeaderboardTable.tsx in web-client/src/components/Leaderboard/
     - Implement ranked list
     - Style with CSS modules
