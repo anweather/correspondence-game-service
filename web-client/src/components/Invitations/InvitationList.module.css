@@ -1,0 +1,173 @@
+.container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.loadingState,
+.emptyState {
+  padding: 3rem 2rem;
+  text-align: center;
+  color: var(--text-secondary, #666);
+  font-size: 1rem;
+}
+
+.error {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background-color: var(--error-bg, #fee);
+  color: var(--error-text, #c00);
+  border: 1px solid var(--error-border, #fcc);
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.invitationList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.invitationCard {
+  background: var(--card-bg, #fff);
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s ease;
+}
+
+.invitationCard:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.invitationCard.pending {
+  border-left: 4px solid var(--primary-color, #007bff);
+}
+
+.invitationCard.accepted {
+  border-left: 4px solid var(--success-color, #28a745);
+  opacity: 0.8;
+}
+
+.invitationCard.declined {
+  border-left: 4px solid var(--error-color, #dc3545);
+  opacity: 0.8;
+}
+
+.invitationCard.expired {
+  border-left: 4px solid var(--warning-color, #ffc107);
+  opacity: 0.7;
+}
+
+.invitationHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-color, #eee);
+}
+
+.invitationId {
+  font-weight: 600;
+  color: var(--text-primary, #333);
+  font-size: 0.95rem;
+}
+
+.invitationDate {
+  font-size: 0.85rem;
+  color: var(--text-secondary, #666);
+}
+
+.invitationBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.invitationDetail {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.label {
+  font-weight: 600;
+  color: var(--text-secondary, #666);
+  min-width: 60px;
+}
+
+.value {
+  color: var(--text-primary, #333);
+  word-break: break-all;
+}
+
+.status {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status.pending {
+  background-color: var(--primary-light, #e3f2fd);
+  color: var(--primary-color, #007bff);
+}
+
+.status.accepted {
+  background-color: var(--success-light, #d4edda);
+  color: var(--success-color, #28a745);
+}
+
+.status.declined {
+  background-color: var(--error-light, #f8d7da);
+  color: var(--error-color, #dc3545);
+}
+
+.status.expired {
+  background-color: var(--warning-light, #fff3cd);
+  color: var(--warning-color, #856404);
+}
+
+.invitationActions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color, #eee);
+}
+
+.respondedAt {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary, #666);
+  font-style: italic;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 1rem;
+  }
+
+  .invitationCard {
+    padding: 1rem;
+  }
+
+  .invitationHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .invitationActions {
+    flex-direction: column;
+  }
+
+  .invitationActions button {
+    width: 100%;
+  }
+}

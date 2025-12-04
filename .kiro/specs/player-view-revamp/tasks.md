@@ -647,14 +647,14 @@
     - Refactor for code quality
     - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
 
-- [ ] 38. InvitationList component (TDD)
-  - [ ] 38.1 Write tests for InvitationList component
+- [-] 38. InvitationList component (TDD)
+  - [x] 38.1 Write tests for InvitationList component
     - Write tests in web-client/src/components/Invitations/__tests__/InvitationList.test.tsx
     - Test invitation list rendering
     - Test accept/decline buttons
     - Test empty state
     - _Requirements: 12.4, 12.5_
-  - [ ] 38.2 Implement InvitationList component
+  - [x] 38.2 Implement InvitationList component
     - Create InvitationList.tsx in web-client/src/components/Invitations/
     - Implement invitation list
     - Style with CSS modules
