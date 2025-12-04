@@ -158,13 +158,19 @@ export class PostgresStatsRepository {
   async getLeaderboard(gameType?: string, limit: number = 100): Promise<LeaderboardEntry[]> {
     const logger = getLogger();
 
-    // First CTE: Expand players from each game
     let query = `
-      WITH player_games AS (
+      WITH player_stats AS (
         SELECT 
           jsonb_array_elements(state->'players')->>'id' as user_id,
-          winner,
-          lifecycle
+          COUNT(*) as total_games,
+          SUM(CASE WHEN winner = jsonb_array_elements(state->'players')->>'id' THEN 1 ELSE 0 END) as wins,
+          SUM(CASE 
+            WHEN winner IS NOT NULL 
+            AND winner != jsonb_array_elements(state->'players')->>'id' 
+            AND lifecycle = $1 
+            THEN 1 
+            ELSE 0 
+          END) as losses
         FROM games
         WHERE lifecycle = $1
     `;
@@ -178,22 +184,8 @@ export class PostgresStatsRepository {
       paramIndex++;
     }
 
-    // Second CTE: Aggregate stats per player
     query += `
-      ),
-      player_stats AS (
-        SELECT 
-          user_id,
-          COUNT(*) as total_games,
-          SUM(CASE WHEN winner = user_id THEN 1 ELSE 0 END) as wins,
-          SUM(CASE 
-            WHEN winner IS NOT NULL 
-            AND winner != user_id 
-            THEN 1 
-            ELSE 0 
-          END) as losses
-        FROM player_games
-        GROUP BY user_id
+        GROUP BY jsonb_array_elements(state->'players')->>'id'
         HAVING COUNT(*) >= 5
       )
       SELECT 
