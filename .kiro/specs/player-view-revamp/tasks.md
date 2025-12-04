@@ -631,15 +631,15 @@
 
 ## Phase 13: Frontend Invitation System (TDD)
 
-- [ ] 37. InviteModal component (TDD)
-  - [ ] 37.1 Write tests for InviteModal component
+- [x] 37. InviteModal component (TDD)
+  - [x] 37.1 Write tests for InviteModal component
     - Write tests in web-client/src/components/Invitations/__tests__/InviteModal.test.tsx
     - Test modal rendering
     - Test player selection
     - Test invitation submission
     - Test error handling
     - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
-  - [ ] 37.2 Implement InviteModal component
+  - [x] 37.2 Implement InviteModal component
     - Create InviteModal.tsx in web-client/src/components/Invitations/
     - Implement player selection
     - Style with CSS modules
