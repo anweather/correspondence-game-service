@@ -695,14 +695,14 @@
 
 ## Phase 14: Frontend Notification System (TDD)
 
-- [ ] 40. NotificationBell component (TDD)
-  - [ ] 40.1 Write tests for NotificationBell component
+- [x] 40. NotificationBell component (TDD)
+  - [x] 40.1 Write tests for NotificationBell component
     - Write tests in web-client/src/components/Notifications/__tests__/NotificationBell.test.tsx
     - Test bell icon rendering
     - Test unread count display
     - Test dropdown toggle
     - _Requirements: 13.3, 13.4_
-  - [ ] 40.2 Implement NotificationBell component
+  - [x] 40.2 Implement NotificationBell component
     - Create NotificationBell.tsx in web-client/src/components/Notifications/
     - Implement bell with count
     - Style with CSS modules
