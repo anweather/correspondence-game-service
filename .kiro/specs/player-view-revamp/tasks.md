@@ -710,15 +710,15 @@
     - Refactor for code quality
     - _Requirements: 13.3, 13.4_
 
-- [ ] 41. NotificationList component (TDD)
-  - [ ] 41.1 Write tests for NotificationList component
+- [x] 41. NotificationList component (TDD)
+  - [x] 41.1 Write tests for NotificationList component
     - Write tests in web-client/src/components/Notifications/__tests__/NotificationList.test.tsx
     - Test notification list rendering
     - Test mark as read
     - Test click to navigate
     - Test empty state
     - _Requirements: 13.3, 13.4_
-  - [ ] 41.2 Implement NotificationList component
+  - [x] 41.2 Implement NotificationList component
     - Create NotificationList.tsx in web-client/src/components/Notifications/
     - Implement notification list
     - Style with CSS modules

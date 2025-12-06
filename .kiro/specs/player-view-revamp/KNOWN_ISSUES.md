@@ -365,6 +365,64 @@ vi.mock('@clerk/clerk-react', () => ({
 
 ---
 
+### 13. StatsView Loading Check TypeError
+**Status:** Open  
+**Priority:** High  
+**Description:** StatsView component crashes with "can't access property 'length', f is undefined" when checking loading state. The component tries to access `gameHistory.length` when `gameHistory` is undefined.
+
+**Current Behavior:**
+- Error: `Uncaught TypeError: can't access property "length", f is undefined`
+- Occurs in loading state check: `if (isLoading && !stats && gameHistory.length === 0)`
+- Component crashes before rendering loading state
+- Users cannot view stats page
+
+**Error Location:**
+```typescript
+const isLoading = statsLoading || historyLoading;
+if (isLoading && !stats && gameHistory.length === 0) {
+  return (
+    <div className={styles.container}>
+      <div className={styles.loading}>Loading statistics...</div>
+    </div>
+  );
+}
+```
+
+**Expected Behavior:**
+- Component should handle undefined `gameHistory` gracefully
+- Loading state should display without errors
+- No crashes when data is still loading
+
+**Technical Notes:**
+- `gameHistory` is undefined during initial load
+- Accessing `.length` on undefined throws TypeError
+- Need to add null/undefined check before accessing length
+- Similar pattern may exist in other components
+
+**Suggested Fix:**
+```typescript
+const isLoading = statsLoading || historyLoading;
+if (isLoading && !stats && (!gameHistory || gameHistory.length === 0)) {
+  return (
+    <div className={styles.container}>
+      <div className={styles.loading}>Loading statistics...</div>
+    </div>
+  );
+}
+```
+
+Or use optional chaining:
+```typescript
+if (isLoading && !stats && (gameHistory?.length ?? 0) === 0) {
+```
+
+**Related Components:**
+- Check other views for similar patterns
+- GameHistory component may have similar issues
+- Any component checking array length should be reviewed
+
+---
+
 ## Future Enhancements
 
 ### Error Boundary for Profile Loading
