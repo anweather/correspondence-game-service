@@ -742,14 +742,14 @@
 
 ## Phase 15: Update PlayerView (TDD)
 
-- [ ] 43. Fix authentication loading state (TDD)
-  - [ ] 43.1 Write tests for authentication fix
+- [x] 43. Fix authentication loading state (TDD)
+  - [x] 43.1 Write tests for authentication fix
     - Update tests in web-client/src/views/__tests__/PlayerView.test.tsx
     - Test no loading flash for returning users
     - Test loading message only for new users
     - Test profile caching
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
-  - [ ] 43.2 Implement authentication fix
+  - [x] 43.2 Implement authentication fix
     - Update PlayerView.tsx
     - Check profile existence before showing loading
     - Cache profile state

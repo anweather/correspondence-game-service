@@ -1,4 +1,5 @@
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react';
+import { Link } from 'react-router-dom';
 import { usePlayer } from '../../context/PlayerContext';
 import { useNotifications } from '../../context/NotificationContext';
 import { NotificationBell } from '../Notifications/NotificationBell';
@@ -31,16 +32,16 @@ export function Header({ currentView }: HeaderProps) {
         <SignedIn>
           <div className={styles.navLinks}>
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.view}
-                href={link.path}
+                to={link.path}
                 className={`${styles.navLink} ${
                   currentView === link.view ? styles.active : ''
                 }`}
                 aria-current={currentView === link.view ? 'page' : undefined}
               >
                 {link.name}
-              </a>
+              </Link>
             ))}
           </div>
         </SignedIn>
@@ -60,15 +61,15 @@ export function Header({ currentView }: HeaderProps) {
               onClearAll={clearAll}
             />
 
-            <a
-              href="/profile"
+            <Link
+              to="/profile"
               className={`${styles.profileLink} ${
                 currentView === 'profile' ? styles.active : ''
               }`}
               aria-current={currentView === 'profile' ? 'page' : undefined}
             >
               <span className={styles.displayName}>{displayName}</span>
-            </a>
+            </Link>
 
             <div className={styles.userButton}>
               <UserButton afterSignOutUrl="/" />

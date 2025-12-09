@@ -125,6 +125,175 @@ describe('PlayerView', () => {
     mockJoinGame.mockResolvedValue(mockGame);
   });
 
+  describe('Authentication Loading State', () => {
+    it('should not show loading flash for returning users with cached profile', async () => {
+      // Set up cached profile in localStorage
+      const cachedProfile = {
+        userId: 'user-1',
+        displayName: 'Alice',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      localStorage.setItem('playerProfile', JSON.stringify(cachedProfile));
+      
+      // Mock profile API to return profile
+      mockGetProfile.mockResolvedValue({
+        userId: 'user-1',
+        displayName: 'Alice',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      render(
+        <PlayerProvider>
+          <PlayerView />
+        </PlayerProvider>
+      );
+
+      // Should NOT show "Setting up your account..." message
+      expect(screen.queryByText(/setting up your account/i)).not.toBeInTheDocument();
+      
+      // Should show the game setup screen immediately
+      await waitFor(() => {
+        expect(screen.getByText(/create new game/i)).toBeInTheDocument();
+      });
+    });
+
+    it('should show loading message only for new users without cached profile', async () => {
+      // No cached profile in localStorage
+      localStorage.removeItem('playerProfile');
+      
+      // Mock profile API to return 404 (no profile exists)
+      mockGetProfile.mockRejectedValue({ status: 404, message: 'Profile not found' });
+
+      render(
+        <PlayerProvider>
+          <PlayerView />
+        </PlayerProvider>
+      );
+
+      // Should show "Setting up your account..." message for new users
+      await waitFor(() => {
+        expect(screen.getByText(/setting up your account/i)).toBeInTheDocument();
+      });
+    });
+
+    it('should cache profile state after successful login', async () => {
+      // No cached profile initially
+      localStorage.removeItem('playerProfile');
+      
+      // Mock profile API to return profile after creation
+      const newProfile = {
+        userId: 'user-1',
+        displayName: 'Alice',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      mockGetProfile.mockResolvedValue(newProfile);
+
+      render(
+        <PlayerProvider>
+          <PlayerView />
+        </PlayerProvider>
+      );
+
+      // Wait for profile to load
+      await waitFor(() => {
+        expect(mockGetProfile).toHaveBeenCalled();
+      });
+
+      // Verify profile is cached in localStorage
+      await waitFor(() => {
+        const cached = localStorage.getItem('playerProfile');
+        expect(cached).toBeTruthy();
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          expect(parsed.displayName).toBe('Alice');
+        }
+      });
+    });
+
+    it('should distinguish between initial authentication and returning user scenarios', async () => {
+      // Scenario 1: Returning user with cached profile
+      const cachedProfile = {
+        userId: 'user-1',
+        displayName: 'Alice',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      localStorage.setItem('playerProfile', JSON.stringify(cachedProfile));
+      mockGetProfile.mockResolvedValue({
+        userId: 'user-1',
+        displayName: 'Alice',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      const { unmount } = render(
+        <PlayerProvider>
+          <PlayerView />
+        </PlayerProvider>
+      );
+
+      // Should immediately show game setup (no loading message)
+      await waitFor(() => {
+        expect(screen.getByText(/create new game/i)).toBeInTheDocument();
+      });
+      expect(screen.queryByText(/setting up your account/i)).not.toBeInTheDocument();
+
+      unmount();
+      localStorage.clear();
+
+      // Scenario 2: New user without cached profile
+      localStorage.removeItem('playerProfile');
+      mockGetProfile.mockRejectedValue({ status: 404, message: 'Profile not found' });
+
+      render(
+        <PlayerProvider>
+          <PlayerView />
+        </PlayerProvider>
+      );
+
+      // Should show loading message for new users
+      await waitFor(() => {
+        expect(screen.getByText(/setting up your account/i)).toBeInTheDocument();
+      });
+    });
+
+    it('should use cached profile immediately on page refresh', async () => {
+      // Set up cached profile
+      const cachedProfile = {
+        userId: 'user-1',
+        displayName: 'Alice',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      localStorage.setItem('playerProfile', JSON.stringify(cachedProfile));
+      localStorage.setItem('player.id', '"player-1"');
+      localStorage.setItem('player.name', '"Alice"');
+      
+      mockGetProfile.mockResolvedValue({
+        userId: 'user-1',
+        displayName: 'Alice',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      render(
+        <PlayerProvider>
+          <PlayerView />
+        </PlayerProvider>
+      );
+
+      // Should immediately show game setup without any loading state
+      expect(screen.queryByText(/setting up your account/i)).not.toBeInTheDocument();
+      
+      await waitFor(() => {
+        expect(screen.getByText(/create new game/i)).toBeInTheDocument();
+      });
+    });
+  });
+
   describe('Game Setup Screen', () => {
     beforeEach(() => {
       // Set up localStorage to simulate a logged-in player (but no current game)

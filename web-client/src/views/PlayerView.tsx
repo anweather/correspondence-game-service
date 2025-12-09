@@ -19,6 +19,8 @@ export function PlayerView() {
     currentGame,
     playerId,
     playerName,
+    displayName,
+    isNewUser,
     loading,
     error,
     login,
@@ -267,7 +269,14 @@ export function PlayerView() {
   };
 
   // Show login screen if not logged in
+  // Only show loading message for truly new users (no cached profile)
   if (!playerName) {
+    // If user has a cached profile, don't show anything - just wait for playerName to load
+    // This prevents the flash of loading screen for returning users
+    if (!isNewUser) {
+      return null; // Or return a minimal loading indicator if preferred
+    }
+
     return (
       <div className={styles.playerView}>
         <SignedOut>
@@ -286,6 +295,7 @@ export function PlayerView() {
 
           <div className={styles.loginContainer}>
             <div className={styles.loginSection}>
+              {/* Only show loading message for new users without cached profile */}
               {loading ? (
                 <>
                   <h2>Setting up your account...</h2>
@@ -317,6 +327,11 @@ export function PlayerView() {
             {error}
           </div>
         )}
+
+        {/* Welcome message with display name */}
+        <div className={styles.welcomeMessage}>
+          <h1>Welcome, {displayName || playerName}!</h1>
+        </div>
 
         <div className={styles.setupContainer}>
           {myGames.length > 0 && (
