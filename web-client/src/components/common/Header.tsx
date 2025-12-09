@@ -1,6 +1,7 @@
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react';
 import { usePlayer } from '../../context/PlayerContext';
 import { useNotifications } from '../../context/NotificationContext';
+import { NotificationBell } from '../Notifications/NotificationBell';
 import styles from './Header.module.css';
 
 interface HeaderProps {
@@ -14,7 +15,7 @@ interface HeaderProps {
  */
 export function Header({ currentView }: HeaderProps) {
   const { displayName } = usePlayer();
-  const { unreadCount } = useNotifications();
+  const { notifications, unreadCount, markAsRead, clearAll } = useNotifications();
 
   const navLinks = [
     { name: 'Home', path: '/', view: 'home' },
@@ -52,16 +53,12 @@ export function Header({ currentView }: HeaderProps) {
 
         <div className={styles.profileSection}>
           <SignedIn>
-            <button
-              className={styles.notificationButton}
-              aria-label="Notifications"
-              type="button"
-            >
-              <span className={styles.bellIcon}>🔔</span>
-              {unreadCount > 0 && (
-                <span className={styles.badge}>{unreadCount}</span>
-              )}
-            </button>
+            <NotificationBell
+              notifications={notifications}
+              unreadCount={unreadCount}
+              onMarkAsRead={markAsRead}
+              onClearAll={clearAll}
+            />
 
             <a
               href="/profile"

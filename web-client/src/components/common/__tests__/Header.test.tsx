@@ -6,6 +6,10 @@ import type { ReactNode } from 'react';
 // Mock Clerk authentication
 vi.mock('@clerk/clerk-react', () => ({
   useAuth: () => ({ getToken: vi.fn().mockResolvedValue(null) }),
+  SignedIn: ({ children }: { children: ReactNode }) => <>{children}</>,
+  SignedOut: ({ children }: { children: ReactNode }) => null,
+  SignInButton: () => <button>Sign In</button>,
+  UserButton: () => <button>User Menu</button>,
 }));
 
 // Mock PlayerContext

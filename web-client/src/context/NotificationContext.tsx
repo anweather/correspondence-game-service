@@ -62,14 +62,14 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
    * Generate notification ID
    */
   const generateId = useCallback((): string => {
-    return `notif-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    return `notif-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
   }, []);
 
   /**
    * Create notification message based on type
    */
   const createMessage = useCallback(
-    (type: Notification['type'], gameId: string, data?: any): string => {
+    (type: Notification['type'], gameId: string): string => {
       switch (type) {
         case 'turn':
           return `It's your turn in game ${gameId}`;
@@ -90,8 +90,7 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
   const addNotification = useCallback(
     (
       type: Notification['type'],
-      gameId: string,
-      data?: any
+      gameId: string
     ): void => {
       // Check if notification for this game already exists
       setNotifications((prev) => {
@@ -103,7 +102,7 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
           id: generateId(),
           type,
           gameId,
-          message: createMessage(type, gameId, data),
+          message: createMessage(type, gameId),
           read: false,
           createdAt: new Date(),
         };
@@ -154,34 +153,7 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
     onTurnNotification(handleTurnNotification);
   }, [onTurnNotification, addNotification]);
 
-  /**
-   * Listen for game_complete messages from WebSocket
-   * We need to add a custom event listener since WebSocketContext
-   * doesn't expose game_complete events directly
-   */
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      try {
-        const message = JSON.parse(event.data);
-        
-        if (message.type === 'game_complete') {
-          addNotification('game_complete', message.gameId, {
-            winner: message.winner,
-          });
-        }
-      } catch (error) {
-        // Ignore parse errors
-      }
-    };
 
-    // This is a workaround - in a real implementation, we'd extend
-    // WebSocketContext to expose game_complete events
-    // For now, we'll just handle turn notifications
-    
-    return () => {
-      // Cleanup if needed
-    };
-  }, [addNotification]);
 
   const value: NotificationContextValue = {
     notifications,

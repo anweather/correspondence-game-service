@@ -726,14 +726,14 @@
     - Refactor for code quality
     - _Requirements: 13.3, 13.4_
 
-- [ ] 42. Integrate notifications with WebSocket (TDD)
-  - [ ] 42.1 Write tests for notification WebSocket integration
+- [x] 42. Integrate notifications with WebSocket (TDD)
+  - [x] 42.1 Write tests for notification WebSocket integration
     - Update tests in web-client/src/context/__tests__/NotificationContext.test.tsx
     - Test receiving turn notifications via WebSocket
     - Test notification display
     - Test notification count updates
     - _Requirements: 13.1, 13.2, 13.3, 13.4, 13.5, 14.1, 14.2_
-  - [ ] 42.2 Implement notification WebSocket integration
+  - [x] 42.2 Implement notification WebSocket integration
     - Update NotificationContext to listen for WebSocket events
     - Implement notification display
     - Implement to pass all tests
