@@ -25,6 +25,23 @@
   color: #1f2937;
 }
 
+.gameDescription {
+  margin: 0.5rem 0 0 0;
+  color: #6b7280;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.gameIdDisplay {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #e5e7eb;
+  font-size: 0.875rem;
+}
+
 .metadataGrid {
   display: grid;
   grid-template-columns: 1fr;

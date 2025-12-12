@@ -354,13 +354,18 @@ describe('PlayerView', () => {
       });
 
       const gameTypeSelect = screen.getByLabelText(/game type/i);
+      const gameNameInput = screen.getByLabelText(/game name/i);
       const createButton = screen.getByRole('button', { name: /create game/i });
 
       await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
+      await user.type(gameNameInput, 'Test Game');
       await user.click(createButton);
 
       await waitFor(() => {
-        expect(mockCreateGame).toHaveBeenCalledWith('tic-tac-toe', {});
+        expect(mockCreateGame).toHaveBeenCalledWith('tic-tac-toe', {
+          gameName: 'Test Game',
+          gameDescription: '',
+        });
       });
     });
 
@@ -415,9 +420,11 @@ describe('PlayerView', () => {
       });
 
       const gameTypeSelect = screen.getByLabelText(/game type/i);
+      const gameNameInput = screen.getByLabelText(/game name/i);
       const createButton = screen.getByRole('button', { name: /create game/i });
 
       await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
+      await user.type(gameNameInput, 'Test Game');
       await user.click(createButton);
 
       await waitFor(() => {
@@ -480,9 +487,11 @@ describe('PlayerView', () => {
 
       // Select game type and create game
       const gameTypeSelect = screen.getByLabelText(/game type/i);
+      const gameNameInput = screen.getByLabelText(/game name/i);
       const createButton = screen.getByRole('button', { name: /create game/i });
 
       await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
+      await user.type(gameNameInput, 'Test Game');
       await user.click(createButton);
 
       // Verify we're now in game view (not setup screen)
@@ -522,9 +531,11 @@ describe('PlayerView', () => {
 
       // Create a game
       const gameTypeSelect = screen.getByLabelText(/game type/i);
+      const gameNameInput = screen.getByLabelText(/game name/i);
       const createButton = screen.getByRole('button', { name: /create game/i });
 
       await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
+      await user.type(gameNameInput, 'Test Game');
       await user.click(createButton);
 
       await waitFor(() => {
@@ -550,9 +561,11 @@ describe('PlayerView', () => {
 
       // Create a game
       const gameTypeSelect = screen.getByLabelText(/game type/i);
+      const gameNameInput = screen.getByLabelText(/game name/i);
       const createButton = screen.getByRole('button', { name: /create game/i });
 
       await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
+      await user.type(gameNameInput, 'Test Game');
       await user.click(createButton);
 
       // Wait for game to load and click Make Move button to open modal
@@ -588,9 +601,11 @@ describe('PlayerView', () => {
 
       // Create a game
       const gameTypeSelect = screen.getByLabelText(/game type/i);
+      const gameNameInput = screen.getByLabelText(/game name/i);
       const createButton = screen.getByRole('button', { name: /create game/i });
 
       await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
+      await user.type(gameNameInput, 'Test Game');
       await user.click(createButton);
 
       // Wait for game to load and click Make Move button to open modal
@@ -632,9 +647,11 @@ describe('PlayerView', () => {
 
       // Create a game
       const gameTypeSelect = screen.getByLabelText(/game type/i);
+      const gameNameInput = screen.getByLabelText(/game name/i);
       const createButton = screen.getByRole('button', { name: /create game/i });
 
       await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
+      await user.type(gameNameInput, 'Test Game');
       await user.click(createButton);
 
       // Wait for game to load and click Make Move button to open modal
@@ -666,9 +683,11 @@ describe('PlayerView', () => {
 
       // Create a game
       const gameTypeSelect = screen.getByLabelText(/game type/i);
+      const gameNameInput = screen.getByLabelText(/game name/i);
       const createButton = screen.getByRole('button', { name: /create game/i });
 
       await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
+      await user.type(gameNameInput, 'Test Game');
       await user.click(createButton);
 
       await waitFor(() => {
@@ -714,9 +733,11 @@ describe('PlayerView', () => {
 
       // Create a game
       const gameTypeSelect = screen.getByLabelText(/game type/i);
+      const gameNameInput = screen.getByLabelText(/game name/i);
       const createButton = screen.getByRole('button', { name: /create game/i });
 
       await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
+      await user.type(gameNameInput, 'Test Game');
       await user.click(createButton);
 
       // Wait for game to load and click Make Move button to open modal
@@ -761,9 +782,11 @@ describe('PlayerView', () => {
 
       // Create a game
       const gameTypeSelect = screen.getByLabelText(/game type/i);
+      const gameNameInput = screen.getByLabelText(/game name/i);
       const createButton = screen.getByRole('button', { name: /create game/i });
 
       await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
+      await user.type(gameNameInput, 'Test Game');
       await user.click(createButton);
 
       // Wait for game to load and click Make Move button to open modal
@@ -812,9 +835,11 @@ describe('PlayerView', () => {
 
       // Create a game
       const gameTypeSelect = screen.getByLabelText(/game type/i);
+      const gameNameInput = screen.getByLabelText(/game name/i);
       const createButton = screen.getByRole('button', { name: /create game/i });
 
       await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
+      await user.type(gameNameInput, 'Test Game');
       await user.click(createButton);
 
       // Wait for game to load and click Make Move button to open modal
@@ -869,9 +894,11 @@ describe('PlayerView', () => {
 
       // Create a game
       const gameTypeSelect = screen.getByLabelText(/game type/i);
+      const gameNameInput = screen.getByLabelText(/game name/i);
       const createButton = screen.getByRole('button', { name: /create game/i });
 
       await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
+      await user.type(gameNameInput, 'Test Game');
       await user.click(createButton);
 
       await waitFor(() => {
@@ -884,6 +911,247 @@ describe('PlayerView', () => {
       await waitFor(() => {
         expect(mockGetGame).toHaveBeenCalledWith('game-123');
       });
+    });
+  });
+
+  describe('Game Creation with Metadata', () => {
+    beforeEach(() => {
+      // Set up localStorage to simulate a logged-in player
+      localStorage.setItem('player.id', '"player-1"');
+      localStorage.setItem('player.name', '"Alice"');
+    });
+
+    it('should render game name input field (required)', async () => {
+      render(
+        <PlayerProvider>
+          <PlayerView />
+        </PlayerProvider>
+      );
+
+      // Wait for game types to load
+      await waitFor(() => {
+        expect(screen.getByLabelText(/game type/i)).toBeInTheDocument();
+      });
+
+      // Check for game name input
+      expect(screen.getByLabelText(/game name/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/game name/i)).toBeRequired();
+    });
+
+    it('should render game description input field (optional)', async () => {
+      render(
+        <PlayerProvider>
+          <PlayerView />
+        </PlayerProvider>
+      );
+
+      // Wait for game types to load
+      await waitFor(() => {
+        expect(screen.getByLabelText(/game type/i)).toBeInTheDocument();
+      });
+
+      // Check for game description input
+      const descriptionInput = screen.getByLabelText(/game description/i);
+      expect(descriptionInput).toBeInTheDocument();
+      expect(descriptionInput).not.toBeRequired();
+    });
+
+    it('should enforce 500 character limit on game description', async () => {
+      render(
+        <PlayerProvider>
+          <PlayerView />
+        </PlayerProvider>
+      );
+
+      // Wait for game types to load
+      await waitFor(() => {
+        expect(screen.getByLabelText(/game type/i)).toBeInTheDocument();
+      });
+
+      // Check for maxLength attribute on description input
+      const descriptionInput = screen.getByLabelText(/game description/i) as HTMLTextAreaElement;
+      expect(descriptionInput).toHaveAttribute('maxLength', '500');
+    });
+
+    it('should validate that game name is not empty', async () => {
+      const user = userEvent.setup();
+      mockCreateGame.mockResolvedValue(mockGame);
+
+      render(
+        <PlayerProvider>
+          <PlayerView />
+        </PlayerProvider>
+      );
+
+      // Wait for game types to load
+      await waitFor(() => {
+        expect(screen.getByLabelText(/game type/i)).toBeInTheDocument();
+      });
+
+      const gameTypeSelect = screen.getByLabelText(/game type/i);
+      const gameNameInput = screen.getByLabelText(/game name/i);
+      const createButton = screen.getByRole('button', { name: /create game/i });
+
+      // Select game type but leave name empty
+      await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
+      await user.clear(gameNameInput);
+      
+      // Try to submit with empty name
+      await user.click(createButton);
+
+      // Should not call createGame API
+      expect(mockCreateGame).not.toHaveBeenCalled();
+    });
+
+    it('should send game name and description to API when creating game', async () => {
+      const user = userEvent.setup();
+      mockCreateGame.mockResolvedValue(mockGame);
+
+      render(
+        <PlayerProvider>
+          <PlayerView />
+        </PlayerProvider>
+      );
+
+      // Wait for game types to load
+      await waitFor(() => {
+        expect(screen.getByLabelText(/game type/i)).toBeInTheDocument();
+      });
+
+      const gameTypeSelect = screen.getByLabelText(/game type/i);
+      const gameNameInput = screen.getByLabelText(/game name/i);
+      const gameDescriptionInput = screen.getByLabelText(/game description/i);
+      const createButton = screen.getByRole('button', { name: /create game/i });
+
+      // Fill in the form
+      await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
+      await user.type(gameNameInput, 'Epic Battle');
+      await user.type(gameDescriptionInput, 'A friendly game between friends');
+      await user.click(createButton);
+
+      // Verify API was called with name and description
+      await waitFor(() => {
+        expect(mockCreateGame).toHaveBeenCalledWith('tic-tac-toe', {
+          gameName: 'Epic Battle',
+          gameDescription: 'A friendly game between friends',
+        });
+      });
+    });
+
+    it('should send game name without description when description is empty', async () => {
+      const user = userEvent.setup();
+      mockCreateGame.mockResolvedValue(mockGame);
+
+      render(
+        <PlayerProvider>
+          <PlayerView />
+        </PlayerProvider>
+      );
+
+      // Wait for game types to load
+      await waitFor(() => {
+        expect(screen.getByLabelText(/game type/i)).toBeInTheDocument();
+      });
+
+      const gameTypeSelect = screen.getByLabelText(/game type/i);
+      const gameNameInput = screen.getByLabelText(/game name/i);
+      const createButton = screen.getByRole('button', { name: /create game/i });
+
+      // Fill in only the name
+      await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
+      await user.type(gameNameInput, 'Quick Game');
+      await user.click(createButton);
+
+      // Verify API was called with name only
+      await waitFor(() => {
+        expect(mockCreateGame).toHaveBeenCalledWith('tic-tac-toe', {
+          gameName: 'Quick Game',
+          gameDescription: '',
+        });
+      });
+    });
+
+    it('should trim whitespace from game name and description', async () => {
+      const user = userEvent.setup();
+      mockCreateGame.mockResolvedValue(mockGame);
+
+      render(
+        <PlayerProvider>
+          <PlayerView />
+        </PlayerProvider>
+      );
+
+      // Wait for game types to load
+      await waitFor(() => {
+        expect(screen.getByLabelText(/game type/i)).toBeInTheDocument();
+      });
+
+      const gameTypeSelect = screen.getByLabelText(/game type/i);
+      const gameNameInput = screen.getByLabelText(/game name/i);
+      const gameDescriptionInput = screen.getByLabelText(/game description/i);
+      const createButton = screen.getByRole('button', { name: /create game/i });
+
+      // Fill in with extra whitespace
+      await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
+      await user.type(gameNameInput, '  Spaced Game  ');
+      await user.type(gameDescriptionInput, '  Spaced description  ');
+      await user.click(createButton);
+
+      // Verify API was called with trimmed values
+      await waitFor(() => {
+        expect(mockCreateGame).toHaveBeenCalledWith('tic-tac-toe', {
+          gameName: 'Spaced Game',
+          gameDescription: 'Spaced description',
+        });
+      });
+    });
+
+    it('should disable create button when game name is empty', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <PlayerProvider>
+          <PlayerView />
+        </PlayerProvider>
+      );
+
+      // Wait for game types to load
+      await waitFor(() => {
+        expect(screen.getByLabelText(/game type/i)).toBeInTheDocument();
+      });
+
+      const gameNameInput = screen.getByLabelText(/game name/i);
+      const createButton = screen.getByRole('button', { name: /create game/i });
+
+      // Clear the name input
+      await user.clear(gameNameInput);
+
+      // Button should be disabled
+      expect(createButton).toBeDisabled();
+    });
+
+    it('should enable create button when game name is provided', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <PlayerProvider>
+          <PlayerView />
+        </PlayerProvider>
+      );
+
+      // Wait for game types to load
+      await waitFor(() => {
+        expect(screen.getByLabelText(/game type/i)).toBeInTheDocument();
+      });
+
+      const gameNameInput = screen.getByLabelText(/game name/i);
+      const createButton = screen.getByRole('button', { name: /create game/i });
+
+      // Type a name
+      await user.type(gameNameInput, 'My Game');
+
+      // Button should be enabled
+      expect(createButton).not.toBeDisabled();
     });
   });
 
@@ -930,9 +1198,11 @@ describe('PlayerView', () => {
 
       // Create a game
       const gameTypeSelect = screen.getByLabelText(/game type/i);
+      const gameNameInput = screen.getByLabelText(/game name/i);
       const createButton = screen.getByRole('button', { name: /create game/i });
 
       await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
+      await user.type(gameNameInput, 'Test Game');
       await user.click(createButton);
 
       // Wait for game to load
@@ -961,9 +1231,11 @@ describe('PlayerView', () => {
 
       // Create a game
       const gameTypeSelect = screen.getByLabelText(/game type/i);
+      const gameNameInput = screen.getByLabelText(/game name/i);
       const createButton = screen.getByRole('button', { name: /create game/i });
 
       await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
+      await user.type(gameNameInput, 'Test Game');
       await user.click(createButton);
 
       // Wait for game to load
@@ -992,9 +1264,11 @@ describe('PlayerView', () => {
 
       // Create a game
       const gameTypeSelect = screen.getByLabelText(/game type/i);
+      const gameNameInput = screen.getByLabelText(/game name/i);
       const createButton = screen.getByRole('button', { name: /create game/i });
 
       await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
+      await user.type(gameNameInput, 'Test Game');
       await user.click(createButton);
 
       // Wait for game to load
@@ -1031,9 +1305,11 @@ describe('PlayerView', () => {
 
       // Create a game
       const gameTypeSelect = screen.getByLabelText(/game type/i);
+      const gameNameInput = screen.getByLabelText(/game name/i);
       const createButton = screen.getByRole('button', { name: /create game/i });
 
       await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
+      await user.type(gameNameInput, 'Test Game');
       await user.click(createButton);
 
       // Wait for game to load
@@ -1064,9 +1340,11 @@ describe('PlayerView', () => {
 
       // Create a game
       const gameTypeSelect = screen.getByLabelText(/game type/i);
+      const gameNameInput = screen.getByLabelText(/game name/i);
       const createButton = screen.getByRole('button', { name: /create game/i });
 
       await user.selectOptions(gameTypeSelect, 'tic-tac-toe');
+      await user.type(gameNameInput, 'Test Game');
       await user.click(createButton);
 
       // Wait for game to load

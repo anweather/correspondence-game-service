@@ -33,7 +33,7 @@ interface PlayerContextActions {
   logout: () => void;
   getKnownPlayerNames: () => Promise<string[]>;
   getAvailableGameTypes: () => Promise<Array<{ type: string; name: string; description: string }>>;
-  createGame: (gameType: string) => Promise<void>;
+  createGame: (gameType: string, metadata?: { gameName?: string; gameDescription?: string }) => Promise<void>;
   joinGame: (gameId: string) => Promise<void>;
   loadGame: (gameId: string) => Promise<void>;
   submitMove: (move: MoveInput) => Promise<void>;
@@ -197,7 +197,7 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
    * Create a new game and join as the first player
    */
   const createGame = useCallback(
-    async (gameType: string) => {
+    async (gameType: string, metadata?: { name?: string; description?: string }) => {
       if (!playerId) {
         setError('Please login first');
         return;
@@ -213,8 +213,8 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
       setLoading(true);
       setError(null);
       try {
-        // Create the game
-        const newGame = await client.createGame(gameType, {});
+        // Create the game with metadata
+        const newGame = await client.createGame(gameType, metadata || {});
         
         // Join as the first player using existing player ID and display name
         const joinedGame = await client.joinGame(newGame.gameId, {

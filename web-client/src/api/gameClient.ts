@@ -1,4 +1,3 @@
-import process from 'process';
 import type {
   GameState,
   GameType,
@@ -40,10 +39,18 @@ export class GameClient {
    * Create a new game instance
    */
   async createGame(gameType: string, config: GameConfig): Promise<GameState> {
+    // Extract gameName and gameDescription from config to send as top-level fields
+    const { gameName, gameDescription, ...restConfig } = config;
+    
     return this.request<GameState>(`${this.baseUrl}/games`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ gameType, config }),
+      body: JSON.stringify({ 
+        gameType, 
+        config: restConfig,
+        gameName,
+        gameDescription
+      }),
     });
   }
 

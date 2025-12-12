@@ -53,7 +53,7 @@ docker-compose --env-file .env down
 # Wipe database if requested
 if [ "$WIPE_DB" = true ]; then
   echo "🗑️  Wiping database volume..."
-  docker volume rm async-boardgame-service_postgres-data 2>/dev/null || true
+  docker volume rm asyncgameservice_postgres-data 2>/dev/null || true
   echo "✅ Database wiped"
 fi
 

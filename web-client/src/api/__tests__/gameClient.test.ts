@@ -120,7 +120,12 @@ describe('GameClient', () => {
       expect(mockFetch).toHaveBeenCalledWith('/api/games', expect.objectContaining({
         method: 'POST',
         headers: expect.any(Headers),
-        body: JSON.stringify({ gameType: 'tic-tac-toe', config }),
+        body: JSON.stringify({ 
+          gameType: 'tic-tac-toe', 
+          config: { customSettings: {} },
+          gameName: 'Epic Battle',
+          gameDescription: 'A friendly match between rivals'
+        }),
       }));
       expect(result.metadata.gameName).toBe('Epic Battle');
       expect(result.metadata.gameDescription).toBe('A friendly match between rivals');

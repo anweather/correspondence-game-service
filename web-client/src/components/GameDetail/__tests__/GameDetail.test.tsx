@@ -29,7 +29,8 @@ describe('GameDetail', () => {
     it('should render game ID', () => {
       render(<GameDetail game={mockGame} />);
 
-      expect(screen.getByText(/game-123/i)).toBeInTheDocument();
+      // Game ID should appear in the game ID display section
+      expect(screen.getAllByText(/game-123/i).length).toBeGreaterThan(0);
     });
 
     it('should render game type', () => {

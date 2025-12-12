@@ -108,11 +108,22 @@ export function GameDetail({
   // Show invite button only for participants in non-completed games
   const showInviteButton = onInvite && isParticipant && game.lifecycle !== 'completed';
 
+  // Extract game name and description from metadata
+  const gameName = (game.metadata as any)?.gameName || game.gameId;
+  const gameDescription = (game.metadata as any)?.gameDescription;
+
   return (
     <div className={styles.gameDetail}>
       {/* Game Metadata */}
       <div className={styles.metadata}>
-        <h2>Game: {game.gameId}</h2>
+        <h2>{gameName}</h2>
+        {gameDescription && (
+          <p className={styles.gameDescription}>{gameDescription}</p>
+        )}
+        <div className={styles.gameIdDisplay}>
+          <span className={styles.label}>Game ID:</span>
+          <span className={styles.value}>{game.gameId}</span>
+        </div>
         <div className={styles.metadataGrid}>
           <div className={styles.metadataItem}>
             <span className={styles.label}>Type:</span>

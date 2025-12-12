@@ -39,6 +39,8 @@ export function PlayerView() {
   const [name, setName] = useState('');
   const [gameId, setGameId] = useState('');
   const [selectedGameType, setSelectedGameType] = useState('');
+  const [gameName, setGameName] = useState('');
+  const [gameDescription, setGameDescription] = useState('');
   const [availableGames, setAvailableGames] = useState<GameState[]>([]);
   const [myGames, setMyGames] = useState<GameState[]>([]);
   const [gameTypes, setGameTypes] = useState<Array<{ type: string; name: string; description: string }>>([]);
@@ -195,8 +197,14 @@ export function PlayerView() {
 
   const handleCreateGame = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (selectedGameType) {
-      await createGame(selectedGameType);
+    if (selectedGameType && gameName.trim()) {
+      await createGame(selectedGameType, {
+        gameName: gameName.trim(),
+        gameDescription: gameDescription.trim(),
+      });
+      // Clear form after successful creation
+      setGameName('');
+      setGameDescription('');
     }
   };
 
@@ -338,22 +346,31 @@ export function PlayerView() {
             <div className={styles.myGamesSection}>
               <h2>My Games</h2>
               <div className={styles.gamesList}>
-                {myGames.map((game) => (
-                  <div
-                    key={game.gameId}
-                    className={styles.gameCard}
-                    onClick={() => loadGame(game.gameId)}
-                  >
-                    <div className={styles.gameCardHeader}>
-                      <strong>{game.gameType}</strong>
-                      <span className={styles.gameStatus}>{game.lifecycle}</span>
+                {myGames.map((game) => {
+                  const gameName = (game.metadata as any)?.gameName || game.gameId;
+                  const gameDescription = (game.metadata as any)?.gameDescription;
+                  
+                  return (
+                    <div
+                      key={game.gameId}
+                      className={styles.gameCard}
+                      onClick={() => loadGame(game.gameId)}
+                    >
+                      <div className={styles.gameCardHeader}>
+                        <strong>{gameName}</strong>
+                        <span className={styles.gameStatus}>{game.lifecycle}</span>
+                      </div>
+                      <div className={styles.gameCardBody}>
+                        {gameDescription && (
+                          <div className={styles.gameCardDescription}>{gameDescription}</div>
+                        )}
+                        <div>Type: {game.gameType}</div>
+                        <div>Players: {game.players.map(p => p.name).join(', ')}</div>
+                        <div className={styles.gameId}>ID: {game.gameId.substring(0, 8)}...</div>
+                      </div>
                     </div>
-                    <div className={styles.gameCardBody}>
-                      <div>Players: {game.players.map(p => p.name).join(', ')}</div>
-                      <div className={styles.gameId}>ID: {game.gameId.substring(0, 8)}...</div>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
@@ -382,10 +399,34 @@ export function PlayerView() {
                   </p>
                 )}
               </div>
+              <div className={styles.formGroup}>
+                <label htmlFor="game-name-input">Game Name</label>
+                <input
+                  id="game-name-input"
+                  type="text"
+                  value={gameName}
+                  onChange={(e) => setGameName(e.target.value)}
+                  placeholder="Enter a name for your game"
+                  disabled={loading}
+                  required
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label htmlFor="game-description-input">Game Description (optional)</label>
+                <textarea
+                  id="game-description-input"
+                  value={gameDescription}
+                  onChange={(e) => setGameDescription(e.target.value)}
+                  placeholder="Add a description (max 500 characters)"
+                  disabled={loading}
+                  maxLength={500}
+                  rows={3}
+                />
+              </div>
               <button
                 type="submit"
                 className={styles.button}
-                disabled={loading || !selectedGameType}
+                disabled={loading || !selectedGameType || !gameName.trim()}
               >
                 Create Game
               </button>

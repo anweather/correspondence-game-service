@@ -757,14 +757,14 @@
     - Refactor for code quality
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
 
-- [ ] 44. Update game creation form (TDD)
-  - [ ] 44.1 Write tests for game creation updates
+- [x] 44. Update game creation form (TDD)
+  - [x] 44.1 Write tests for game creation updates
     - Update tests in web-client/src/views/__tests__/PlayerView.test.tsx
     - Test game name input (required)
     - Test game description input (optional, max 500 chars)
     - Test form validation
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
-  - [ ] 44.2 Implement game creation updates
+  - [x] 44.2 Implement game creation updates
     - Update PlayerView game creation form
     - Add name and description inputs
     - Add validation
