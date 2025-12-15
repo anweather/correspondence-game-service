@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Async Boardgame Service - Test Page</title>
+    <title>Async Boardgame Service</title>
+    <meta name="description" content="Play board games asynchronously with friends online">
     <style>
         * {
             margin: 0;
@@ -19,6 +20,7 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
+            color: #333;
         }
         
         .container {
@@ -26,19 +28,28 @@
             border-radius: 20px;
             padding: 40px;
             max-width: 600px;
+            width: 100%;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+        
+        .icon {
+            font-size: 4em;
+            margin-bottom: 20px;
         }
         
         h1 {
             color: #667eea;
             margin-bottom: 10px;
             font-size: 2.5em;
+            font-weight: 700;
         }
         
         .subtitle {
             color: #666;
             margin-bottom: 30px;
-            font-size: 1.1em;
+            font-size: 1.2em;
+            font-weight: 300;
         }
         
         .status {
@@ -49,169 +60,142 @@
             display: inline-block;
             margin-bottom: 30px;
             font-weight: bold;
+            font-size: 1.1em;
         }
         
-        .info-grid {
-            display: grid;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-        
-        .info-item {
+        .message {
             background: #f3f4f6;
-            padding: 15px;
-            border-radius: 10px;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
             border-left: 4px solid #667eea;
         }
         
-        .info-label {
-            font-weight: bold;
+        .message h2 {
             color: #374151;
-            margin-bottom: 5px;
-        }
-        
-        .info-value {
-            color: #6b7280;
-            font-family: 'Courier New', monospace;
-        }
-        
-        .next-steps {
-            background: #fef3c7;
-            border-left: 4px solid #f59e0b;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 30px;
-        }
-        
-        .next-steps h2 {
-            color: #92400e;
             margin-bottom: 15px;
-            font-size: 1.3em;
+            font-size: 1.4em;
         }
         
-        .next-steps ol {
-            margin-left: 20px;
-            color: #78350f;
-        }
-        
-        .next-steps li {
-            margin-bottom: 10px;
+        .message p {
+            color: #6b7280;
             line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .message p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        
+        .btn:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         }
         
         .footer {
-            text-align: center;
-            margin-top: 30px;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
             color: #9ca3af;
             font-size: 0.9em;
         }
         
-        code {
-            background: #1f2937;
-            color: #10b981;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.9em;
-        }
-        
-        .check-icon {
+        .status-indicator {
             display: inline-block;
-            width: 20px;
-            height: 20px;
+            width: 12px;
+            height: 12px;
             background: #10b981;
             border-radius: 50%;
-            color: white;
-            text-align: center;
-            line-height: 20px;
             margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .icon {
+                font-size: 3em;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎮 Async Boardgame Service</h1>
-        <p class="subtitle">Nginx + Cloudflare Origin Test Page</p>
+        <div class="icon">🎲</div>
+        
+        <h1>Async Boardgame Service</h1>
+        <p class="subtitle">Play board games with friends, anytime</p>
         
         <div class="status">
-            <span class="check-icon">✓</span>
-            Nginx is running successfully!
+            <span class="status-indicator"></span>
+            Service Online
         </div>
         
-        <div class="info-grid">
-            <div class="info-item">
-                <div class="info-label">Server</div>
-                <div class="info-value" id="server">mediabox</div>
-            </div>
-            
-            <div class="info-item">
-                <div class="info-label">Protocol</div>
-                <div class="info-value" id="protocol">Loading...</div>
-            </div>
-            
-            <div class="info-item">
-                <div class="info-label">Port</div>
-                <div class="info-value" id="port">Loading...</div>
-            </div>
-            
-            <div class="info-item">
-                <div class="info-label">Cloudflare Status</div>
-                <div class="info-value" id="cloudflare">Checking...</div>
-            </div>
+        <div class="message">
+            <h2>Welcome!</h2>
+            <p>
+                This is the static landing page for the Async Boardgame Service. 
+                If you're seeing this page, it means nginx is working correctly.
+            </p>
+            <p>
+                <strong>Note:</strong> This page is only shown when the main application 
+                is not available. Normally, you would see the full game interface.
+            </p>
         </div>
         
-        <div class="next-steps">
-            <h2>📋 Next Steps</h2>
-            <ol>
-                <li>
-                    <strong>Add Cloudflare Origin Certificate:</strong><br>
-                    Place your certificate files at:
-                    <ul style="margin-top: 5px;">
-                        <li><code>/etc/nginx/ssl/cloudflare-origin.pem</code></li>
-                        <li><code>/etc/nginx/ssl/cloudflare-origin.key</code></li>
-                    </ul>
-                </li>
-                <li>
-                    <strong>Test HTTPS:</strong><br>
-                    Visit <code>https://yourdomain.com:8443</code>
-                </li>
-                <li>
-                    <strong>Configure Cloudflare:</strong><br>
-                    Set SSL/TLS mode to "Full (strict)" in Cloudflare dashboard
-                </li>
-                <li>
-                    <strong>Connect to Docker:</strong><br>
-                    Uncomment the proxy sections in <code>cloudflare-origin.conf</code>
-                </li>
-            </ol>
+        <div class="actions">
+            <a href="/" class="btn">
+                🎮 Launch Game App
+            </a>
+            <a href="/health" class="btn" style="background: #6b7280;">
+                ❤️ Health Check
+            </a>
         </div>
         
         <div class="footer">
-            <p>Async Boardgame Service v1.0</p>
-            <p>Ready for Cloudflare integration</p>
+            <p><strong>Async Boardgame Service</strong></p>
+            <p>Nginx is serving this static page</p>
         </div>
     </div>
     
     <script>
-        // Detect protocol and port
-        const protocol = window.location.protocol.replace(':', '');
-        const port = window.location.port || (protocol === 'https' ? '443' : '80');
+        // Auto-redirect to main app after 3 seconds
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 3000);
         
-        document.getElementById('protocol').textContent = protocol.toUpperCase();
-        document.getElementById('port').textContent = port;
-        
-        // Check if behind Cloudflare
-        fetch('/health')
-            .then(response => response.headers)
-            .then(headers => {
-                const cfRay = headers.get('cf-ray');
-                const cloudflareStatus = cfRay ? 
-                    `✓ Connected (Ray: ${cfRay})` : 
-                    '⚠ Direct connection (not through Cloudflare)';
-                document.getElementById('cloudflare').textContent = cloudflareStatus;
-            })
-            .catch(() => {
-                document.getElementById('cloudflare').textContent = '⚠ Unable to check';
-            });
+        // Add click handler to prevent redirect if user interacts
+        document.addEventListener('click', () => {
+            clearTimeout();
+        });
     </script>
 </body>
 </html>
