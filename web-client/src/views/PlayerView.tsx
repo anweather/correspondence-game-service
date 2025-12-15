@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { SignedIn, SignedOut, useUser, useAuth } from '@clerk/clerk-react';
 import { usePlayer } from '../context/PlayerContext';
+import { useWebSocket } from '../context/WebSocketContext';
 import { GameDetail } from '../components/GameDetail/GameDetail';
 import { MoveInput } from '../components/MoveInput/MoveInput';
 import { Modal } from '../components/common';
@@ -35,6 +36,9 @@ export function PlayerView() {
     listAvailableGames,
     listMyGames,
   } = usePlayer();
+
+  // WebSocket integration
+  const { connected, subscribe, unsubscribe, onGameUpdate, onTurnNotification } = useWebSocket();
 
   const [name, setName] = useState('');
   const [gameId, setGameId] = useState('');
@@ -186,6 +190,37 @@ export function PlayerView() {
       loadAvailablePlayers();
     }
   }, [currentGame]);
+
+  // WebSocket subscription management
+  useEffect(() => {
+    if (currentGame) {
+      // Subscribe to game updates
+      subscribe(currentGame.gameId);
+
+      // Register callback for game updates
+      onGameUpdate((updatedGameState: GameState) => {
+        // Only update if it's for the current game
+        if (updatedGameState.gameId === currentGame.gameId) {
+          // Refresh the game to get the latest state
+          refreshGame();
+        }
+      });
+
+      // Register callback for turn notifications
+      onTurnNotification((gameId: string) => {
+        // Only handle notifications for the current game
+        if (gameId === currentGame.gameId) {
+          // Refresh the game to get the latest state
+          refreshGame();
+        }
+      });
+
+      // Cleanup: unsubscribe when game changes or component unmounts
+      return () => {
+        unsubscribe(currentGame.gameId);
+      };
+    }
+  }, [currentGame, subscribe, unsubscribe, onGameUpdate, onTurnNotification, refreshGame]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -500,22 +535,29 @@ export function PlayerView() {
   return (
     <div className={styles.playerView}>
       <div className={styles.gameActions}>
-        <button
-          className={styles.shareButton}
-          onClick={handleCopyLink}
-          aria-label="Copy share link"
-          title="Copy shareable link"
-        >
-          📋 Share Link
-        </button>
-        <button
-          className={styles.refreshButton}
-          onClick={handleRefresh}
-          disabled={loading}
-          aria-label="Refresh"
-        >
-          Refresh
-        </button>
+        <div className={styles.connectionStatus}>
+          <span className={`${styles.connectionIndicator} ${connected ? styles.connected : styles.disconnected}`}>
+            {connected ? '🟢 Connected' : '🔴 Disconnected'}
+          </span>
+        </div>
+        <div className={styles.actionButtons}>
+          <button
+            className={styles.shareButton}
+            onClick={handleCopyLink}
+            aria-label="Copy share link"
+            title="Copy shareable link"
+          >
+            📋 Share Link
+          </button>
+          <button
+            className={styles.refreshButton}
+            onClick={handleRefresh}
+            disabled={loading}
+            aria-label="Refresh"
+          >
+            Refresh
+          </button>
+        </div>
       </div>
 
       {error && (

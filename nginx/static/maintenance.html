@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Temporarily Unavailable - Async Boardgame Service</title>
+    <meta name="description" content="The Async Boardgame Service is temporarily unavailable for maintenance. Please check back shortly.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+        
+        .icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+            font-weight: 300;
+        }
+        
+        .status {
+            background: #f59e0b;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-bottom: 30px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .message {
+            background: #f3f4f6;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .message h2 {
+            color: #374151;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+        
+        .message p {
+            color: #6b7280;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .message p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .info-item {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: #374151;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .info-value {
+            color: #6b7280;
+            font-size: 1.1em;
+        }
+        
+        .actions {
+            margin-top: 30px;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        
+        .btn:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6b7280;
+        }
+        
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            color: #9ca3af;
+            font-size: 0.9em;
+        }
+        
+        .footer p {
+            margin-bottom: 5px;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: #f59e0b;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: blink 1.5s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+        
+        .auto-refresh {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            color: #92400e;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .icon {
+                font-size: 3em;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn {
+                display: block;
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">🛠️</div>
+        
+        <h1>Service Temporarily Unavailable</h1>
+        <p class="subtitle">Async Boardgame Service</p>
+        
+        <div class="status">
+            <span class="status-indicator"></span>
+            Under Maintenance
+        </div>
+        
+        <div class="message">
+            <h2>We'll be back shortly!</h2>
+            <p>
+                Our game service is currently undergoing scheduled maintenance to improve your gaming experience. 
+                We're working hard to get everything back online as quickly as possible.
+            </p>
+            <p>
+                <strong>What's happening:</strong> We're updating our servers to provide you with better performance, 
+                new features, and enhanced security.
+            </p>
+        </div>
+        
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Estimated Duration</div>
+                <div class="info-value">15-30 minutes</div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-label">Status</div>
+                <div class="info-value">Maintenance in Progress</div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-label">Last Updated</div>
+                <div class="info-value" id="timestamp">Loading...</div>
+            </div>
+        </div>
+        
+        <div class="actions">
+            <button class="btn" onclick="window.location.reload()">
+                🔄 Refresh Page
+            </button>
+            <a href="mailto:support@asyncgames.com" class="btn btn-secondary">
+                📧 Contact Support
+            </a>
+        </div>
+        
+        <div class="auto-refresh">
+            <strong>Auto-refresh:</strong> This page will automatically check for service availability every 30 seconds.
+        </div>
+        
+        <div class="footer">
+            <p><strong>Async Boardgame Service</strong></p>
+            <p>Thank you for your patience while we improve our service.</p>
+            <p>Follow us for updates: <a href="#" style="color: #667eea;">@AsyncGames</a></p>
+        </div>
+    </div>
+    
+    <script>
+        // Update timestamp
+        function updateTimestamp() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                timeZoneName: 'short'
+            });
+            document.getElementById('timestamp').textContent = timeString;
+        }
+        
+        // Auto-refresh functionality
+        function checkServiceStatus() {
+            fetch('/health', { 
+                method: 'GET',
+                cache: 'no-cache'
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Service is back online, redirect to main page
+                    window.location.href = '/';
+                }
+            })
+            .catch(() => {
+                // Service still down, update timestamp
+                updateTimestamp();
+            });
+        }
+        
+        // Initialize
+        updateTimestamp();
+        
+        // Check service status every 30 seconds
+        setInterval(checkServiceStatus, 30000);
+        
+        // Update timestamp every second
+        setInterval(updateTimestamp, 1000);
+        
+        // Add keyboard shortcut for manual refresh
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
+                e.preventDefault();
+                checkServiceStatus();
+            }
+        });
+    </script>
+</body>
+</html>

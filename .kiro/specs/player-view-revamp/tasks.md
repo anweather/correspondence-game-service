@@ -319,6 +319,29 @@
     - Refactor for code quality
     - _Requirements: 14.2, 14.3, 15.2_
 
+- [x] 19.3 Implement proper JWT validation for WebSocket authentication (TDD)
+  - [x] 19.3.1 Write tests for JWT validation
+    - Write tests in tests/unit/infrastructure/auth/JwtValidator.test.ts
+    - Test Clerk JWT token validation
+    - Test token expiration handling
+    - Test invalid token rejection
+    - Test token parsing for user ID extraction
+    - _Requirements: 15.1, 15.2, 15.3_
+  - [x] 19.3.2 Implement JWT validation service
+    - Create JwtValidator.ts in src/infrastructure/auth/
+    - Implement Clerk JWT token validation using @clerk/backend
+    - Extract user ID from validated token
+    - Handle token expiration and invalid tokens
+    - Implement to pass all tests
+    - Refactor for code quality
+    - _Requirements: 15.1, 15.2, 15.3_
+  - [x] 19.3.3 Update WebSocket adapter to use JWT validation
+    - Update websocketAdapter.ts to use JwtValidator
+    - Replace development fallback with proper JWT validation
+    - Maintain backward compatibility for test tokens in test environment
+    - Update integration tests to handle proper JWT validation
+    - _Requirements: 15.1, 15.2, 15.3_
+
 ## Phase 6: Frontend Context and Hooks (TDD)
 
 - [x] 20. WebSocketContext (TDD)
@@ -772,14 +795,14 @@
     - Refactor for code quality
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
 
-- [ ] 45. Integrate WebSocket for real-time updates (TDD)
-  - [ ] 45.1 Write tests for WebSocket integration
+- [-] 45. Integrate WebSocket for real-time updates (TDD)
+  - [x] 45.1 Write tests for WebSocket integration
     - Update tests in web-client/src/views/__tests__/PlayerView.test.tsx
     - Test game subscription on load
     - Test game state update on WebSocket message
     - Test connection status indicator
     - _Requirements: 14.1, 14.2, 14.3, 14.4, 14.5_
-  - [ ] 45.2 Implement WebSocket integration
+  - [x] 45.2 Implement WebSocket integration
     - Update PlayerView to use WebSocketContext
     - Subscribe to current game
     - Update game state on WebSocket events

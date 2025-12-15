@@ -9,6 +9,7 @@ import { parse as parseUrl } from 'url';
 import { IWebSocketService, WebSocketMessageType } from '@domain/interfaces/IWebSocketService';
 import { PlayerIdentityRepository } from '@domain/interfaces/PlayerIdentityRepository';
 import { getLogger } from '@infrastructure/logging/Logger';
+import { JwtValidator } from '@infrastructure/auth/JwtValidator';
 import { randomBytes } from 'crypto';
 
 /**
@@ -44,6 +45,7 @@ export function setupWebSocketServer(
   playerIdentityRepo: PlayerIdentityRepository
 ): WebSocketServer {
   const logger = getLogger();
+  const jwtValidator = new JwtValidator();
 
   // Create WebSocket server
   const wss = new WebSocketServer({ noServer: true });
@@ -71,15 +73,13 @@ export function setupWebSocketServer(
       return;
     }
 
-    // Validate token by checking if player identity exists
-    // TODO: Implement proper JWT token validation for Clerk tokens
-    // For now, we'll use a simplified approach for development
+    // Validate JWT token using proper Clerk validation
+    // Requirements: 15.1, 15.2, 15.3
     let userId: string | null = null;
 
     try {
-      // Development approach: Accept any token and try to find a user
-      // In production, this should validate JWT tokens from Clerk
-      if (token.startsWith('test-token-')) {
+      // Handle test tokens for testing environment
+      if (process.env.NODE_ENV === 'test' && token.startsWith('test-token-')) {
         // Test token format for testing
         const suffix = token.replace('test-token-', '');
         userId = `test-user-${suffix}`;
@@ -87,25 +87,37 @@ export function setupWebSocketServer(
         // Verify user exists by checking external auth
         const playerIdentity = await playerIdentityRepo.findByExternalId('test', userId);
         if (!playerIdentity) {
-          logger.warn('WebSocket connection rejected: User not found', { userId });
+          logger.warn('WebSocket connection rejected: Test user not found', { userId });
           userId = null;
-        }
-      } else if (token.startsWith('debug-token-') || token.length > 50) {
-        // For development: Accept Clerk JWT tokens (which are long) or debug tokens
-        // This is a temporary solution until proper JWT validation is implemented
-        logger.info('WebSocket connection attempt with Clerk token (development mode)');
-        
-        // Get the first available user for development
-        // TODO: Replace with proper JWT token validation
-        const allUsers = await playerIdentityRepo.findAll();
-        if (allUsers.length > 0) {
-          userId = allUsers[0].id;
-          logger.info('WebSocket connection using first available user for development', { userId });
         } else {
-          logger.warn('WebSocket connection rejected: No users found in database');
+          logger.info('WebSocket connection authenticated with test token', { userId });
         }
       } else {
-        logger.warn('WebSocket connection rejected: Invalid token format');
+        // Use proper JWT validation for production tokens
+        const validationResult = await jwtValidator.validateToken(token);
+
+        if (validationResult.isValid && validationResult.userId) {
+          // Verify user exists in our system
+          const playerIdentity = await playerIdentityRepo.findByExternalId(
+            'clerk',
+            validationResult.userId
+          );
+          if (playerIdentity) {
+            userId = playerIdentity.id;
+            logger.info('WebSocket connection authenticated with JWT token', {
+              externalUserId: validationResult.userId,
+              internalUserId: userId,
+            });
+          } else {
+            logger.warn('WebSocket connection rejected: User not found in system', {
+              externalUserId: validationResult.userId,
+            });
+          }
+        } else {
+          logger.warn('WebSocket connection rejected: JWT validation failed', {
+            error: validationResult.error,
+          });
+        }
       }
     } catch (error) {
       logger.error('Error validating WebSocket token', {

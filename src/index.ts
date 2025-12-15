@@ -21,6 +21,8 @@ import { PostgresPlayerIdentityRepository } from './infrastructure/persistence/P
 import { PostgresPlayerProfileRepository } from './infrastructure/persistence/PostgresPlayerProfileRepository';
 import { PostgresStatsRepository } from './infrastructure/persistence/PostgresStatsRepository';
 import { RendererService } from './infrastructure/rendering/RendererService';
+import { WebSocketManager } from './infrastructure/websocket/WebSocketManager';
+import { setupWebSocketServer } from './adapters/rest/websocketAdapter';
 import { TicTacToeEngine } from '@games/tic-tac-toe/engine';
 import { ConnectFourEngine } from '@games/connect-four/engine';
 import { DatabaseConnection } from './infrastructure/persistence/DatabaseConnection';
@@ -121,12 +123,16 @@ async function startApplication() {
     gameType: connectFourEngine.getGameType(),
   });
 
+  // Initialize WebSocket manager
+  const webSocketManager = new WebSocketManager(logger);
+
   // Initialize services
   const gameManagerService = new GameManagerService(pluginRegistry, gameRepository);
   const stateManagerService = new StateManagerService(
     gameRepository,
     pluginRegistry,
-    gameLockManager
+    gameLockManager,
+    webSocketManager
   );
   const playerProfileService = new PlayerProfileService(playerProfileRepository);
   const statsService = new StatsService(statsRepository);
@@ -170,6 +176,13 @@ async function startApplication() {
       apiUrl: `http://localhost:${PORT}/api`,
       availableGameTypes: pluginRegistry.list().map((t) => t.type),
     });
+  });
+
+  // Setup WebSocket server
+  logger.info('Setting up WebSocket server');
+  setupWebSocketServer(server, webSocketManager, playerIdentityRepository);
+  logger.info('WebSocket server setup complete', {
+    wsUrl: `ws://localhost:${PORT}/api/ws`,
   });
 
   // Graceful shutdown handler

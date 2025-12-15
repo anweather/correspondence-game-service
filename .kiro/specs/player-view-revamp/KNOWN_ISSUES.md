@@ -423,6 +423,56 @@ if (isLoading && !stats && (gameHistory?.length ?? 0) === 0) {
 
 ---
 
+### 14. WebSocket Authentication Implementation
+**Status:** Open  
+**Priority:** High  
+**Description:** WebSocket authentication currently uses a temporary development solution that accepts any token and uses the first available user. This needs to be replaced with proper Clerk JWT token validation for production security.
+
+**Current Behavior:**
+- WebSocket authentication bypasses proper token validation
+- Uses first available user from database for any connection
+- Development-only solution that's not secure
+- TODO comments indicate incomplete implementation
+
+**Expected Behavior:**
+- Proper JWT token validation using Clerk SDK
+- Each WebSocket connection should be authenticated with the correct user
+- Secure token validation matching REST API authentication
+- Proper error handling for invalid or expired tokens
+
+**Technical Notes:**
+- Located in `src/adapters/rest/websocketAdapter.ts` around line 75
+- Current code has TODO comments for proper JWT validation
+- Uses `playerIdentityRepo.findAll()` as temporary workaround
+- Should integrate with Clerk's JWT validation similar to REST middleware
+
+**Security Risk:**
+- Any client can connect to WebSocket with any token
+- User identity is not properly validated
+- Could allow unauthorized access to game updates
+- Not suitable for production deployment
+
+**Suggested Implementation:**
+1. Import Clerk JWT validation utilities
+2. Validate JWT tokens similar to `clerkMiddleware.ts`
+3. Extract user ID from validated JWT token
+4. Remove temporary `findAll()` workaround
+5. Add proper error handling for authentication failures
+6. Test with real Clerk tokens from frontend
+
+**Code Location:**
+```typescript
+// File: src/adapters/rest/websocketAdapter.ts
+// Lines: ~75-95
+// TODO: Implement proper JWT token validation for Clerk tokens
+```
+
+**Related Files:**
+- `src/adapters/rest/auth/clerkMiddleware.ts` (reference implementation)
+- `src/adapters/rest/auth/clerk/ClerkAuthenticationService.ts` (Clerk utilities)
+
+---
+
 ## Future Enhancements
 
 ### Error Boundary for Profile Loading

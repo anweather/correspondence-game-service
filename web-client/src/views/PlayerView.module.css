@@ -103,12 +103,46 @@
 /* Game Actions (when in game view) */
 .gameActions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   gap: 0.5rem;
   padding: 1rem 2rem;
   background-color: var(--color-surface, #ffffff);
   border-bottom: 1px solid var(--color-border, #e0e0e0);
+}
+
+/* Connection Status */
+.connectionStatus {
+  display: flex;
+  align-items: center;
+}
+
+.connectionIndicator {
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.connectionIndicator.connected {
+  background-color: var(--color-success-bg, #d4edda);
+  color: var(--color-success-text, #155724);
+  border: 1px solid var(--color-success-border, #c3e6cb);
+}
+
+.connectionIndicator.disconnected {
+  background-color: var(--color-warning-bg, #fff3cd);
+  color: var(--color-warning-text, #856404);
+  border: 1px solid var(--color-warning-border, #ffeaa7);
+}
+
+.actionButtons {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 /* Error Display */
