@@ -8,7 +8,7 @@ import {
   useMemo,
 } from 'react';
 import type { ReactNode } from 'react';
-import { useAuth } from '@clerk/clerk-react';
+import { useAuth, useUser } from '@clerk/clerk-react';
 import { GameClient } from '../api/gameClient';
 import type { GameState } from '../types/game';
 
@@ -103,8 +103,23 @@ interface WebSocketProviderProps {
  * Requirements: 14.1, 14.2, 14.3, 14.4, 14.5
  */
 export function WebSocketProvider({ children }: WebSocketProviderProps) {
-  const { getToken, userId } = useAuth();
+  const { getToken } = useAuth();
+  const { user, isSignedIn } = useUser();
   const [connected, setConnected] = useState(false);
+
+  // Use Clerk user ID
+  const userId = user?.id;
+
+  // Debug authentication state
+  useEffect(() => {
+    console.log('WebSocketProvider auth state:', { 
+      userId, 
+      isSignedIn,
+      hasUser: !!user,
+      hasGetToken: !!getToken,
+      userIdType: typeof userId 
+    });
+  }, [userId, isSignedIn, user, getToken]);
 
   // WebSocket instance
   const wsRef = useRef<WebSocket | null>(null);
@@ -299,20 +314,25 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
    * Requirement: 14.1 - WebSocket connection establishment
    */
   const connect = useCallback(async () => {
+    console.log('WebSocket connect() called', { userId, hasGetToken: !!getToken });
+    
     // Don't connect if already connected or connecting
     if (wsRef.current?.readyState === WebSocket.OPEN || 
         wsRef.current?.readyState === WebSocket.CONNECTING) {
+      console.log('WebSocket already connected or connecting');
       return;
     }
 
     // Don't connect if no user ID
     if (!userId) {
+      console.log('WebSocket connection skipped: no userId available');
       return;
     }
 
     try {
       // Get authentication token
       const token = await getToken();
+      console.log('WebSocket token obtained', { hasToken: !!token });
       if (!token) {
         console.warn('No authentication token available');
         return;
@@ -321,9 +341,15 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
       // Construct WebSocket URL
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       const host = window.location.host;
-      const wsUrl = `${protocol}//${host}/api/ws?token=${token}`;
+      
+      // In development, connect directly to backend if running on Vite dev server
+      const isDev = host.includes('5173') || host.includes('localhost:5173');
+      const wsUrl = isDev 
+        ? `ws://localhost:3001/api/ws?token=${token}`
+        : `${protocol}//${host}/api/ws?token=${token}`;
 
       // Create WebSocket connection
+      console.log('Creating WebSocket connection to:', wsUrl);
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 
@@ -414,16 +440,18 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
   }, [stopPolling]);
 
   /**
-   * Connect on mount, disconnect on unmount
+   * Connect when user is available, disconnect on unmount
    */
   useEffect(() => {
-    connect();
+    // Only connect when we have a userId (Clerk has loaded)
+    if (userId) {
+      connect();
+    }
 
     return () => {
       disconnect();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Empty deps - connect and disconnect are stable
+  }, [userId, connect, disconnect]); // Connect when userId becomes available
 
   const value: WebSocketContextType = {
     connected,
