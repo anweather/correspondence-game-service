@@ -84,7 +84,11 @@ export class PostgresStatsRepository {
         SUM(CASE WHEN winner = $1 THEN 1 ELSE 0 END) as wins,
         SUM(CASE WHEN winner IS NOT NULL AND winner != $1 AND lifecycle = $2 THEN 1 ELSE 0 END) as losses,
         SUM(CASE WHEN winner IS NULL AND lifecycle = $2 THEN 1 ELSE 0 END) as draws,
-        SUM(jsonb_array_length(state->'moveHistory')) as total_turns
+        SUM(
+          (SELECT COUNT(*) 
+           FROM jsonb_array_elements(state->'moveHistory') AS move 
+           WHERE move->>'playerId' = $1)
+        ) as total_turns
       FROM games
       WHERE state->'players' @> $3::jsonb
         AND lifecycle = $2
@@ -194,7 +198,7 @@ export class PostgresStatsRepository {
           END) as losses
         FROM player_games
         GROUP BY user_id
-        HAVING COUNT(*) >= 5
+        HAVING COUNT(*) >= 1
       )
       SELECT 
         ps.user_id,
@@ -209,7 +213,6 @@ export class PostgresStatsRepository {
         END as win_rate
       FROM player_stats ps
       JOIN player_profiles pp ON ps.user_id = pp.user_id
-      WHERE (ps.wins + ps.losses) > 0
       ORDER BY win_rate DESC, total_games DESC
       LIMIT $${paramIndex}
     `;

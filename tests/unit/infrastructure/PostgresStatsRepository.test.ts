@@ -347,9 +347,9 @@ describe('PostgresStatsRepository', () => {
 
       await repository.getLeaderboard();
 
-      // Should filter players with minimum games (e.g., 5 games minimum)
+      // Should filter players with minimum games (e.g., 1 game minimum)
       expect(mockPool.query).toHaveBeenCalledWith(
-        expect.stringContaining('HAVING COUNT(*) >= 5'),
+        expect.stringContaining('HAVING COUNT(*) >= 1'),
         expect.any(Array)
       );
     });

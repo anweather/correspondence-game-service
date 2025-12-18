@@ -1,34 +1,23 @@
+/**
+ * Jest configuration for database integration tests
+ * These tests use real PostgreSQL containers and run serially
+ */
+
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  roots: ['<rootDir>/src', '<rootDir>/tests', '<rootDir>/games'],
-  testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
-  testPathIgnorePatterns: ['/node_modules/', '/dist/', '/coverage/'],
+  roots: ['<rootDir>/src', '<rootDir>/tests'],
+  testMatch: ['**/tests/database/**/*.test.ts'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
-  collectCoverageFrom: [
-    'src/**/*.ts',
-    'games/**/*.ts',
-    'games/**/*.tsx',
-    '!src/**/*.d.ts',
-    '!src/**/*.test.ts',
-    '!src/**/*.spec.ts',
-    '!src/index.ts',
-    '!games/**/*.d.ts',
-    '!games/**/*.test.ts',
-    '!games/**/*.test.tsx',
-    '!games/**/*.spec.ts'
-  ],
-  coverageThreshold: {
-    global: {
-      branches: 80,
-      functions: 80,
-      lines: 80,
-      statements: 80
-    }
-  },
-  coverageDirectory: 'coverage',
-  coverageReporters: ['text', 'lcov', 'html', 'json'],
+  
+  // Database tests must run serially to avoid container conflicts
+  maxWorkers: 1,
+  
+  // Longer timeouts for container startup
+  testTimeout: 120000,
+  
+  // Module name mapping
   moduleNameMapper: {
     '^@domain/(.*)$': '<rootDir>/src/domain/$1',
     '^@application/(.*)$': '<rootDir>/src/application/$1',
@@ -40,5 +29,9 @@ module.exports = {
     '^@games/tic-tac-toe/ui$': '<rootDir>/games/tic-tac-toe/ui',
     '^@games/(.*)$': '<rootDir>/games/$1'
   },
-  verbose: true
+  
+  verbose: true,
+  
+  // Don't collect coverage for database tests (they're integration tests)
+  collectCoverage: false
 };

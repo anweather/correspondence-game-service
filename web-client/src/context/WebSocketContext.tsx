@@ -256,6 +256,14 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
   }, []);
 
   /**
+   * Register callback for game completion
+   * Requirement: 14.3 - Event emission on game completion
+   */
+  const onGameComplete = useCallback((callback: (gameId: string, winner: string | null) => void) => {
+    gameCompleteCallbacksRef.current.push(callback);
+  }, []);
+
+  /**
    * Handle incoming WebSocket messages
    */
   const handleMessage = useCallback((event: MessageEvent) => {
