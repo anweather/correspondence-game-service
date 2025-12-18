@@ -82,6 +82,10 @@
       "eslint --fix",
       "prettier --write",
       "npm run test:run -- --bail --findRelatedTests"
+    ],
+    "web-client/src/**/*.{ts,tsx}": [
+      "cd web-client && npm run lint",
+      "cd web-client && npm run test:run"
     ]
   }
 }

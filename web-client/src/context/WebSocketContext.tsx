@@ -111,15 +111,7 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
   const userId = user?.id;
 
   // Debug authentication state
-  useEffect(() => {
-    console.log('WebSocketProvider auth state:', { 
-      userId, 
-      isSignedIn,
-      hasUser: !!user,
-      hasGetToken: !!getToken,
-      userIdType: typeof userId 
-    });
-  }, [userId, isSignedIn, user, getToken]);
+  // Authentication state tracking for connection management
 
   // WebSocket instance
   const wsRef = useRef<WebSocket | null>(null);
@@ -294,11 +286,8 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
           break;
 
         case 'subscribed':
-          console.log(`Subscribed to game ${message.gameId}`);
-          break;
-
         case 'unsubscribed':
-          console.log(`Unsubscribed from game ${message.gameId}`);
+          // Subscription status updates - no logging needed
           break;
 
         case 'pong':
@@ -322,27 +311,22 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
    * Requirement: 14.1 - WebSocket connection establishment
    */
   const connect = useCallback(async () => {
-    console.log('WebSocket connect() called', { userId, hasGetToken: !!getToken });
-    
     // Don't connect if already connected or connecting
     if (wsRef.current?.readyState === WebSocket.OPEN || 
         wsRef.current?.readyState === WebSocket.CONNECTING) {
-      console.log('WebSocket already connected or connecting');
       return;
     }
 
     // Don't connect if no user ID
     if (!userId) {
-      console.log('WebSocket connection skipped: no userId available');
       return;
     }
 
     try {
       // Get authentication token
       const token = await getToken();
-      console.log('WebSocket token obtained', { hasToken: !!token });
       if (!token) {
-        console.warn('No authentication token available');
+        console.error('No authentication token available');
         return;
       }
 
@@ -357,13 +341,11 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
         : `${protocol}//${host}/api/ws?token=${token}`;
 
       // Create WebSocket connection
-      console.log('Creating WebSocket connection to:', wsUrl);
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 
       // Set handlers immediately before any async operations
       ws.onopen = () => {
-        console.log('WebSocket connected');
         setConnected(true);
 
         // Reset reconnection attempts on successful connection
@@ -388,7 +370,7 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
       };
 
       ws.onclose = () => {
-        console.log('WebSocket closed');
+
         setConnected(false);
         wsRef.current = null;
 
@@ -396,7 +378,7 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
         // Requirement: 14.4 - Reconnection with exponential backoff
         if (reconnectAttemptsRef.current < maxReconnectAttempts) {
           const delay = getBackoffDelay(reconnectAttemptsRef.current);
-          console.log(`Reconnecting in ${delay}ms (attempt ${reconnectAttemptsRef.current + 1}/${maxReconnectAttempts})`);
+
 
           reconnectTimeoutRef.current = setTimeout(() => {
             reconnectAttemptsRef.current++;

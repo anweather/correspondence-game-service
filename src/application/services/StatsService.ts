@@ -24,18 +24,8 @@ export class StatsService {
   async getPlayerStats(userId: string, gameType?: string): Promise<PlayerStats> {
     const logger = getLogger();
 
-    logger.debug('Getting player stats', { userId, gameType });
-
     try {
       const stats = await this.statsRepository.getPlayerStats(userId, gameType);
-
-      logger.info('Retrieved player stats', {
-        userId,
-        gameType,
-        totalGames: stats.totalGames,
-        winRate: stats.winRate,
-      });
-
       return stats;
     } catch (error) {
       logger.error('Failed to get player stats', {
@@ -56,17 +46,8 @@ export class StatsService {
   async getLeaderboard(gameType?: string, limit?: number): Promise<LeaderboardEntry[]> {
     const logger = getLogger();
 
-    logger.debug('Getting leaderboard', { gameType, limit });
-
     try {
       const leaderboard = await this.statsRepository.getLeaderboard(gameType, limit);
-
-      logger.info('Retrieved leaderboard', {
-        gameType,
-        limit,
-        entries: leaderboard.length,
-      });
-
       return leaderboard;
     } catch (error) {
       logger.error('Failed to get leaderboard', {
@@ -87,17 +68,8 @@ export class StatsService {
   async getGameHistory(userId: string, filters: GameHistoryFilters = {}): Promise<GameState[]> {
     const logger = getLogger();
 
-    logger.debug('Getting game history', { userId, filters });
-
     try {
       const games = await this.statsRepository.getGameHistory(userId, filters);
-
-      logger.info('Retrieved game history', {
-        userId,
-        filters,
-        count: games.length,
-      });
-
       return games;
     } catch (error) {
       logger.error('Failed to get game history', {

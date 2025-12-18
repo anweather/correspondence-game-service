@@ -142,29 +142,7 @@ export function validateAndLogConfig(): AppConfig {
   try {
     const config = loadConfig();
 
-    // Log configuration (mask sensitive parts of DATABASE_URL)
-    const maskedDbUrl = config.database.url
-      ? config.database.url.replace(/(:\/\/)([^:]+):([^@]+)(@)/, '$1$2:****$4')
-      : 'not configured (using in-memory storage)';
-
-    // Mask Clerk secret key (show first 8 chars + ****)
-    const maskedClerkSecret = config.auth.clerk.secretKey
-      ? config.auth.clerk.secretKey.substring(0, 8) + '****'
-      : 'not configured';
-
-    console.log('Configuration loaded successfully:');
-    console.log(`  PORT: ${config.port}`);
-    console.log(`  NODE_ENV: ${config.nodeEnv}`);
-    console.log(`  DATABASE_URL: ${maskedDbUrl}`);
-    console.log(`  DB_POOL_SIZE: ${config.database.poolSize}`);
-    console.log(`  LOG_LEVEL: ${config.logging.level}`);
-    console.log(`  LOG_FORMAT: ${config.logging.format}`);
-    console.log(`  AUTH_ENABLED: ${config.auth.enabled}`);
-    if (config.auth.enabled) {
-      console.log(`  CLERK_PUBLISHABLE_KEY: ${config.auth.clerk.publishableKey}`);
-      console.log(`  CLERK_SECRET_KEY: ${maskedClerkSecret}`);
-    }
-    console.log(`  ADMIN_USER_IDS: ${config.adminUserIds.length} admin(s) configured`);
+    // Configuration loaded successfully
 
     return config;
   } catch (error) {

@@ -124,13 +124,7 @@ export class PostgresStatsRepository {
         averageTurnsPerGame = totalTurns / totalGames;
       }
 
-      logger.debug('Retrieved player stats', {
-        userId,
-        gameType,
-        totalGames,
-        wins,
-        losses,
-      });
+      // Player stats retrieved successfully
 
       return {
         userId,
@@ -232,11 +226,7 @@ export class PostgresStatsRepository {
         winRate: parseFloat(row.win_rate),
       }));
 
-      logger.debug('Retrieved leaderboard', {
-        gameType,
-        limit,
-        entries: leaderboard.length,
-      });
+      // Leaderboard retrieved successfully
 
       return leaderboard;
     } catch (error) {
@@ -290,11 +280,7 @@ export class PostgresStatsRepository {
 
       const games = result.rows.map((row) => this.deserializeGameState(row));
 
-      logger.debug('Retrieved game history', {
-        userId,
-        filters,
-        count: games.length,
-      });
+      // Game history retrieved successfully
 
       return games;
     } catch (error) {
@@ -336,9 +322,6 @@ export class PostgresStatsRepository {
    * Closes all connections in the pool
    */
   async close(): Promise<void> {
-    const logger = getLogger();
-    logger.info('Closing stats repository database connections');
     await this.pool.end();
-    logger.info('Stats repository database connections closed');
   }
 }

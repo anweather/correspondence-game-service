@@ -249,18 +249,19 @@ describe('Configuration Service', () => {
       processExitSpy.mockRestore();
     });
 
-    it('should log configuration successfully and mask password', () => {
+    it('should load configuration successfully without verbose logging', () => {
       process.env.DATABASE_URL = 'postgresql://user:secretpass@localhost:5432/db';
       process.env.PORT = '3000';
 
       const config = validateAndLogConfig();
 
       expect(config).toBeDefined();
-      expect(consoleLogSpy).toHaveBeenCalledWith('Configuration loaded successfully:');
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        expect.stringContaining('postgresql://user:****@localhost:5432/db')
+      expect(config.database.url).toBe('postgresql://user:secretpass@localhost:5432/db');
+      expect(config.port).toBe(3000);
+      // Verbose logging has been removed for performance
+      expect(consoleLogSpy).not.toHaveBeenCalledWith(
+        expect.stringContaining('Configuration loaded successfully')
       );
-      expect(consoleLogSpy).not.toHaveBeenCalledWith(expect.stringContaining('secretpass'));
     });
 
     it('should exit process when configuration is invalid', () => {
@@ -273,7 +274,7 @@ describe('Configuration Service', () => {
       );
     });
 
-    it('should log auth configuration when enabled', () => {
+    it('should load auth configuration when enabled without verbose logging', () => {
       process.env.AUTH_ENABLED = 'true';
       process.env.CLERK_PUBLISHABLE_KEY = 'pk_test_valid_key_12345';
       process.env.CLERK_SECRET_KEY = 'sk_test_valid_secret_12345';
@@ -281,21 +282,25 @@ describe('Configuration Service', () => {
       const config = validateAndLogConfig();
 
       expect(config).toBeDefined();
-      expect(consoleLogSpy).toHaveBeenCalledWith('Configuration loaded successfully:');
-      expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('AUTH_ENABLED: true'));
+      expect(config.auth.enabled).toBe(true);
+      expect(config.auth.clerk.publishableKey).toBe('pk_test_valid_key_12345');
+      expect(config.auth.clerk.secretKey).toBe('sk_test_valid_secret_12345');
+      // Verbose logging has been removed for performance
     });
 
-    it('should mask Clerk secret key in logs', () => {
+    it('should load configuration without exposing secrets', () => {
       process.env.AUTH_ENABLED = 'true';
       process.env.CLERK_PUBLISHABLE_KEY = 'pk_test_valid_key_12345';
       process.env.CLERK_SECRET_KEY = 'sk_test_secret_should_be_masked';
 
-      validateAndLogConfig();
+      const config = validateAndLogConfig();
 
+      expect(config).toBeDefined();
+      expect(config.auth.clerk.secretKey).toBe('sk_test_secret_should_be_masked');
+      // Secrets are not logged anymore for security
       expect(consoleLogSpy).not.toHaveBeenCalledWith(
         expect.stringContaining('sk_test_secret_should_be_masked')
       );
-      expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('sk_test_****'));
     });
   });
 });

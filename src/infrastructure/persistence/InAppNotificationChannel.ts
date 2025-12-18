@@ -4,6 +4,7 @@ import {
   NotificationData,
   NotificationType,
 } from '@domain/interfaces/INotificationChannel';
+import { getLogger } from '../logging/Logger';
 
 /**
  * Stored notification record from database
@@ -39,7 +40,11 @@ export class InAppNotificationChannel implements INotificationChannel {
 
     // Handle pool errors
     this.pool.on('error', (err) => {
-      console.error('Unexpected error on idle client', err);
+      const logger = getLogger();
+      logger.error('Unexpected error on idle notification client', {
+        error: err.message,
+        stack: err.stack,
+      });
     });
   }
 
@@ -58,7 +63,10 @@ export class InAppNotificationChannel implements INotificationChannel {
       await this.pool.query('SELECT 1 as result');
       return true;
     } catch (error) {
-      console.error('InAppNotificationChannel availability check failed:', error);
+      const logger = getLogger();
+      logger.error('InAppNotificationChannel availability check failed', {
+        error: error instanceof Error ? error.message : String(error),
+      });
       return false;
     }
   }
@@ -106,7 +114,10 @@ export class InAppNotificationChannel implements INotificationChannel {
 
       await this.pool.query(query, values);
     } catch (error) {
-      console.error('Failed to send in-app notification:', error);
+      const logger = getLogger();
+      logger.error('Failed to send in-app notification', {
+        error: error instanceof Error ? error.message : String(error),
+      });
       throw error;
     }
   }
@@ -190,7 +201,10 @@ export class InAppNotificationChannel implements INotificationChannel {
         sentAt: row.sent_at ? new Date(row.sent_at) : null,
       }));
     } catch (error) {
-      console.error('Failed to retrieve notifications:', error);
+      const logger = getLogger();
+      logger.error('Failed to retrieve notifications', {
+        error: error instanceof Error ? error.message : String(error),
+      });
       throw error;
     }
   }
@@ -214,7 +228,10 @@ export class InAppNotificationChannel implements INotificationChannel {
         throw new Error('Notification not found');
       }
     } catch (error) {
-      console.error('Failed to mark notification as read:', error);
+      const logger = getLogger();
+      logger.error('Failed to mark notification as read', {
+        error: error instanceof Error ? error.message : String(error),
+      });
       throw error;
     }
   }
@@ -233,7 +250,10 @@ export class InAppNotificationChannel implements INotificationChannel {
 
       await this.pool.query(query, [userId]);
     } catch (error) {
-      console.error('Failed to mark all notifications as read:', error);
+      const logger = getLogger();
+      logger.error('Failed to mark all notifications as read', {
+        error: error instanceof Error ? error.message : String(error),
+      });
       throw error;
     }
   }
@@ -256,7 +276,10 @@ export class InAppNotificationChannel implements INotificationChannel {
         throw new Error('Notification not found');
       }
     } catch (error) {
-      console.error('Failed to delete notification:', error);
+      const logger = getLogger();
+      logger.error('Failed to delete notification', {
+        error: error instanceof Error ? error.message : String(error),
+      });
       throw error;
     }
   }

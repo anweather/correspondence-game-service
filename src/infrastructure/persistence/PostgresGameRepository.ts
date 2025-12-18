@@ -110,10 +110,7 @@ export class PostgresGameRepository implements GameRepository {
         row.created_at,
         row.updated_at,
       ]);
-      logger.debug('Game saved to database', {
-        gameId: state.gameId,
-        gameType: state.gameType,
-      });
+      // Game saved successfully
     } catch (error) {
       logger.error('Failed to save game to database', {
         gameId: state.gameId,
@@ -297,10 +294,7 @@ export class PostgresGameRepository implements GameRepository {
         throw new ConcurrencyError(gameId);
       }
 
-      logger.debug('Game updated in database', {
-        gameId,
-        newVersion: row.version,
-      });
+      // Game updated successfully
 
       return this.deserializeGameState(result.rows[0]);
     } catch (error) {
@@ -344,9 +338,6 @@ export class PostgresGameRepository implements GameRepository {
    * Closes all connections in the pool
    */
   async close(): Promise<void> {
-    const logger = getLogger();
-    logger.info('Closing repository database connections');
     await this.pool.end();
-    logger.info('Repository database connections closed');
   }
 }

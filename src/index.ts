@@ -31,7 +31,7 @@ import { validateAndLogConfig } from './config';
 import { GameRepository } from '@domain/interfaces';
 import { initializeLogger } from './infrastructure/logging/Logger';
 
-console.log('Async Boardgame Service - Starting...');
+// Startup logging will be handled by proper logger after initialization
 
 // Main application startup function
 async function startApplication() {

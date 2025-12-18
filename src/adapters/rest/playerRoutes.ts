@@ -18,11 +18,8 @@ export function createPlayerRoutes(playerIdentityRepo: PlayerIdentityRepository)
     try {
       // If user is authenticated, return their player identity from req.user
       // This was populated by the Clerk middleware
-      console.log('[PlayerRoutes] req.user:', (req as any).user);
-
       if ((req as any).user) {
         const authenticatedUser = (req as any).user;
-        console.log('[PlayerRoutes] Returning authenticated user identity:', authenticatedUser.id);
         res.json({
           id: authenticatedUser.id,
           name: authenticatedUser.username || authenticatedUser.email || 'Player',
@@ -30,7 +27,7 @@ export function createPlayerRoutes(playerIdentityRepo: PlayerIdentityRepository)
         return;
       }
 
-      console.log('[PlayerRoutes] No authenticated user, creating random identity');
+      // Fallback for non-authenticated users (when AUTH_ENABLED=false)
 
       // Fallback for non-authenticated users (when AUTH_ENABLED=false)
       const { name } = req.body;
