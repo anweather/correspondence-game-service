@@ -218,25 +218,25 @@
 </head>
 <body>
     <div class="container">
-        <div class="icon">🛠️</div>
+        <div class="icon">🎲</div>
         
-        <h1>Service Temporarily Unavailable</h1>
+        <h1>Game Night Intermission!</h1>
         <p class="subtitle">Async Boardgame Service</p>
         
         <div class="status">
             <span class="status-indicator"></span>
-            Under Maintenance
+            Leveling Up
         </div>
         
         <div class="message">
-            <h2>We'll be back shortly!</h2>
+            <h2>🚀 We're rolling the dice on some upgrades!</h2>
             <p>
-                Our game service is currently undergoing scheduled maintenance to improve your gaming experience. 
-                We're working hard to get everything back online as quickly as possible.
+                Our digital game table is getting some awesome new features! Think of this as halftime - 
+                we're strategizing, optimizing, and making sure your next gaming session is even more epic.
             </p>
             <p>
-                <strong>What's happening:</strong> We're updating our servers to provide you with better performance, 
-                new features, and enhanced security.
+                <strong>What's cooking:</strong> 🎮 Performance boosts, 🛡️ security upgrades, and maybe a few 
+                surprise features that'll make your games more fun than a critical hit on a natural 20!
             </p>
         </div>
         
@@ -259,21 +259,21 @@
         
         <div class="actions">
             <button class="btn" onclick="window.location.reload()">
-                🔄 Refresh Page
+                🎯 Check if We're Back
             </button>
-            <a href="mailto:support@async-boardgames.org" class="btn btn-secondary">
-                📧 Contact Support
-            </a>
+            <button class="btn btn-secondary" onclick="playDiceSound()">
+                🎲 Roll for Patience
+            </button>
         </div>
         
         <div class="auto-refresh">
-            <strong>Auto-refresh:</strong> This page will automatically check for service availability every 30 seconds.
+            <strong>🤖 Auto-magic refresh:</strong> We're checking every 30 seconds to see if the games are ready to resume!
         </div>
         
         <div class="footer">
-            <p><strong>Async Boardgame Service</strong></p>
-            <p>Thank you for your patience while we improve our service.</p>
-            <p>Visit: <a href="https://async-boardgames.org" style="color: #667eea;">async-boardgames.org</a></p>
+            <p><strong>🎲 Async Boardgame Service</strong></p>
+            <p>Thanks for being patient while we level up our game! 🎮</p>
+            <p>Soon you'll be back to: <a href="https://async-boardgames.org" style="color: #667eea;">async-boardgames.org</a></p>
         </div>
     </div>
     
@@ -316,6 +316,61 @@
         
         // Update timestamp every second
         setInterval(updateTimestamp, 1000);
+        
+        // Fun dice roll function
+        function playDiceSound() {
+            const diceResults = [
+                "🎲 You rolled a 20! Critical patience achieved!",
+                "🎲 You rolled a 1... but hey, at least you tried!",
+                "🎲 Natural 6! Your patience skill increased!",
+                "🎲 You rolled a 12! The servers feel your good vibes!",
+                "🎲 Snake eyes! But don't worry, we're still working hard!",
+                "🎲 You rolled a 15! The maintenance gods smile upon you!",
+                "🎲 Lucky 7! Your wait time just got a little more bearable!",
+                "🎲 You rolled an 18! Almost as high as our uptime will be!"
+            ];
+            
+            const randomResult = diceResults[Math.floor(Math.random() * diceResults.length)];
+            
+            // Create a temporary message
+            const messageDiv = document.createElement('div');
+            messageDiv.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: #667eea;
+                color: white;
+                padding: 20px;
+                border-radius: 10px;
+                font-size: 1.2em;
+                z-index: 1000;
+                animation: fadeInOut 3s ease-in-out;
+            `;
+            messageDiv.textContent = randomResult;
+            
+            // Add animation keyframes if not already added
+            if (!document.querySelector('#diceAnimation')) {
+                const style = document.createElement('style');
+                style.id = 'diceAnimation';
+                style.textContent = `
+                    @keyframes fadeInOut {
+                        0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+                        20% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+                        80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                        100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            document.body.appendChild(messageDiv);
+            
+            // Remove message after animation
+            setTimeout(() => {
+                document.body.removeChild(messageDiv);
+            }, 3000);
+        }
         
         // Add keyboard shortcut for manual refresh
         document.addEventListener('keydown', function(e) {
