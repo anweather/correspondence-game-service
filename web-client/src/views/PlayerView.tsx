@@ -113,7 +113,7 @@ export function PlayerView() {
   // Handle deep linking - check URL hash parameters
   useEffect(() => {
     // Only attempt to load from URL if logged in and no game loaded
-    if (!playerName || currentGame) {
+    if (!playerName || currentGame || loading) {
       return;
     }
 
@@ -130,10 +130,11 @@ export function PlayerView() {
     const gameIdParam = params.get('gameId');
     
     if (gameIdParam) {
+      console.log('Deep linking: Loading game from URL:', gameIdParam);
       // Auto-load game from URL
       loadGame(gameIdParam);
     }
-  }, [playerName, currentGame, loadGame]);
+  }, [playerName, currentGame, loading, loadGame]);
 
   // Load available games, my games, and game types when logged in
   useEffect(() => {
