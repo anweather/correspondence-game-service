@@ -53,6 +53,7 @@ export function PlayerView() {
   const [showMoveModal, setShowMoveModal] = useState(false);
   const [availablePlayers, setAvailablePlayers] = useState<Array<{ userId: string; displayName: string }>>([]);
   const isInitialMount = useRef(true);
+  const isLoadingFromUrl = useRef(false);
 
   // Create GameClient instance for invitation functionality
   const gameClient = useRef<GameClient | null>(null);
@@ -98,6 +99,11 @@ export function PlayerView() {
       return;
     }
 
+    // Don't clear URL if we're currently loading from URL
+    if (isLoadingFromUrl.current) {
+      return;
+    }
+
     if (currentGame) {
       // Add gameId to hash when a game is loaded
       // Format: /#/player?gameId=abc123
@@ -130,8 +136,20 @@ export function PlayerView() {
     const gameIdParam = params.get('gameId');
     
     if (gameIdParam) {
+      // Set flag to prevent URL clearing while loading
+      isLoadingFromUrl.current = true;
+      
       // Auto-load game from URL parameter
-      loadGame(gameIdParam);
+      const loadPromise = loadGame(gameIdParam);
+      if (loadPromise && typeof loadPromise.finally === 'function') {
+        loadPromise.finally(() => {
+          // Clear flag after loading completes (success or failure)
+          isLoadingFromUrl.current = false;
+        });
+      } else {
+        // If loadGame doesn't return a promise, clear flag immediately
+        isLoadingFromUrl.current = false;
+      }
     }
   }, [playerName, currentGame, loading, loadGame]);
 
