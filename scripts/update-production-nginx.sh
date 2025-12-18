@@ -19,7 +19,7 @@ NC='\033[0m' # No Color
 NGINX_HTML_DIR="/var/www/html"
 NGINX_CONFIG_DIR="/etc/nginx/sites-available"
 NGINX_ENABLED_DIR="/etc/nginx/sites-enabled"
-SITE_NAME="async-boardgames"
+SITE_NAME="async-boardgame-service"
 DOMAIN="async-boardgames.org"
 
 # Function to prompt for confirmation
