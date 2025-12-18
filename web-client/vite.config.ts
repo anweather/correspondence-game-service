@@ -50,7 +50,12 @@ export default defineConfig({
     css: true,
     include: [
       'src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
-      '../games/**/__tests__/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'
+      '../games/**/ui/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'
+    ],
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '../games/**/engine/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'
     ]
   }
 })

@@ -7,6 +7,9 @@
 import { GameState, GameLifecycle } from '../../../src/domain/models';
 import { CellState, PlayerColor, Direction, ConnectFourMetadata, ConnectFourMove } from '../shared/types';
 import { ROWS, COLUMNS, WIN_LENGTH, DIRECTIONS } from '../shared/constants';
+import { validateMove } from './validation';
+import { applyGravity } from './gravity';
+import { assignPlayerColors } from './initialization';
 
 /**
  * Checks if a position is within board bounds
@@ -164,10 +167,7 @@ export function applyMove(
   state: GameState<ConnectFourMetadata>,
   move: ConnectFourMove
 ): GameState<ConnectFourMetadata> {
-  // Import dependencies (using require to avoid circular dependencies)
-  const { validateMove } = require('./validation');
-  const { applyGravity } = require('./gravity');
-  const { assignPlayerColors } = require('./initialization');
+  // Dependencies imported at top of file
 
   // Requirement 9.3: Validate move before applying
   const validation = validateMove(state, move.playerId, move);

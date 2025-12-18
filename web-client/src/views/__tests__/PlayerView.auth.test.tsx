@@ -33,6 +33,18 @@ const mockCreateGame = vi.fn();
 const mockJoinGame = vi.fn();
 const mockGetGame = vi.fn();
 
+// Mock WebSocket context
+vi.mock('../../context/WebSocketContext', () => ({
+  WebSocketProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  useWebSocket: () => ({
+    connected: false,
+    subscribe: vi.fn(),
+    unsubscribe: vi.fn(),
+    onGameUpdate: vi.fn(),
+    onTurnNotification: vi.fn(),
+  }),
+}));
+
 // Mock GameClient
 vi.mock('../../api/gameClient', () => {
   return {
@@ -125,9 +137,9 @@ describe('PlayerView Authentication State', () => {
         </MemoryRouter>
       );
 
-      // When signed in, the AuthHeader should show the UserButton
+      // When signed in, should show the welcome message with user name
       await waitFor(() => {
-        expect(screen.queryByTestId('user-button')).toBeInTheDocument();
+        expect(screen.getByText(/Welcome,.*Test Player/)).toBeInTheDocument();
       });
     });
 
@@ -301,9 +313,9 @@ describe('PlayerView Authentication State', () => {
         </MemoryRouter>
       );
 
-      // The AuthHeader component should show UserButton when signed in
+      // Should show welcome message when authenticated
       await waitFor(() => {
-        expect(screen.queryByTestId('user-button')).toBeInTheDocument();
+        expect(screen.getByText(/Welcome,.*TestUser/)).toBeInTheDocument();
       });
     });
   });

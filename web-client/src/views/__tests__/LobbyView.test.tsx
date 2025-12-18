@@ -7,6 +7,7 @@ import type { GameState } from '../../types/game';
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
+  MemoryRouter: ({ children }: { children: React.ReactNode }) => children,
 }));
 
 // Mock Clerk

@@ -12,6 +12,10 @@ vi.mock('@clerk/clerk-react', () => ({
     getToken: mockGetToken,
     userId: mockUserId
   }),
+  useUser: () => ({
+    user: { id: mockUserId },
+    isSignedIn: true
+  }),
 }));
 
 // Mock GameClient for polling fallback

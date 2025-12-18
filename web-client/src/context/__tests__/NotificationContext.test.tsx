@@ -10,6 +10,10 @@ vi.mock('@clerk/clerk-react', () => ({
     getToken: vi.fn().mockResolvedValue('test-token'),
     userId: 'test-user-id',
   }),
+  useUser: () => ({
+    user: { id: 'test-user-id' },
+    isSignedIn: true
+  }),
 }));
 
 // Mock GameClient (used by WebSocketContext for polling fallback)
