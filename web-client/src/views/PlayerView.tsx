@@ -130,8 +130,7 @@ export function PlayerView() {
     const gameIdParam = params.get('gameId');
     
     if (gameIdParam) {
-      console.log('Deep linking: Loading game from URL:', gameIdParam);
-      // Auto-load game from URL
+      // Auto-load game from URL parameter
       loadGame(gameIdParam);
     }
   }, [playerName, currentGame, loading, loadGame]);

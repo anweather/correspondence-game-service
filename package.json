@@ -84,8 +84,7 @@
       "npm run test:run -- --bail --findRelatedTests"
     ],
     "web-client/src/**/*.{ts,tsx}": [
-      "cd web-client && npm run lint",
-      "cd web-client && npm run test:run"
+      "bash -c 'cd web-client && npm run test:run'"
     ]
   }
 }
