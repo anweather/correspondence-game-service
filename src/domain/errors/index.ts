@@ -114,3 +114,69 @@ export class ForbiddenError extends GameError {
     this.name = 'ForbiddenError';
   }
 }
+
+/**
+ * Error thrown when an AI strategy is not found for a game type
+ * HTTP Status: 404 Not Found
+ */
+export class AIStrategyNotFoundError extends GameError {
+  constructor(gameType: string, strategyId: string) {
+    super(
+      `AI strategy '${strategyId}' not found for game type '${gameType}'`,
+      'AI_STRATEGY_NOT_FOUND',
+      404,
+      {
+        gameType,
+        strategyId,
+      }
+    );
+    this.name = 'AIStrategyNotFoundError';
+  }
+}
+
+/**
+ * Error thrown when AI move generation fails
+ * HTTP Status: 500 Internal Server Error
+ */
+export class AIMoveGenerationError extends GameError {
+  constructor(aiPlayerId: string, cause?: Error) {
+    super(
+      `AI player '${aiPlayerId}' failed to generate move: ${cause?.message || 'Unknown error'}`,
+      'AI_MOVE_GENERATION_ERROR',
+      500,
+      {
+        aiPlayerId,
+        cause: cause?.message,
+      }
+    );
+    this.name = 'AIMoveGenerationError';
+  }
+}
+
+/**
+ * Error thrown when AI move generation exceeds time limit
+ * HTTP Status: 408 Request Timeout
+ */
+export class AITimeoutError extends GameError {
+  constructor(aiPlayerId: string, timeLimit: number) {
+    super(`AI player '${aiPlayerId}' exceeded time limit of ${timeLimit}ms`, 'AI_TIMEOUT', 408, {
+      aiPlayerId,
+      timeLimit,
+    });
+    this.name = 'AITimeoutError';
+  }
+}
+
+/**
+ * Error thrown when AI player configuration is invalid
+ * HTTP Status: 400 Bad Request
+ */
+export class InvalidAIConfigurationError extends GameError {
+  constructor(reason: string, config?: Record<string, any>) {
+    super(`Invalid AI configuration: ${reason}`, 'INVALID_AI_CONFIGURATION', 400, {
+      reason,
+      config,
+    });
+    this.name = 'InvalidAIConfigurationError';
+  }
+}

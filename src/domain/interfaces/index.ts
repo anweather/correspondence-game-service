@@ -1,4 +1,6 @@
 import { GameState, Player, Move } from '@domain/models';
+import { AIStrategy } from './IAIStrategy';
+import { AIPlayer } from '@domain/models/AIPlayer';
 
 // Export authentication interfaces
 export * from './authentication';
@@ -14,6 +16,12 @@ export * from './INotificationChannel';
 
 // Export WebSocket service interface
 export * from './IWebSocketService';
+
+// Export AI strategy interface
+export * from './IAIStrategy';
+
+// Export AI player repository interface
+export * from './IAIPlayerRepository';
 
 /**
  * Configuration for initializing a game
@@ -235,6 +243,39 @@ export abstract class BaseGameEngine implements GameEnginePlugin {
   isPlayerInGame(state: GameState, playerId: string): boolean {
     return state.players.some((p) => p.id === playerId);
   }
+}
+
+/**
+ * Extended game plugin interface with AI support
+ * Allows game plugins to define custom AI strategies and behaviors
+ */
+export interface AICapableGamePlugin extends GameEnginePlugin {
+  /**
+   * Get available AI strategies for this game type
+   * @returns Array of AI strategies
+   */
+  getAIStrategies(): AIStrategy[];
+
+  /**
+   * Get default AI strategy for this game type
+   * @returns Default AI strategy
+   */
+  getDefaultAIStrategy(): AIStrategy;
+
+  /**
+   * Create an AI player for this game type
+   * @param name Display name for the AI player
+   * @param strategyId ID of the strategy to use (optional, uses default if not provided)
+   * @param difficulty Optional difficulty level
+   * @returns AI player configuration
+   */
+  createAIPlayer(name: string, strategyId?: string, difficulty?: string): AIPlayer;
+
+  /**
+   * Check if this game plugin supports AI players
+   * @returns true if AI is supported, false otherwise
+   */
+  supportsAI(): boolean;
 }
 
 /**

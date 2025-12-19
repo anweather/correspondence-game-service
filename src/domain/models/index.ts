@@ -4,6 +4,9 @@ export * from './PlayerProfile';
 // Export GameInvitation
 export * from './GameInvitation';
 
+// Export AIPlayer
+export * from './AIPlayer';
+
 /**
  * Game lifecycle states
  */
