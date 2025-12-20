@@ -153,7 +153,7 @@ export class StateManagerService {
 
       // Broadcast game update via WebSocket (non-blocking)
       if (this.webSocketService) {
-        this.broadcastGameUpdate(gameId, savedState).catch((error) => {
+        this.broadcastGameUpdate(gameId, savedState, false).catch((error) => {
           // Log error but don't fail the move
           console.error(`Failed to broadcast game update for ${gameId}:`, error);
         });
@@ -170,7 +170,7 @@ export class StateManagerService {
 
         // Broadcast game completion
         if (this.webSocketService) {
-          this.broadcastGameComplete(gameId, savedState.winner).catch((error) => {
+          this.broadcastGameComplete(gameId, savedState.winner, savedState).catch((error) => {
             console.error(`Failed to broadcast game completion for ${gameId}:`, error);
           });
         }
@@ -230,7 +230,7 @@ export class StateManagerService {
 
         // Broadcast AI move update via WebSocket (non-blocking)
         if (this.webSocketService) {
-          this.broadcastGameUpdate(currentState.gameId, currentState).catch((error) => {
+          this.broadcastGameUpdate(currentState.gameId, currentState, true).catch((error) => {
             console.error(`Failed to broadcast AI move update for ${currentState.gameId}:`, error);
           });
         }
@@ -259,7 +259,7 @@ export class StateManagerService {
 
           // Broadcast game completion
           if (this.webSocketService) {
-            this.broadcastGameComplete(currentState.gameId, currentState.winner).catch((error) => {
+            this.broadcastGameComplete(currentState.gameId, currentState.winner, currentState).catch((error) => {
               console.error(
                 `Failed to broadcast game completion for ${currentState.gameId}:`,
                 error
@@ -292,8 +292,13 @@ export class StateManagerService {
    * Broadcast game update to all subscribers
    * @param gameId - The game ID
    * @param gameState - The updated game state
+   * @param lastMoveByAI - Whether the last move was made by an AI player
    */
-  private async broadcastGameUpdate(gameId: string, gameState: GameState): Promise<void> {
+  private async broadcastGameUpdate(
+    gameId: string,
+    gameState: GameState,
+    lastMoveByAI?: boolean
+  ): Promise<void> {
     if (!this.webSocketService) {
       return;
     }
@@ -302,6 +307,7 @@ export class StateManagerService {
       type: WebSocketMessageType.GAME_UPDATE,
       gameId,
       gameState,
+      lastMoveByAI,
       timestamp: new Date(),
     };
 
@@ -312,16 +318,28 @@ export class StateManagerService {
    * Broadcast game completion to all subscribers
    * @param gameId - The game ID
    * @param winner - The winner player ID (null for draw)
+   * @param gameState - The final game state to check if winner is AI
    */
-  private async broadcastGameComplete(gameId: string, winner: string | null): Promise<void> {
+  private async broadcastGameComplete(
+    gameId: string,
+    winner: string | null,
+    gameState?: GameState
+  ): Promise<void> {
     if (!this.webSocketService) {
       return;
+    }
+
+    let winnerIsAI = false;
+    if (winner && gameState) {
+      const winnerPlayer = gameState.players.find((p) => p.id === winner);
+      winnerIsAI = winnerPlayer?.metadata?.isAI === true;
     }
 
     const message: GameCompleteMessage = {
       type: WebSocketMessageType.GAME_COMPLETE,
       gameId,
       winner,
+      winnerIsAI,
       timestamp: new Date(),
     };
 

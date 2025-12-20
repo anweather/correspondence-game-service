@@ -203,15 +203,15 @@
   - Test performance metric logging
   - _Requirements: 7.4, 7.5_
 
-- [ ] 10. Update WebSocket notifications for AI moves
+- [x] 10. Update WebSocket notifications for AI moves
    (Make sure that we have websockets integrated at the engine level, and not the player vs AI move level. Integrate once. a Move is just a move.)
-- [ ] 10.1 Extend WebSocket events for AI moves
+- [x] 10.1 Extend WebSocket events for AI moves
   - Ensure AI moves trigger same WebSocket events as human moves
   - Add AI player type information to event payloads
   - Test event format consistency
   - _Requirements: 5.5_
 
-- [ ] 10.2 Write integration tests for AI move notifications
+- [x] 10.2 Write integration tests for AI move notifications
   - Test WebSocket events for AI moves
   - Test event format consistency
   - Test AI failure notifications
