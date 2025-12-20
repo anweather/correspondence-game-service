@@ -1,6 +1,6 @@
 /**
  * PostgreSQL implementation of StatsRepository
- * Provides player statistics and leaderboard functionality
+ * Provides player statistics and leaderboard functionality with AI player support
  */
 
 import { Pool, PoolConfig } from 'pg';
@@ -17,6 +17,7 @@ export interface PlayerStats {
   winRate: number;
   totalTurns: number;
   averageTurnsPerGame: number;
+  aiGames?: number; // Number of games that included AI players
 }
 
 export interface LeaderboardEntry {
@@ -27,6 +28,7 @@ export interface LeaderboardEntry {
   wins: number;
   losses: number;
   winRate: number;
+  aiGames?: number; // Number of games that included AI players
 }
 
 export interface GameHistoryFilters {
@@ -70,7 +72,7 @@ export class PostgresStatsRepository {
   }
 
   /**
-   * Get player statistics
+   * Get player statistics (excludes AI players from stats)
    * @param userId - User ID to get stats for
    * @param gameType - Optional game type filter
    * @returns Player statistics
@@ -88,10 +90,20 @@ export class PostgresStatsRepository {
           (SELECT COUNT(*) 
            FROM jsonb_array_elements(state->'moveHistory') AS move 
            WHERE move->>'playerId' = $1)
-        ) as total_turns
+        ) as total_turns,
+        SUM(
+          CASE WHEN EXISTS (
+            SELECT 1 FROM jsonb_array_elements(state->'players') AS player 
+            WHERE player->'metadata'->>'isAI' = 'true'
+          ) THEN 1 ELSE 0 END
+        ) as ai_games
       FROM games
       WHERE state->'players' @> $3::jsonb
         AND lifecycle = $2
+        AND NOT EXISTS (
+          SELECT 1 FROM jsonb_array_elements(state->'players') AS player 
+          WHERE player->>'id' = $1 AND player->'metadata'->>'isAI' = 'true'
+        )
     `;
 
     const params: any[] = [userId, GameLifecycle.COMPLETED, JSON.stringify([{ id: userId }])];
@@ -110,6 +122,7 @@ export class PostgresStatsRepository {
       const losses = parseInt(row.losses, 10) || 0;
       const draws = parseInt(row.draws, 10) || 0;
       const totalTurns = parseInt(row.total_turns, 10) || 0;
+      const aiGames = parseInt(row.ai_games, 10) || 0;
 
       // Calculate win rate: wins / (wins + losses)
       // Handle edge cases: no games, only draws, etc.
@@ -124,8 +137,6 @@ export class PostgresStatsRepository {
         averageTurnsPerGame = totalTurns / totalGames;
       }
 
-      // Player stats retrieved successfully
-
       return {
         userId,
         gameType,
@@ -136,6 +147,7 @@ export class PostgresStatsRepository {
         winRate,
         totalTurns,
         averageTurnsPerGame,
+        aiGames,
       };
     } catch (error) {
       logger.error('Failed to get player stats', {
@@ -148,7 +160,7 @@ export class PostgresStatsRepository {
   }
 
   /**
-   * Get leaderboard with rankings
+   * Get leaderboard with rankings (excludes AI players from leaderboard)
    * @param gameType - Optional game type filter
    * @param limit - Maximum number of entries (default 100)
    * @returns Leaderboard entries with rankings
@@ -156,79 +168,119 @@ export class PostgresStatsRepository {
   async getLeaderboard(gameType?: string, limit: number = 100): Promise<LeaderboardEntry[]> {
     const logger = getLogger();
 
-    // First CTE: Expand players from each game
-    let query = `
-      WITH player_games AS (
-        SELECT 
-          jsonb_array_elements(state->'players')->>'id' as user_id,
-          winner,
-          lifecycle
-        FROM games
-        WHERE lifecycle = $1
+    // Simplified approach: Get all completed games and process in application layer
+    let baseQuery = `
+      SELECT 
+        game_id,
+        winner,
+        state
+      FROM games
+      WHERE lifecycle = $1
     `;
 
     const params: any[] = [GameLifecycle.COMPLETED];
     let paramIndex = 2;
 
     if (gameType) {
-      query += ` AND game_type = $${paramIndex}`;
+      baseQuery += ` AND game_type = $${paramIndex}`;
       params.push(gameType);
       paramIndex++;
     }
 
-    // Second CTE: Aggregate stats per player
-    query += `
-      ),
-      player_stats AS (
-        SELECT 
-          user_id,
-          COUNT(*) as total_games,
-          SUM(CASE WHEN winner = user_id THEN 1 ELSE 0 END) as wins,
-          SUM(CASE 
-            WHEN winner IS NOT NULL 
-            AND winner != user_id 
-            THEN 1 
-            ELSE 0 
-          END) as losses
-        FROM player_games
-        GROUP BY user_id
-        HAVING COUNT(*) >= 1
-      )
-      SELECT 
-        ps.user_id,
-        pp.display_name,
-        ps.total_games::integer,
-        ps.wins::integer,
-        ps.losses::integer,
-        CASE 
-          WHEN (ps.wins + ps.losses) > 0 
-          THEN ps.wins::float / (ps.wins + ps.losses)::float
-          ELSE 0
-        END as win_rate
-      FROM player_stats ps
-      JOIN player_profiles pp ON ps.user_id = pp.user_id
-      ORDER BY win_rate DESC, total_games DESC
-      LIMIT $${paramIndex}
-    `;
-
-    params.push(limit);
-
     try {
-      const result = await this.pool.query(query, params);
+      const result = await this.pool.query(baseQuery, params);
 
-      const leaderboard: LeaderboardEntry[] = result.rows.map((row, index) => ({
-        rank: index + 1,
-        userId: row.user_id,
-        displayName: row.display_name,
-        totalGames: row.total_games,
-        wins: row.wins,
-        losses: row.losses,
-        winRate: parseFloat(row.win_rate),
-      }));
+      // Process games to build player stats
+      const playerStats = new Map<
+        string,
+        {
+          totalGames: number;
+          wins: number;
+          losses: number;
+          aiGames: number;
+        }
+      >();
 
-      // Leaderboard retrieved successfully
+      for (const row of result.rows) {
+        const state = typeof row.state === 'string' ? JSON.parse(row.state) : row.state;
+        const hasAI = state.players.some((p: any) => p.metadata?.isAI === true);
 
-      return leaderboard;
+        // Only count human players
+        const humanPlayers = state.players.filter((p: any) => !p.metadata?.isAI);
+
+        for (const player of humanPlayers) {
+          const playerId = player.id;
+
+          if (!playerStats.has(playerId)) {
+            playerStats.set(playerId, { totalGames: 0, wins: 0, losses: 0, aiGames: 0 });
+          }
+
+          const stats = playerStats.get(playerId)!;
+          stats.totalGames++;
+
+          if (hasAI) {
+            stats.aiGames++;
+          }
+
+          if (row.winner === playerId) {
+            stats.wins++;
+          } else if (row.winner && row.winner !== playerId) {
+            stats.losses++;
+          }
+        }
+      }
+
+      // Get display names for players
+      const playerIds = Array.from(playerStats.keys());
+      if (playerIds.length === 0) {
+        return [];
+      }
+
+      const profileQuery = `
+        SELECT user_id, display_name 
+        FROM player_profiles 
+        WHERE user_id = ANY($1)
+      `;
+
+      const profileResult = await this.pool.query(profileQuery, [playerIds]);
+      const displayNames = new Map(
+        profileResult.rows.map((row) => [row.user_id, row.display_name])
+      );
+
+      // Build leaderboard entries
+      const entries: LeaderboardEntry[] = [];
+
+      for (const [userId, stats] of playerStats.entries()) {
+        const winRate =
+          stats.wins + stats.losses > 0 ? stats.wins / (stats.wins + stats.losses) : 0;
+
+        entries.push({
+          rank: 0, // Will be set after sorting
+          userId,
+          displayName: displayNames.get(userId) || 'Unknown',
+          totalGames: stats.totalGames,
+          wins: stats.wins,
+          losses: stats.losses,
+          winRate,
+          aiGames: stats.aiGames,
+        });
+      }
+
+      // Sort by win rate descending, then by total games descending
+      entries.sort((a, b) => {
+        if (a.winRate !== b.winRate) {
+          return b.winRate - a.winRate;
+        }
+        return b.totalGames - a.totalGames;
+      });
+
+      // Set ranks and apply limit
+      const limitedEntries = entries.slice(0, limit);
+      limitedEntries.forEach((entry, index) => {
+        entry.rank = index + 1;
+      });
+
+      return limitedEntries;
     } catch (error) {
       logger.error('Failed to get leaderboard', {
         gameType,
@@ -280,8 +332,6 @@ export class PostgresStatsRepository {
 
       const games = result.rows.map((row) => this.deserializeGameState(row));
 
-      // Game history retrieved successfully
-
       return games;
     } catch (error) {
       logger.error('Failed to get game history', {
@@ -299,21 +349,34 @@ export class PostgresStatsRepository {
   private deserializeGameState(row: DatabaseRow): GameState {
     const state = (typeof row.state === 'string' ? JSON.parse(row.state) : row.state) as GameState;
 
+    // Handle case where state might be null or undefined
+    if (!state) {
+      throw new Error('Game state is null or undefined');
+    }
+
     // Reconstruct Date objects
-    state.createdAt = new Date(state.createdAt);
-    state.updatedAt = new Date(state.updatedAt);
+    if (state.createdAt) {
+      state.createdAt = new Date(state.createdAt);
+    }
+    if (state.updatedAt) {
+      state.updatedAt = new Date(state.updatedAt);
+    }
 
     // Reconstruct Date objects in players
-    state.players = state.players.map((player) => ({
-      ...player,
-      joinedAt: new Date(player.joinedAt),
-    }));
+    if (state.players && Array.isArray(state.players)) {
+      state.players = state.players.map((player) => ({
+        ...player,
+        joinedAt: player.joinedAt ? new Date(player.joinedAt) : player.joinedAt,
+      }));
+    }
 
     // Reconstruct Date objects in moveHistory
-    state.moveHistory = state.moveHistory.map((move) => ({
-      ...move,
-      timestamp: new Date(move.timestamp),
-    }));
+    if (state.moveHistory && Array.isArray(state.moveHistory)) {
+      state.moveHistory = state.moveHistory.map((move) => ({
+        ...move,
+        timestamp: move.timestamp ? new Date(move.timestamp) : move.timestamp,
+      }));
+    }
 
     return state;
   }

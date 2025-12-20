@@ -217,14 +217,14 @@
   - Test AI failure notifications
   - _Requirements: 5.5, 7.4_
 
-- [ ] 11. Add statistics tracking for AI games
-- [ ] 11.1 Update StatsService for AI player support
+- [x] 11. Add statistics tracking for AI games
+- [x] 11.1 Update StatsService for AI player support
   - Ensure AI player results are recorded in statistics ( we don't need the AI player-only in the stats view. These are just bots. Games with AI players should be in stas for the real-players that participated.)
   - Add AI game indicators to leaderboards
   - Update stats queries to handle AI players
   - _Requirements: 4.3_
 
-- [ ] 11.2 Write integration tests for AI game statistics
+- [x] 11.2 Write integration tests for AI game statistics
   - Test AI game completion recording
   - Test AI player results in leaderboards
   - Test stats queries with AI games

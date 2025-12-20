@@ -44,6 +44,7 @@ describe('StatsService', () => {
         winRate: 0.7,
         totalTurns: 100,
         averageTurnsPerGame: 10,
+        aiGames: 2,
       };
 
       mockStatsRepository.getPlayerStats.mockResolvedValue(expectedStats);
@@ -67,6 +68,7 @@ describe('StatsService', () => {
         winRate: 0.8,
         totalTurns: 50,
         averageTurnsPerGame: 10,
+        aiGames: 1,
       };
 
       mockStatsRepository.getPlayerStats.mockResolvedValue(expectedStats);
@@ -88,6 +90,7 @@ describe('StatsService', () => {
         winRate: 0,
         totalTurns: 0,
         averageTurnsPerGame: 0,
+        aiGames: 0,
       };
 
       mockStatsRepository.getPlayerStats.mockResolvedValue(expectedStats);
@@ -110,6 +113,7 @@ describe('StatsService', () => {
         winRate: 1.0,
         totalTurns: 50,
         averageTurnsPerGame: 10,
+        aiGames: 0,
       };
 
       mockStatsRepository.getPlayerStats.mockResolvedValue(expectedStats);
@@ -131,6 +135,7 @@ describe('StatsService', () => {
         winRate: 0,
         totalTurns: 50,
         averageTurnsPerGame: 10,
+        aiGames: 0,
       };
 
       mockStatsRepository.getPlayerStats.mockResolvedValue(expectedStats);
@@ -152,6 +157,7 @@ describe('StatsService', () => {
         winRate: 0,
         totalTurns: 30,
         averageTurnsPerGame: 10,
+        aiGames: 0,
       };
 
       mockStatsRepository.getPlayerStats.mockResolvedValue(expectedStats);
@@ -174,6 +180,7 @@ describe('StatsService', () => {
           wins: 18,
           losses: 2,
           winRate: 0.9,
+          aiGames: 5,
         },
         {
           rank: 2,
@@ -183,6 +190,7 @@ describe('StatsService', () => {
           wins: 12,
           losses: 3,
           winRate: 0.8,
+          aiGames: 3,
         },
       ];
 
@@ -205,6 +213,7 @@ describe('StatsService', () => {
           wins: 9,
           losses: 1,
           winRate: 0.9,
+          aiGames: 2,
         },
       ];
 
@@ -238,6 +247,7 @@ describe('StatsService', () => {
           wins: 9,
           losses: 1,
           winRate: 0.9,
+          aiGames: 1,
         },
         {
           rank: 2,
@@ -247,6 +257,7 @@ describe('StatsService', () => {
           wins: 8,
           losses: 2,
           winRate: 0.8,
+          aiGames: 2,
         },
         {
           rank: 3,
@@ -256,6 +267,7 @@ describe('StatsService', () => {
           wins: 7,
           losses: 3,
           winRate: 0.7,
+          aiGames: 0,
         },
       ];
 
@@ -279,6 +291,7 @@ describe('StatsService', () => {
           wins: 9,
           losses: 1,
           winRate: 0.9,
+          aiGames: 1,
         },
         {
           rank: 2,
@@ -288,6 +301,7 @@ describe('StatsService', () => {
           wins: 8,
           losses: 2,
           winRate: 0.8,
+          aiGames: 2,
         },
         {
           rank: 3,
@@ -297,6 +311,7 @@ describe('StatsService', () => {
           wins: 7,
           losses: 3,
           winRate: 0.7,
+          aiGames: 0,
         },
       ];
 
