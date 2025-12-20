@@ -1,4 +1,5 @@
 import { StateManagerService } from '@application/services/StateManagerService';
+import { AIPlayerService } from '@application/services/AIPlayerService';
 import { GameLockManager } from '@application/GameLockManager';
 import { PluginRegistry } from '@application/PluginRegistry';
 import { InMemoryGameRepository } from '@infrastructure/persistence/InMemoryGameRepository';
@@ -608,6 +609,370 @@ describe('StateManagerService', () => {
 
       expect(updatedState.moveHistory).toHaveLength(1);
       expect(mockWebSocketService.broadcastToGame).toHaveBeenCalled();
+    });
+  });
+
+  describe('AI Turn Processing', () => {
+    let mockAIPlayerService: jest.Mocked<AIPlayerService>;
+
+    beforeEach(() => {
+      // Create mock AI player service
+      mockAIPlayerService = {
+        createAIPlayers: jest.fn(),
+        isAIPlayer: jest.fn(),
+        getAvailableStrategies: jest.fn(),
+        processAITurn: jest.fn(),
+      } as unknown as jest.Mocked<AIPlayerService>;
+
+      // Recreate StateManagerService with AI service
+      stateManager = new StateManagerService(
+        repository,
+        pluginRegistry,
+        lockManager,
+        undefined, // No WebSocket for these tests
+        mockAIPlayerService
+      );
+    });
+
+    it('should detect AI turn after human move and process AI move', async () => {
+      // Arrange
+      const humanPlayer = createPlayer('human1', 'Human Player');
+      const aiPlayer = createPlayer('ai1', 'AI Player');
+      const players = [humanPlayer, aiPlayer];
+      const gameState = createMockGameState(players);
+      await repository.save(gameState);
+
+      // Mock AI service responses
+      mockAIPlayerService.isAIPlayer.mockImplementation(async (playerId) => {
+        return playerId === 'ai1';
+      });
+
+      // Mock AI turn processing to return updated state
+      mockAIPlayerService.processAITurn.mockImplementation(async (gameId) => {
+        const baseState = await repository.findById(gameId);
+        if (!baseState) throw new Error('Game not found');
+
+        const updatedState = {
+          ...baseState,
+          moveHistory: [
+            ...baseState.moveHistory,
+            {
+              playerId: 'ai1',
+              timestamp: new Date(),
+              action: 'ai-move',
+              parameters: {},
+            },
+          ],
+          currentPlayerIndex: 0, // Back to human player
+          version: baseState.version + 1,
+          updatedAt: new Date(),
+        };
+
+        // Update repository to simulate real behavior
+        await repository.update(gameId, updatedState, baseState.version);
+        return updatedState;
+      });
+
+      // Configure mock engine to return correct current player
+      mockEngine.getCurrentPlayer = jest.fn().mockImplementation((state) => {
+        // During authorization: human1's turn
+        if (state.moveHistory.length === 0) {
+          return 'human1';
+        }
+        // After human move: AI's turn
+        if (state.moveHistory.length === 1) {
+          return 'ai1';
+        }
+        // After AI move: back to human
+        return 'human1';
+      });
+
+      const humanMove: Move = {
+        playerId: 'human1',
+        timestamp: new Date(),
+        action: 'human-move',
+        parameters: {},
+      };
+
+      // Act
+      const finalState = await stateManager.applyMove('test-game-1', 'human1', humanMove, 1);
+
+      // Assert
+      expect(mockAIPlayerService.isAIPlayer).toHaveBeenCalledWith('ai1');
+      expect(mockAIPlayerService.processAITurn).toHaveBeenCalledWith('test-game-1', 'ai1');
+      expect(finalState.moveHistory).toHaveLength(2);
+      expect(finalState.moveHistory[1].playerId).toBe('ai1');
+    });
+
+    it('should process consecutive AI turns until human player turn', async () => {
+      // Arrange
+      const humanPlayer = createPlayer('human1', 'Human Player');
+      const ai1Player = createPlayer('ai1', 'AI Player 1');
+      const ai2Player = createPlayer('ai2', 'AI Player 2');
+      const players = [humanPlayer, ai1Player, ai2Player];
+      const gameState = createMockGameState(players);
+      await repository.save(gameState);
+
+      // Mock AI service responses
+      mockAIPlayerService.isAIPlayer.mockImplementation(async (playerId) => {
+        return playerId === 'ai1' || playerId === 'ai2';
+      });
+
+      // Track AI processing calls
+      let aiCallCount = 0;
+      mockAIPlayerService.processAITurn.mockImplementation(async (gameId, aiPlayerId) => {
+        aiCallCount++;
+        const baseState = await repository.findById(gameId);
+        if (!baseState) throw new Error('Game not found');
+
+        // Create updated state with proper player advancement
+        const nextPlayerIndex = aiCallCount >= 2 ? 0 : aiCallCount; // After 2 AI moves, back to human
+        const updatedState = {
+          ...baseState,
+          moveHistory: [
+            ...baseState.moveHistory,
+            {
+              playerId: aiPlayerId,
+              timestamp: new Date(),
+              action: `ai-move-${aiCallCount}`,
+              parameters: {},
+            },
+          ],
+          currentPlayerIndex: nextPlayerIndex,
+          version: baseState.version + 1,
+          updatedAt: new Date(),
+        };
+
+        // Update repository to simulate real behavior
+        await repository.update(gameId, updatedState, baseState.version);
+        return updatedState;
+      });
+
+      // Configure mock engine to return correct current player
+      mockEngine.getCurrentPlayer = jest.fn().mockImplementation((state) => {
+        return state.players[state.currentPlayerIndex].id;
+      });
+
+      const humanMove: Move = {
+        playerId: 'human1',
+        timestamp: new Date(),
+        action: 'human-move',
+        parameters: {},
+      };
+
+      // Act
+      const finalState = await stateManager.applyMove('test-game-1', 'human1', humanMove, 1);
+
+      // Assert
+      expect(mockAIPlayerService.processAITurn).toHaveBeenCalledTimes(2);
+      expect(finalState.moveHistory.length).toBe(3); // Human + 2 AI moves
+      expect(finalState.currentPlayerIndex).toBe(0); // Back to human player
+    });
+
+    it('should stop processing AI turns when game ends', async () => {
+      // Arrange
+      const humanPlayer = createPlayer('human1', 'Human Player');
+      const aiPlayer = createPlayer('ai1', 'AI Player');
+      const players = [humanPlayer, aiPlayer];
+
+      // Create initial game state with human player's turn
+      const gameState = new GameStateBuilder()
+        .withGameId('test-game-1')
+        .withGameType('mock-game')
+        .withLifecycle(GameLifecycle.ACTIVE)
+        .withPlayers(players)
+        .withCurrentPlayerIndex(0) // Human player's turn
+        .withPhase('main')
+        .build();
+
+      await repository.save(gameState);
+
+      // Mock AI service responses
+      mockAIPlayerService.isAIPlayer.mockImplementation(async (playerId) => {
+        return playerId === 'ai1';
+      });
+
+      // Mock AI turn that ends the game
+      mockAIPlayerService.processAITurn.mockImplementation(async (gameId) => {
+        const baseState = await repository.findById(gameId);
+        if (!baseState) throw new Error('Game not found');
+
+        const gameEndingState = {
+          ...baseState,
+          moveHistory: [
+            ...baseState.moveHistory,
+            {
+              playerId: 'ai1',
+              timestamp: new Date(),
+              action: 'winning-ai-move',
+              parameters: {},
+            },
+          ],
+          currentPlayerIndex: 0,
+          version: baseState.version + 1,
+          updatedAt: new Date(),
+        };
+
+        await repository.update(gameId, gameEndingState, baseState.version);
+        return gameEndingState;
+      });
+
+      // Configure mock engine to advance turn to AI after human move
+      mockEngine.getCurrentPlayer = jest.fn().mockImplementation((state) => {
+        return state.players[state.currentPlayerIndex].id;
+      });
+
+      // Configure mock engine to detect game over after AI move
+      mockEngine.withGameOverResult(false); // Game not over initially
+
+      // Override isGameOver to return true only after AI move
+      mockEngine.isGameOver = jest.fn().mockImplementation((state) => {
+        return state.moveHistory.some((move: Move) => move.playerId === 'ai1');
+      });
+
+      mockEngine.withWinnerResult('ai1');
+
+      const humanMove: Move = {
+        playerId: 'human1',
+        timestamp: new Date(),
+        action: 'human-move',
+        parameters: {},
+      };
+
+      // Act
+      const finalState = await stateManager.applyMove('test-game-1', 'human1', humanMove, 1);
+
+      // Assert
+      expect(mockAIPlayerService.processAITurn).toHaveBeenCalledTimes(1);
+      expect(finalState.lifecycle).toBe(GameLifecycle.COMPLETED);
+      expect(finalState.winner).toBe('ai1');
+    });
+
+    it('should stop processing AI turns at human player turn', async () => {
+      // Arrange
+      const human1Player = createPlayer('human1', 'Human Player 1');
+      const aiPlayer = createPlayer('ai1', 'AI Player');
+      const human2Player = createPlayer('human2', 'Human Player 2');
+      const players = [human1Player, aiPlayer, human2Player];
+      const gameState = createMockGameState(players);
+      await repository.save(gameState);
+
+      // Mock AI service responses - only ai1 is AI
+      mockAIPlayerService.isAIPlayer.mockImplementation(async (playerId) => {
+        return playerId === 'ai1';
+      });
+
+      // Mock AI turn that advances to next human player
+      mockAIPlayerService.processAITurn.mockImplementation(async (gameId) => {
+        const baseState = await repository.findById(gameId);
+        if (!baseState) throw new Error('Game not found');
+
+        const aiProcessedState = {
+          ...baseState,
+          moveHistory: [
+            ...baseState.moveHistory,
+            {
+              playerId: 'ai1',
+              timestamp: new Date(),
+              action: 'ai-move',
+              parameters: {},
+            },
+          ],
+          currentPlayerIndex: 2, // Next player is human2
+          version: baseState.version + 1,
+          updatedAt: new Date(),
+        };
+
+        await repository.update(gameId, aiProcessedState, baseState.version);
+        return aiProcessedState;
+      });
+
+      // Configure mock engine to return correct current player
+      mockEngine.getCurrentPlayer = jest.fn().mockImplementation((state) => {
+        return state.players[state.currentPlayerIndex].id;
+      });
+
+      const humanMove: Move = {
+        playerId: 'human1',
+        timestamp: new Date(),
+        action: 'human-move',
+        parameters: {},
+      };
+
+      // Act
+      const finalState = await stateManager.applyMove('test-game-1', 'human1', humanMove, 1);
+
+      // Assert
+      expect(mockAIPlayerService.processAITurn).toHaveBeenCalledTimes(1);
+      expect(mockAIPlayerService.isAIPlayer).toHaveBeenCalledWith('human2');
+      expect(finalState.currentPlayerIndex).toBe(2); // Should stop at human2's turn
+    });
+
+    it('should handle AI processing errors gracefully', async () => {
+      // Arrange
+      const humanPlayer = createPlayer('human1', 'Human Player');
+      const aiPlayer = createPlayer('ai1', 'AI Player');
+      const players = [humanPlayer, aiPlayer];
+      const gameState = createMockGameState(players);
+      await repository.save(gameState);
+
+      // Mock AI service responses
+      mockAIPlayerService.isAIPlayer.mockImplementation(async (playerId) => {
+        return playerId === 'ai1';
+      });
+
+      // Mock AI service to throw error
+      mockAIPlayerService.processAITurn.mockRejectedValue(new Error('AI processing failed'));
+
+      // Configure mock engine
+      mockEngine.getCurrentPlayer = jest.fn().mockImplementation((state) => {
+        // During authorization check, it should be human1's turn initially
+        if (state.moveHistory.length === 0) {
+          return 'human1';
+        }
+        // After human move, it should be AI's turn
+        return 'ai1';
+      });
+
+      const humanMove: Move = {
+        playerId: 'human1',
+        timestamp: new Date(),
+        action: 'human-move',
+        parameters: {},
+      };
+
+      // Act & Assert - should not throw, should handle error gracefully
+      const finalState = await stateManager.applyMove('test-game-1', 'human1', humanMove, 1);
+
+      expect(mockAIPlayerService.processAITurn).toHaveBeenCalledWith('test-game-1', 'ai1');
+      expect(finalState.moveHistory).toHaveLength(1); // Only human move should be recorded
+      expect(finalState.lifecycle).toBe(GameLifecycle.ACTIVE); // Game should continue
+    });
+
+    it('should work without AI service provided', async () => {
+      // Arrange
+      const stateManagerWithoutAI = new StateManagerService(
+        repository,
+        pluginRegistry,
+        lockManager
+      );
+
+      const players = createMockPlayers();
+      const gameState = createMockGameState(players);
+      await repository.save(gameState);
+
+      const move: Move = {
+        playerId: 'player1',
+        timestamp: new Date(),
+        action: 'test-action',
+        parameters: {},
+      };
+
+      // Act & Assert - should work normally without AI processing
+      const updatedState = await stateManagerWithoutAI.applyMove('test-game-1', 'player1', move, 1);
+
+      expect(updatedState.moveHistory).toHaveLength(1);
+      expect(updatedState.moveHistory[0].playerId).toBe('player1');
     });
   });
 });

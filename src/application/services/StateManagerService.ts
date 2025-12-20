@@ -1,5 +1,6 @@
 import { GameLockManager } from '@application/GameLockManager';
 import { PluginRegistry } from '@application/PluginRegistry';
+import { AIPlayerService } from '@application/services/AIPlayerService';
 import { GameRepository, ValidationResult } from '@domain/interfaces';
 import { GameState, Move, GameLifecycle } from '@domain/models';
 import { GameNotFoundError, InvalidMoveError, UnauthorizedMoveError } from '@domain/errors';
@@ -19,7 +20,8 @@ export class StateManagerService {
     private repository: GameRepository,
     private registry: PluginRegistry,
     private lockManager: GameLockManager,
-    private webSocketService?: IWebSocketService
+    private webSocketService?: IWebSocketService,
+    private aiPlayerService?: AIPlayerService
   ) {}
 
   /**
@@ -174,8 +176,116 @@ export class StateManagerService {
         }
       }
 
-      return savedState;
+      // Process AI turns if needed (only if game is still active)
+      let finalState = savedState;
+      if (savedState.lifecycle === GameLifecycle.ACTIVE) {
+        finalState = await this.processAITurnsIfNeeded(savedState);
+      }
+
+      return finalState;
     });
+  }
+
+  /**
+   * Process consecutive AI turns until human player or game end
+   * @private
+   */
+  private async processAITurnsIfNeeded(state: GameState): Promise<GameState> {
+    if (!this.aiPlayerService) {
+      return state; // No AI service available
+    }
+
+    let currentState = state;
+    const maxIterations = 10; // Safety limit to prevent infinite loops
+    let iterations = 0;
+
+    while (currentState.lifecycle === GameLifecycle.ACTIVE && iterations < maxIterations) {
+      iterations++;
+
+      const plugin = this.registry.get(currentState.gameType);
+      if (!plugin) {
+        break; // No plugin available
+      }
+
+      const currentPlayerId = plugin.getCurrentPlayer(currentState);
+      if (!currentPlayerId) {
+        break; // No current player
+      }
+
+      if (!(await this.aiPlayerService.isAIPlayer(currentPlayerId))) {
+        break; // Human player's turn
+      }
+
+      try {
+        // Process AI turn - this will handle move generation, validation, and application
+        await this.aiPlayerService.processAITurn(currentState.gameId, currentPlayerId);
+
+        // Fetch fresh state from repository to ensure we have the latest version
+        const freshState = await this.repository.findById(currentState.gameId);
+        if (!freshState) {
+          break; // Game not found
+        }
+
+        currentState = freshState;
+
+        // Broadcast AI move update via WebSocket (non-blocking)
+        if (this.webSocketService) {
+          this.broadcastGameUpdate(currentState.gameId, currentState).catch((error) => {
+            console.error(`Failed to broadcast AI move update for ${currentState.gameId}:`, error);
+          });
+        }
+
+        // Check if game ended after AI move
+        if (plugin.isGameOver(currentState)) {
+          const winner = plugin.getWinner(currentState);
+          const isDraw = winner === null;
+
+          currentState = {
+            ...currentState,
+            lifecycle: GameLifecycle.COMPLETED,
+            winner,
+            metadata: {
+              ...currentState.metadata,
+              isDraw,
+            },
+            updatedAt: new Date(),
+          };
+
+          // Save the completed state
+          await this.repository.update(currentState.gameId, currentState, currentState.version);
+
+          // Invoke onGameEnded hook
+          plugin.onGameEnded(currentState);
+
+          // Broadcast game completion
+          if (this.webSocketService) {
+            this.broadcastGameComplete(currentState.gameId, currentState.winner).catch((error) => {
+              console.error(
+                `Failed to broadcast game completion for ${currentState.gameId}:`,
+                error
+              );
+            });
+          }
+
+          break; // Game ended
+        }
+      } catch (error) {
+        // Log AI error but don't fail the entire operation
+        console.error(
+          `AI turn processing failed for player ${currentPlayerId} in game ${currentState.gameId}:`,
+          error
+        );
+        break; // Stop processing AI turns on error
+      }
+    }
+
+    if (iterations >= maxIterations) {
+      console.warn(
+        `AI turn processing stopped after ${maxIterations} iterations to prevent infinite loop in game ${currentState.gameId}`
+      );
+    }
+
+    return currentState;
   }
 
   /**

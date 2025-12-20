@@ -55,19 +55,19 @@
   - Test failure recovery
   - _Requirements: 7.1, 7.2, 7.3_
 
-- [ ] 4. Extend StateManagerService for AI turn detection
-- [ ] 4.1 Add AI turn processing to StateManagerService
+- [x] 4. Extend StateManagerService for AI turn detection
+- [x] 4.1 Add AI turn processing to StateManagerService
   - Inject AIPlayerService into StateManagerService
   - Add processAITurnsIfNeeded private method
   - Modify applyMove to trigger AI turns after human moves
   - Handle consecutive AI turns until human player or game end
   - _Requirements: 2.1, 2.5_
 
-- [ ] 4.2 Write property test for automatic AI turn processing
+- [x] 4.2 Write property test for automatic AI turn processing
   - **Property 3: Automatic AI Turn Processing**
   - **Validates: Requirements 2.1, 2.5**
 
-- [ ] 4.3 Write unit tests for AI turn detection and processing
+- [x] 4.3 Write unit tests for AI turn detection and processing
   - Test AI turn detection after human move
   - Test consecutive AI turns
   - Test stopping at human player turn
