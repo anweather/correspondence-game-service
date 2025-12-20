@@ -87,8 +87,16 @@ describe('Game Completion Stats Update Integration', () => {
     const ticTacToeEngine = new TicTacToeEngine();
     registry.register(ticTacToeEngine);
 
+    // Create mock AI player service
+    const mockAIPlayerService = {
+      createAIPlayers: jest.fn().mockResolvedValue([]),
+      isAIPlayer: jest.fn().mockResolvedValue(false),
+      getAvailableStrategies: jest.fn().mockReturnValue([]),
+      processAITurn: jest.fn(),
+    } as any;
+
     // Create services
-    gameManagerService = new GameManagerService(registry, gameRepository);
+    gameManagerService = new GameManagerService(registry, gameRepository, mockAIPlayerService);
     stateManagerService = new StateManagerService(gameRepository, registry, lockManager);
     statsService = new StatsService(statsRepository);
 

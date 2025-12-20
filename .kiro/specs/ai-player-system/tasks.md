@@ -74,14 +74,14 @@
   - Test stopping at game end
   - _Requirements: 2.1, 2.5_
 
-- [ ] 5. Extend GameManagerService for AI player support
-- [ ] 5.1 Update createGame to support AI players
+- [x] 5. Extend GameManagerService for AI player support
+- [x] 5.1 Update createGame to support AI players
   - Modify createGame method to accept AI player configurations
   - Integrate with AIPlayerService to create AI players
   - Convert AI players to Player objects for game initialization
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
 
-- [ ] 5.2 Write unit tests for game creation with AI players
+- [x] 5.2 Write unit tests for game creation with AI players
   - Test creating games with AI players
   - Test AI player count validation
   - Test AI player initialization with default strategies

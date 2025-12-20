@@ -53,7 +53,15 @@ describe('Game Management Routes Integration', () => {
     const ticTacToeEngine = new TicTacToeEngine();
     registry.register(ticTacToeEngine);
 
-    gameManagerService = new GameManagerService(registry, repository);
+    // Create mock AI player service
+    const mockAIPlayerService = {
+      createAIPlayers: jest.fn().mockResolvedValue([]),
+      isAIPlayer: jest.fn().mockResolvedValue(false),
+      getAvailableStrategies: jest.fn().mockReturnValue([]),
+      processAITurn: jest.fn(),
+    } as any;
+
+    gameManagerService = new GameManagerService(registry, repository, mockAIPlayerService);
     stateManagerService = new StateManagerService(repository, registry, lockManager);
 
     // Create app with real routes
@@ -499,7 +507,15 @@ describe('Gameplay Routes Integration', () => {
     const ticTacToeEngine = new TicTacToeEngine();
     registry.register(ticTacToeEngine);
 
-    gameManagerService = new GameManagerService(registry, repository);
+    // Create mock AI player service
+    const mockAIPlayerService = {
+      createAIPlayers: jest.fn().mockResolvedValue([]),
+      isAIPlayer: jest.fn().mockResolvedValue(false),
+      getAvailableStrategies: jest.fn().mockReturnValue([]),
+      processAITurn: jest.fn(),
+    } as any;
+
+    gameManagerService = new GameManagerService(registry, repository, mockAIPlayerService);
     stateManagerService = new StateManagerService(repository, registry, lockManager);
 
     // Create app with real routes
@@ -907,7 +923,15 @@ describe('Rendering Routes Integration', () => {
     const ticTacToeEngine = new TicTacToeEngine();
     registry.register(ticTacToeEngine);
 
-    gameManagerService = new GameManagerService(registry, repository);
+    // Create mock AI player service
+    const mockAIPlayerService = {
+      createAIPlayers: jest.fn().mockResolvedValue([]),
+      isAIPlayer: jest.fn().mockResolvedValue(false),
+      getAvailableStrategies: jest.fn().mockReturnValue([]),
+      processAITurn: jest.fn(),
+    } as any;
+
+    gameManagerService = new GameManagerService(registry, repository, mockAIPlayerService);
     stateManagerService = new StateManagerService(repository, registry, lockManager);
     rendererService = new RendererService(registry, repository);
 
@@ -1094,7 +1118,15 @@ describe('Protected Game Routes Integration', () => {
     const ticTacToeEngine = new TicTacToeEngine();
     registry.register(ticTacToeEngine);
 
-    gameManagerService = new GameManagerService(registry, repository);
+    // Create mock AI player service
+    const mockAIPlayerService = {
+      createAIPlayers: jest.fn().mockResolvedValue([]),
+      isAIPlayer: jest.fn().mockResolvedValue(false),
+      getAvailableStrategies: jest.fn().mockReturnValue([]),
+      processAITurn: jest.fn(),
+    } as any;
+
+    gameManagerService = new GameManagerService(registry, repository, mockAIPlayerService);
     stateManagerService = new StateManagerService(repository, registry, lockManager);
 
     // Create app with real routes - pass playerIdentityRepository when auth is enabled

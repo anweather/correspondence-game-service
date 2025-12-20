@@ -1,6 +1,8 @@
-import { BaseGameEngine } from '@domain/interfaces';
+import { BaseGameEngine, AICapableGamePlugin } from '@domain/interfaces';
 import { GameState, Player, Move, GameLifecycle } from '@domain/models';
 import { GameConfig, ValidationResult, BoardRenderData } from '@domain/interfaces';
+import { AIStrategy } from '@domain/interfaces/IAIStrategy';
+import { AIPlayer } from '@domain/models/AIPlayer';
 
 /**
  * Mock game engine for testing purposes.
@@ -12,7 +14,7 @@ import { GameConfig, ValidationResult, BoardRenderData } from '@domain/interface
  *   .withMaxPlayers(4)
  *   .withValidationResult({ valid: true });
  */
-export class MockGameEngine extends BaseGameEngine {
+export class MockGameEngine extends BaseGameEngine implements AICapableGamePlugin {
   private gameType: string;
   private minPlayers: number = 2;
   private maxPlayers: number = 4;
@@ -22,6 +24,8 @@ export class MockGameEngine extends BaseGameEngine {
   private winnerResult: string | null = null;
   private shouldThrowOnInitialize: boolean = false;
   private shouldThrowOnApplyMove: boolean = false;
+  private aiSupported: boolean = true;
+  private aiStrategies: AIStrategy[] = [];
 
   // Hook tracking
   public onGameCreatedCalled: boolean = false;
@@ -40,6 +44,37 @@ export class MockGameEngine extends BaseGameEngine {
   constructor(gameType: string = 'mock-game') {
     super();
     this.gameType = gameType;
+
+    // Set up default AI strategies
+    this.aiStrategies = [
+      {
+        id: 'default',
+        name: 'Default Strategy',
+        description: 'Default AI strategy for testing',
+        generateMove: async (_state: GameState, _aiPlayerId: string): Promise<Move> => {
+          return {
+            playerId: _aiPlayerId,
+            timestamp: new Date(),
+            action: 'mock-move',
+            parameters: { position: 0 },
+          };
+        },
+      },
+      {
+        id: 'hard',
+        name: 'Hard Strategy',
+        description: 'Hard AI strategy for testing',
+        difficulty: 'hard',
+        generateMove: async (_state: GameState, _aiPlayerId: string): Promise<Move> => {
+          return {
+            playerId: _aiPlayerId,
+            timestamp: new Date(),
+            action: 'mock-hard-move',
+            parameters: { position: 1 },
+          };
+        },
+      },
+    ];
   }
 
   // Configuration methods
@@ -80,6 +115,16 @@ export class MockGameEngine extends BaseGameEngine {
 
   throwOnApplyMove(): this {
     this.shouldThrowOnApplyMove = true;
+    return this;
+  }
+
+  withAISupport(supported: boolean): this {
+    this.aiSupported = supported;
+    return this;
+  }
+
+  withAIStrategies(strategies: AIStrategy[]): this {
+    this.aiStrategies = strategies;
     return this;
   }
 
@@ -257,5 +302,43 @@ export class MockGameEngine extends BaseGameEngine {
 
   afterRenderBoard?(_state: GameState, _renderData: BoardRenderData): void {
     this.afterRenderBoardCalled = true;
+  }
+
+  // AICapableGamePlugin implementation
+  supportsAI(): boolean {
+    return this.aiSupported;
+  }
+
+  getAIStrategies(): AIStrategy[] {
+    return this.aiStrategies;
+  }
+
+  getDefaultAIStrategy(): AIStrategy {
+    return (
+      this.aiStrategies[0] || {
+        id: 'default',
+        name: 'Default Strategy',
+        description: 'Default AI strategy for testing',
+        generateMove: async (_state: GameState, _aiPlayerId: string): Promise<Move> => {
+          return {
+            playerId: _aiPlayerId,
+            timestamp: new Date(),
+            action: 'mock-move',
+            parameters: { position: 0 },
+          };
+        },
+      }
+    );
+  }
+
+  createAIPlayer(name: string, strategyId?: string, difficulty?: string): AIPlayer {
+    const strategy = strategyId || this.getDefaultAIStrategy().id;
+    return new AIPlayer(
+      `ai-${Math.random().toString(36).substr(2, 9)}`,
+      name,
+      this.gameType,
+      strategy,
+      difficulty
+    );
   }
 }

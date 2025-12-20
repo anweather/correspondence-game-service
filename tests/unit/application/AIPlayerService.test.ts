@@ -181,7 +181,7 @@ describe('AIPlayerService', () => {
 
     it('should throw InvalidAIConfigurationError for non-AI game type', async () => {
       // Create a regular game engine without AI support
-      const plugin = new MockGameEngine('non-ai-game');
+      const plugin = new MockGameEngine('non-ai-game').withAISupport(false);
       pluginRegistry.register(plugin);
 
       const configs = [{ name: 'AI Player 1' }];
@@ -238,7 +238,7 @@ describe('AIPlayerService', () => {
     });
 
     it('should return empty array for non-AI game type', () => {
-      const plugin = new MockGameEngine('non-ai-game');
+      const plugin = new MockGameEngine('non-ai-game').withAISupport(false);
       pluginRegistry.register(plugin);
 
       const result = service.getAvailableStrategies('non-ai-game');

@@ -1,5 +1,5 @@
 import { GameState, Player, Move } from '@domain/models';
-import { AIStrategy } from './IAIStrategy';
+import { AIStrategy, AIPlayerConfig } from './IAIStrategy';
 import { AIPlayer } from '@domain/models/AIPlayer';
 
 // Export authentication interfaces
@@ -28,6 +28,7 @@ export * from './IAIPlayerRepository';
  */
 export interface GameConfig {
   players?: Player[];
+  aiPlayers?: AIPlayerConfig[];
   customSettings?: Record<string, any>;
 }
 

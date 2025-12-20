@@ -54,7 +54,15 @@ describe('Game Routes Property-Based Tests', () => {
     const ticTacToeEngine = new TicTacToeEngine();
     registry.register(ticTacToeEngine);
 
-    gameManagerService = new GameManagerService(registry, repository);
+    // Create mock AI player service
+    const mockAIPlayerService = {
+      createAIPlayers: jest.fn().mockResolvedValue([]),
+      isAIPlayer: jest.fn().mockResolvedValue(false),
+      getAvailableStrategies: jest.fn().mockReturnValue([]),
+      processAITurn: jest.fn(),
+    } as any;
+
+    gameManagerService = new GameManagerService(registry, repository, mockAIPlayerService);
     stateManagerService = new StateManagerService(repository, registry, lockManager);
 
     // Create app with real routes

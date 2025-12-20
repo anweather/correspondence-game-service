@@ -1,4 +1,5 @@
 import { PluginRegistry } from '@application/PluginRegistry';
+import { AIPlayerService } from '@application/services/AIPlayerService';
 import { GameRepository, GameConfig, GameFilters, PaginatedResult } from '@domain/interfaces';
 import { GameState, Player, GameLifecycle } from '@domain/models';
 import { GameNotFoundError, GameFullError } from '@domain/errors';
@@ -23,7 +24,8 @@ export interface GameTypeInfo {
 export class GameManagerService {
   constructor(
     private registry: PluginRegistry,
-    private repository: GameRepository
+    private repository: GameRepository,
+    private aiPlayerService: AIPlayerService
   ) {}
 
   /**
@@ -50,21 +52,32 @@ export class GameManagerService {
     }
 
     const gameId = randomUUID();
-    const players = config.players || [];
+
+    // Handle AI players if provided
+    let allPlayers = config.players || [];
+    if (config.aiPlayers && config.aiPlayers.length > 0) {
+      // Create AI players through AIPlayerService
+      const aiPlayers = await this.aiPlayerService.createAIPlayers(gameType, config.aiPlayers);
+
+      // Convert AI players to Player objects and add to player list
+      const aiPlayerObjects = aiPlayers.map((aiPlayer) => aiPlayer.toPlayer());
+      allPlayers = [...allPlayers, ...aiPlayerObjects];
+    }
+
     const minPlayers = plugin.getMinPlayers();
 
     // Determine initial lifecycle state
     let lifecycle: GameLifecycle;
-    if (players.length === 0) {
+    if (allPlayers.length === 0) {
       lifecycle = GameLifecycle.CREATED;
-    } else if (players.length < minPlayers) {
+    } else if (allPlayers.length < minPlayers) {
       lifecycle = GameLifecycle.WAITING_FOR_PLAYERS;
     } else {
       lifecycle = GameLifecycle.ACTIVE;
     }
 
-    // Initialize game state using plugin
-    const initialState = plugin.initializeGame(players, config);
+    // Initialize game state using plugin with all players (human + AI)
+    const initialState = plugin.initializeGame(allPlayers, config);
 
     // Prepare metadata with creator information and game metadata
     const metadata = {
@@ -80,7 +93,7 @@ export class GameManagerService {
       gameId,
       gameType,
       lifecycle,
-      players,
+      players: allPlayers,
       metadata,
       winner: null,
       version: 1,
