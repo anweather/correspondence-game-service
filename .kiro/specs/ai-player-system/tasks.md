@@ -185,19 +185,19 @@
   - Test move history includes AI moves
   - _Requirements: 4.1, 4.4, 5.2, 5.4_
 
-- [ ] 9. Add AI error logging and monitoring
-- [ ] 9.1 Implement comprehensive AI error logging
+- [x] 9. Add AI error logging and monitoring
+- [x] 9.1 Implement comprehensive AI error logging
   - Add structured logging for AI move generation
   - Include game state context in error logs
   - Include AI configuration in error logs
   - Add performance metrics logging
   - _Requirements: 7.4, 7.5_
 
-- [ ] 9.2 Write property test for AI error logging context
+- [x] 9.2 Write property test for AI error logging context
   - **Property 11: AI Error Logging Context**
   - **Validates: Requirements 7.5**
 
-- [ ] 9.3 Write unit tests for AI error logging
+- [x] 9.3 Write unit tests for AI error logging
   - Test error log structure
   - Test context inclusion
   - Test performance metric logging
@@ -219,7 +219,7 @@
 
 - [ ] 11. Add statistics tracking for AI games
 - [ ] 11.1 Update StatsService for AI player support
-  - Ensure AI player results are recorded in statistics ( we don't need the AI player in the stats view. These are just bots. Games with AI players should be in stas for the players that participated.)
+  - Ensure AI player results are recorded in statistics ( we don't need the AI player-only in the stats view. These are just bots. Games with AI players should be in stas for the real-players that participated.)
   - Add AI game indicators to leaderboards
   - Update stats queries to handle AI players
   - _Requirements: 4.3_

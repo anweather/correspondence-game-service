@@ -210,7 +210,297 @@ describe('Game Management Routes Integration', () => {
     });
   });
 
+  describe('POST /api/games - AI Player Support', () => {
+    beforeEach(() => {
+      // Set up mock AI player service to return AI players
+      const mockAIPlayerService = gameManagerService['aiPlayerService'] as any;
+      mockAIPlayerService.createAIPlayers.mockImplementation(
+        async (gameType: string, aiPlayerConfigs: any[]) => {
+          return aiPlayerConfigs.map((config, index) => {
+            const aiPlayer = {
+              id: `ai-player-${index + 1}`,
+              name: config.name,
+              gameType,
+              strategyId: config.strategyId || 'default',
+              difficulty: config.difficulty,
+              configuration: config.configuration,
+              createdAt: new Date(),
+              toPlayer: () => ({
+                id: `ai-player-${index + 1}`,
+                name: config.name,
+                joinedAt: new Date(),
+                metadata: {
+                  isAI: true,
+                  strategyId: config.strategyId || 'default',
+                  difficulty: config.difficulty,
+                  configuration: config.configuration,
+                },
+              }),
+            };
+            return aiPlayer;
+          });
+        }
+      );
+    });
+
+    it('should create a game with AI players', async () => {
+      const response = await request(app)
+        .post('/api/games')
+        .send({
+          gameType: 'tic-tac-toe',
+          config: {
+            players: [{ id: 'player1', name: 'Alice', joinedAt: new Date() }],
+            aiPlayers: [{ name: 'AI Bot', strategyId: 'easy', difficulty: 'easy' }],
+          },
+        })
+        .expect(201);
+
+      expect(response.body.gameId).toBeDefined();
+      expect(response.body.gameType).toBe('tic-tac-toe');
+      expect(response.body.players).toHaveLength(2);
+
+      // Check human player
+      const humanPlayer = response.body.players.find((p: any) => p.id === 'player1');
+      expect(humanPlayer).toBeDefined();
+      expect(humanPlayer.name).toBe('Alice');
+      expect(humanPlayer.metadata?.isAI).toBeFalsy();
+
+      // Check AI player
+      const aiPlayer = response.body.players.find((p: any) => p.metadata?.isAI === true);
+      expect(aiPlayer).toBeDefined();
+      expect(aiPlayer.name).toBe('AI Bot');
+      expect(aiPlayer.metadata.strategyId).toBe('easy');
+      expect(aiPlayer.metadata.difficulty).toBe('easy');
+    });
+
+    it('should create a game with only AI players', async () => {
+      const response = await request(app)
+        .post('/api/games')
+        .send({
+          gameType: 'tic-tac-toe',
+          config: {
+            aiPlayers: [
+              { name: 'AI Bot 1', strategyId: 'easy' },
+              { name: 'AI Bot 2', strategyId: 'hard' },
+            ],
+          },
+        })
+        .expect(201);
+
+      expect(response.body.players).toHaveLength(2);
+      expect(response.body.players.every((p: any) => p.metadata?.isAI === true)).toBe(true);
+
+      const bot1 = response.body.players.find((p: any) => p.name === 'AI Bot 1');
+      expect(bot1.metadata.strategyId).toBe('easy');
+
+      const bot2 = response.body.players.find((p: any) => p.name === 'AI Bot 2');
+      expect(bot2.metadata.strategyId).toBe('hard');
+    });
+
+    it('should validate AI player configuration - missing name', async () => {
+      const response = await request(app)
+        .post('/api/games')
+        .send({
+          gameType: 'tic-tac-toe',
+          config: {
+            aiPlayers: [
+              { strategyId: 'easy' }, // Missing name
+            ],
+          },
+        })
+        .expect(400);
+
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+      expect(response.body.error.message).toContain('must have a non-empty name');
+    });
+
+    it('should validate AI player configuration - empty name', async () => {
+      const response = await request(app)
+        .post('/api/games')
+        .send({
+          gameType: 'tic-tac-toe',
+          config: {
+            aiPlayers: [{ name: '', strategyId: 'easy' }],
+          },
+        })
+        .expect(400);
+
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+      expect(response.body.error.message).toContain('must have a non-empty name');
+    });
+
+    it('should validate AI player configuration - invalid strategyId', async () => {
+      const response = await request(app)
+        .post('/api/games')
+        .send({
+          gameType: 'tic-tac-toe',
+          config: {
+            aiPlayers: [{ name: 'AI Bot', strategyId: '' }],
+          },
+        })
+        .expect(400);
+
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+      expect(response.body.error.message).toContain('strategyId must be a non-empty string');
+    });
+
+    it('should validate AI player configuration - invalid difficulty', async () => {
+      const response = await request(app)
+        .post('/api/games')
+        .send({
+          gameType: 'tic-tac-toe',
+          config: {
+            aiPlayers: [{ name: 'AI Bot', difficulty: '' }],
+          },
+        })
+        .expect(400);
+
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+      expect(response.body.error.message).toContain('difficulty must be a non-empty string');
+    });
+
+    it('should validate AI player configuration - invalid configuration object', async () => {
+      const response = await request(app)
+        .post('/api/games')
+        .send({
+          gameType: 'tic-tac-toe',
+          config: {
+            aiPlayers: [{ name: 'AI Bot', configuration: 'invalid' }],
+          },
+        })
+        .expect(400);
+
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+      expect(response.body.error.message).toContain('configuration must be an object');
+    });
+
+    it('should validate AI players array structure', async () => {
+      const response = await request(app)
+        .post('/api/games')
+        .send({
+          gameType: 'tic-tac-toe',
+          config: {
+            aiPlayers: 'not-an-array',
+          },
+        })
+        .expect(400);
+
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+      expect(response.body.error.message).toBe('AI players must be an array');
+    });
+
+    it('should validate individual AI player objects', async () => {
+      const response = await request(app)
+        .post('/api/games')
+        .send({
+          gameType: 'tic-tac-toe',
+          config: {
+            aiPlayers: ['not-an-object'],
+          },
+        })
+        .expect(400);
+
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+      expect(response.body.error.message).toContain('must be an object');
+    });
+
+    it('should accept AI players with optional fields', async () => {
+      const response = await request(app)
+        .post('/api/games')
+        .send({
+          gameType: 'tic-tac-toe',
+          config: {
+            aiPlayers: [
+              {
+                name: 'Simple AI',
+                configuration: {
+                  aggressiveness: 0.7,
+                  lookAhead: 2,
+                },
+              },
+            ],
+          },
+        })
+        .expect(201);
+
+      const aiPlayer = response.body.players.find((p: any) => p.metadata?.isAI === true);
+      expect(aiPlayer).toBeDefined();
+      expect(aiPlayer.name).toBe('Simple AI');
+      expect(aiPlayer.metadata.strategyId).toBe('default'); // Should use default
+      expect(aiPlayer.metadata.configuration).toEqual({
+        aggressiveness: 0.7,
+        lookAhead: 2,
+      });
+    });
+
+    it('should include AI indicators in game metadata', async () => {
+      const response = await request(app)
+        .post('/api/games')
+        .send({
+          gameType: 'tic-tac-toe',
+          config: {
+            players: [{ id: 'player1', name: 'Alice', joinedAt: new Date() }],
+            aiPlayers: [{ name: 'AI Bot 1' }, { name: 'AI Bot 2' }],
+          },
+        })
+        .expect(201);
+
+      expect(response.body.metadata.hasAIPlayers).toBe(true);
+      expect(response.body.metadata.aiPlayerCount).toBe(2);
+    });
+
+    it('should indicate no AI players when none are present', async () => {
+      const response = await request(app)
+        .post('/api/games')
+        .send({
+          gameType: 'tic-tac-toe',
+          config: {
+            players: [
+              { id: 'player1', name: 'Alice', joinedAt: new Date() },
+              { id: 'player2', name: 'Bob', joinedAt: new Date() },
+            ],
+          },
+        })
+        .expect(201);
+
+      expect(response.body.metadata.hasAIPlayers).toBe(false);
+      expect(response.body.metadata.aiPlayerCount).toBe(0);
+    });
+  });
+
   describe('GET /api/games - Game Metadata', () => {
+    beforeEach(() => {
+      // Set up mock AI player service to return AI players for these tests
+      const mockAIPlayerService = gameManagerService['aiPlayerService'] as any;
+      mockAIPlayerService.createAIPlayers.mockImplementation(
+        async (gameType: string, aiPlayerConfigs: any[]) => {
+          return aiPlayerConfigs.map((config, index) => {
+            const aiPlayer = {
+              id: `ai-player-${index + 1}`,
+              name: config.name,
+              gameType,
+              strategyId: config.strategyId || 'default',
+              difficulty: config.difficulty,
+              configuration: config.configuration,
+              createdAt: new Date(),
+              toPlayer: () => ({
+                id: `ai-player-${index + 1}`,
+                name: config.name,
+                joinedAt: new Date(),
+                metadata: {
+                  isAI: true,
+                  strategyId: config.strategyId || 'default',
+                  difficulty: config.difficulty,
+                  configuration: config.configuration,
+                },
+              }),
+            };
+            return aiPlayer;
+          });
+        }
+      );
+    });
+
     it('should include game metadata in list response', async () => {
       // Create a game with metadata
       await request(app)
@@ -233,9 +523,82 @@ describe('Game Management Routes Integration', () => {
       expect(response.body.items[0].metadata.gameName).toBe('Test Game');
       expect(response.body.items[0].metadata.gameDescription).toBe('A test game');
     });
+
+    it('should include AI indicators in game list response', async () => {
+      // Create a game with AI players
+      await request(app)
+        .post('/api/games')
+        .send({
+          gameType: 'tic-tac-toe',
+          config: {
+            players: [{ id: 'player1', name: 'Alice', joinedAt: new Date() }],
+            aiPlayers: [{ name: 'AI Bot' }],
+          },
+        });
+
+      // Create a game without AI players
+      await request(app)
+        .post('/api/games')
+        .send({
+          gameType: 'tic-tac-toe',
+          config: {
+            players: [
+              { id: 'player2', name: 'Bob', joinedAt: new Date() },
+              { id: 'player3', name: 'Charlie', joinedAt: new Date() },
+            ],
+          },
+        });
+
+      const response = await request(app).get('/api/games').expect(200);
+
+      expect(response.body.items).toHaveLength(2);
+
+      const aiGame = response.body.items.find((game: any) => game.metadata.hasAIPlayers === true);
+      const humanGame = response.body.items.find(
+        (game: any) => game.metadata.hasAIPlayers === false
+      );
+
+      expect(aiGame).toBeDefined();
+      expect(aiGame.metadata.aiPlayerCount).toBe(1);
+
+      expect(humanGame).toBeDefined();
+      expect(humanGame.metadata.aiPlayerCount).toBe(0);
+    });
   });
 
   describe('GET /api/games/:gameId - Game Metadata', () => {
+    beforeEach(() => {
+      // Set up mock AI player service to return AI players for these tests
+      const mockAIPlayerService = gameManagerService['aiPlayerService'] as any;
+      mockAIPlayerService.createAIPlayers.mockImplementation(
+        async (gameType: string, aiPlayerConfigs: any[]) => {
+          return aiPlayerConfigs.map((config, index) => {
+            const aiPlayer = {
+              id: `ai-player-${index + 1}`,
+              name: config.name,
+              gameType,
+              strategyId: config.strategyId || 'default',
+              difficulty: config.difficulty,
+              configuration: config.configuration,
+              createdAt: new Date(),
+              toPlayer: () => ({
+                id: `ai-player-${index + 1}`,
+                name: config.name,
+                joinedAt: new Date(),
+                metadata: {
+                  isAI: true,
+                  strategyId: config.strategyId || 'default',
+                  difficulty: config.difficulty,
+                  configuration: config.configuration,
+                },
+              }),
+            };
+            return aiPlayer;
+          });
+        }
+      );
+    });
+
     it('should include game metadata in single game response', async () => {
       const createResponse = await request(app)
         .post('/api/games')
@@ -257,6 +620,31 @@ describe('Game Management Routes Integration', () => {
 
       expect(response.body.metadata.gameName).toBe('Epic Match');
       expect(response.body.metadata.gameDescription).toBe('The ultimate showdown');
+    });
+
+    it('should include AI indicators in single game response', async () => {
+      const createResponse = await request(app)
+        .post('/api/games')
+        .send({
+          gameType: 'tic-tac-toe',
+          config: {
+            players: [{ id: 'player1', name: 'Alice', joinedAt: new Date() }],
+            aiPlayers: [{ name: 'AI Bot 1' }, { name: 'AI Bot 2' }],
+          },
+        });
+
+      const gameId = createResponse.body.gameId;
+
+      const response = await request(app).get(`/api/games/${gameId}`).expect(200);
+
+      expect(response.body.metadata.hasAIPlayers).toBe(true);
+      expect(response.body.metadata.aiPlayerCount).toBe(2);
+
+      // Verify AI players have correct metadata
+      const aiPlayers = response.body.players.filter((p: any) => p.metadata?.isAI === true);
+      expect(aiPlayers).toHaveLength(2);
+      expect(aiPlayers[0].name).toBe('AI Bot 1');
+      expect(aiPlayers[1].name).toBe('AI Bot 2');
     });
   });
 

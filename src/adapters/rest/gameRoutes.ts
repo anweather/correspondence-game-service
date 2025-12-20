@@ -38,6 +38,7 @@ export function createGameRoutes(
    * Create a new game instance
    * Requires authentication (when enabled)
    * Accepts optional gameName and gameDescription for game metadata
+   * Supports AI player configuration through config.aiPlayers
    */
   router.post(
     '/games',
@@ -78,6 +79,86 @@ export function createGameRoutes(
               },
             });
             return;
+          }
+        }
+
+        // Validate AI player configurations if provided
+        if (config?.aiPlayers) {
+          if (!Array.isArray(config.aiPlayers)) {
+            res.status(400).json({
+              error: {
+                code: 'VALIDATION_ERROR',
+                message: 'AI players must be an array',
+              },
+            });
+            return;
+          }
+
+          for (let i = 0; i < config.aiPlayers.length; i++) {
+            const aiPlayer = config.aiPlayers[i];
+
+            if (!aiPlayer || typeof aiPlayer !== 'object') {
+              res.status(400).json({
+                error: {
+                  code: 'VALIDATION_ERROR',
+                  message: `AI player at index ${i} must be an object`,
+                },
+              });
+              return;
+            }
+
+            if (
+              !aiPlayer.name ||
+              typeof aiPlayer.name !== 'string' ||
+              aiPlayer.name.trim() === ''
+            ) {
+              res.status(400).json({
+                error: {
+                  code: 'VALIDATION_ERROR',
+                  message: `AI player at index ${i} must have a non-empty name`,
+                },
+              });
+              return;
+            }
+
+            if (
+              aiPlayer.strategyId !== undefined &&
+              (typeof aiPlayer.strategyId !== 'string' || aiPlayer.strategyId.trim() === '')
+            ) {
+              res.status(400).json({
+                error: {
+                  code: 'VALIDATION_ERROR',
+                  message: `AI player at index ${i} strategyId must be a non-empty string if provided`,
+                },
+              });
+              return;
+            }
+
+            if (
+              aiPlayer.difficulty !== undefined &&
+              (typeof aiPlayer.difficulty !== 'string' || aiPlayer.difficulty.trim() === '')
+            ) {
+              res.status(400).json({
+                error: {
+                  code: 'VALIDATION_ERROR',
+                  message: `AI player at index ${i} difficulty must be a non-empty string if provided`,
+                },
+              });
+              return;
+            }
+
+            if (
+              aiPlayer.configuration !== undefined &&
+              (typeof aiPlayer.configuration !== 'object' || Array.isArray(aiPlayer.configuration))
+            ) {
+              res.status(400).json({
+                error: {
+                  code: 'VALIDATION_ERROR',
+                  message: `AI player at index ${i} configuration must be an object if provided`,
+                },
+              });
+              return;
+            }
           }
         }
 

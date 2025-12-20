@@ -53,7 +53,13 @@ export interface Player {
   externalId?: string;
   name: string;
   joinedAt: string; // ISO 8601 timestamp
-  metadata?: Record<string, any>;
+  metadata?: {
+    isAI?: boolean;
+    strategyId?: string;
+    difficulty?: string;
+    configuration?: Record<string, any>;
+    [key: string]: any;
+  };
 }
 
 /**
@@ -86,7 +92,10 @@ export interface GameState<TMetadata = Record<string, any>> {
   phase: string;
   board: Board;
   moveHistory: Move[];
-  metadata: TMetadata;
+  metadata: TMetadata & {
+    hasAIPlayers?: boolean;
+    aiPlayerCount?: number;
+  };
   version: number;
   createdAt: string; // ISO 8601 timestamp
   updatedAt: string; // ISO 8601 timestamp
@@ -105,10 +114,21 @@ export interface GameType {
 }
 
 /**
+ * Configuration for creating AI players
+ */
+export interface AIPlayerConfig {
+  name: string;
+  strategyId?: string; // Optional - uses default if not specified
+  difficulty?: string;
+  configuration?: Record<string, any>;
+}
+
+/**
  * Configuration for creating a game
  */
 export interface GameConfig {
   players?: Player[];
+  aiPlayers?: AIPlayerConfig[];
   customSettings?: Record<string, any>;
   gameName?: string;
   gameDescription?: string;

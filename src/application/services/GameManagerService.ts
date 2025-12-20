@@ -107,16 +107,8 @@ export class GameManagerService {
     // Invoke lifecycle hook
     plugin.onGameCreated(gameState, config);
 
-    return gameState;
-  }
-
-  /**
-   * Get a game by its ID
-   * @param gameId - The game ID to retrieve
-   * @returns The game state, or null if not found
-   */
-  async getGame(gameId: string): Promise<GameState | null> {
-    return await this.repository.findById(gameId);
+    // Enhance with AI information before returning
+    return this.enhanceGameWithAIInfo(gameState);
   }
 
   /**
@@ -200,7 +192,7 @@ export class GameManagerService {
       plugin.onGameStarted(updatedGame);
     }
 
-    return updatedGame;
+    return this.enhanceGameWithAIInfo(updatedGame);
   }
 
   /**
@@ -209,13 +201,56 @@ export class GameManagerService {
    * @returns Paginated list of games
    */
   async listGames(filters: GameFilters): Promise<PaginatedResult<GameState>> {
+    let result: PaginatedResult<GameState>;
+
     // If playerId filter is provided, use repository's findByPlayer
     if (filters.playerId) {
-      return await this.repository.findByPlayer(filters.playerId, filters);
+      result = await this.repository.findByPlayer(filters.playerId, filters);
+    } else {
+      // Otherwise, use findAll
+      result = await this.repository.findAll(filters);
     }
 
-    // Otherwise, use findAll
-    return await this.repository.findAll(filters);
+    // Enhance games with AI indicators
+    const enhancedGames = result.items.map((game) => this.enhanceGameWithAIInfo(game));
+
+    return {
+      ...result,
+      items: enhancedGames,
+    };
+  }
+
+  /**
+   * Get a game by its ID with AI information enhanced
+   * @param gameId - The game ID to retrieve
+   * @returns The game state with AI information, or null if not found
+   */
+  async getGame(gameId: string): Promise<GameState | null> {
+    const game = await this.repository.findById(gameId);
+    if (!game) {
+      return null;
+    }
+
+    return this.enhanceGameWithAIInfo(game);
+  }
+
+  /**
+   * Enhance a game state with AI player information
+   * @param game - The game state to enhance
+   * @returns Enhanced game state with AI indicators
+   */
+  private enhanceGameWithAIInfo(game: GameState): GameState {
+    const aiPlayerCount = game.players.filter((player) => player.metadata?.isAI === true).length;
+    const hasAIPlayers = aiPlayerCount > 0;
+
+    return {
+      ...game,
+      metadata: {
+        ...game.metadata,
+        hasAIPlayers,
+        aiPlayerCount,
+      },
+    };
   }
 
   /**
