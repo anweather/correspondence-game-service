@@ -88,18 +88,18 @@
   - Test difficulty level selection
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
 
-- [ ] 6. Implement fallback random AI strategy
-- [ ] 6.1 Create RandomAIStrategy class
+- [x] 6. Implement fallback random AI strategy
+- [x] 6.1 Create RandomAIStrategy class
   - Create `src/application/ai/RandomAIStrategy.ts`
   - Implement AIStrategy interface
   - Generate random valid moves from available moves
   - _Requirements: 3.5_
 
-- [ ] 6.2 Write property test for AI strategy availability
+- [x] 6.2 Write property test for AI strategy availability
   - **Property 4: AI Strategy Availability**
   - **Validates: Requirements 3.1, 3.5**
 
-- [ ] 6.3 Write unit tests for RandomAIStrategy
+- [x] 6.3 Write unit tests for RandomAIStrategy
   - Test random move generation
   - Test move validity
   - Test handling empty move lists
