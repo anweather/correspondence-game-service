@@ -230,8 +230,8 @@
   - Test stats queries with AI games
   - _Requirements: 4.3_
 
-- [ ] 12. Create end-to-end tests for AI gameplay
-- [ ] 12.1 Write E2E test for complete AI game flow
+- [x] 12. Create end-to-end tests for AI gameplay
+- [x] 12.1 Write E2E test for complete AI game flow
   - Test creating game with AI player
   - Test human vs AI gameplay
   - Test AI vs AI gameplay
