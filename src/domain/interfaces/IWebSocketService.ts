@@ -27,7 +27,6 @@ export interface GameUpdateMessage extends WebSocketMessage {
   type: WebSocketMessageType.GAME_UPDATE;
   gameId: string;
   gameState: GameState;
-  lastMoveByAI?: boolean; // Indicates if the last move was made by an AI player
 }
 
 /**
@@ -37,7 +36,6 @@ export interface TurnNotificationMessage extends WebSocketMessage {
   type: WebSocketMessageType.TURN_NOTIFICATION;
   gameId: string;
   currentPlayer: string;
-  isAIPlayer?: boolean; // Indicates if the current player is an AI player
 }
 
 /**
@@ -57,7 +55,6 @@ export interface GameCompleteMessage extends WebSocketMessage {
   type: WebSocketMessageType.GAME_COMPLETE;
   gameId: string;
   winner: string | null;
-  winnerIsAI?: boolean; // Indicates if the winner is an AI player
 }
 
 /**

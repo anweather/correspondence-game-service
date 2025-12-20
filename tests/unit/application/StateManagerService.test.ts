@@ -455,7 +455,14 @@ describe('StateManagerService', () => {
         expect.objectContaining({
           type: WebSocketMessageType.GAME_UPDATE,
           gameId: 'test-game-1',
-          gameState: updatedState,
+          gameState: expect.objectContaining({
+            ...updatedState,
+            metadata: expect.objectContaining({
+              ...updatedState.metadata,
+              hasAIPlayers: false,
+              aiPlayerCount: 0,
+            }),
+          }),
           timestamp: expect.any(Date),
         })
       );
@@ -490,7 +497,14 @@ describe('StateManagerService', () => {
         expect.objectContaining({
           type: WebSocketMessageType.GAME_UPDATE,
           gameId: 'test-game-1',
-          gameState: updatedState,
+          gameState: expect.objectContaining({
+            ...updatedState,
+            metadata: expect.objectContaining({
+              ...updatedState.metadata,
+              hasAIPlayers: false,
+              aiPlayerCount: 0,
+            }),
+          }),
         })
       );
 

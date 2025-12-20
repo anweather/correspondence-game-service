@@ -167,13 +167,15 @@ describe('AI WebSocket Notifications Integration Tests', () => {
 
           if (moveCount === 1) {
             // First move - human move
-            expect(message.lastMoveByAI).toBe(false);
             expect(message.gameState).toBeDefined();
             expect(message.gameState.gameId).toBe(gameId);
             expect(message.gameState.moveHistory).toHaveLength(1);
+
+            // Verify the move was made by human player
+            const lastMove = message.gameState.moveHistory[0];
+            expect(lastMove.playerId).toBe(testUserId);
           } else if (moveCount === 2) {
             // Second move - AI move
-            expect(message.lastMoveByAI).toBe(true);
             expect(message.gameState).toBeDefined();
             expect(message.gameState.gameId).toBe(gameId);
             expect(message.gameState.moveHistory).toHaveLength(2);
@@ -223,17 +225,32 @@ describe('AI WebSocket Notifications Integration Tests', () => {
             expect(humanMoveMessage).toHaveProperty('gameId', gameId);
             expect(humanMoveMessage).toHaveProperty('gameState');
             expect(humanMoveMessage).toHaveProperty('timestamp');
-            expect(humanMoveMessage).toHaveProperty('lastMoveByAI', false);
 
             expect(aiMoveMessage).toHaveProperty('type', WebSocketMessageType.GAME_UPDATE);
             expect(aiMoveMessage).toHaveProperty('gameId', gameId);
             expect(aiMoveMessage).toHaveProperty('gameState');
             expect(aiMoveMessage).toHaveProperty('timestamp');
-            expect(aiMoveMessage).toHaveProperty('lastMoveByAI', true);
 
-            // Verify AI metadata is present
+            // Verify both messages have identical structure (no AI-specific flags)
+            expect(Object.keys(humanMoveMessage).sort()).toEqual(Object.keys(aiMoveMessage).sort());
+
+            // Verify AI metadata is present in game state
             expect(aiMoveMessage.gameState.metadata.hasAIPlayers).toBe(true);
             expect(aiMoveMessage.gameState.metadata.aiPlayerCount).toBe(1);
+
+            // Verify we can distinguish move sources from player metadata
+            const humanMove = humanMoveMessage.gameState.moveHistory[0];
+            const aiMove = aiMoveMessage.gameState.moveHistory[1];
+
+            const humanPlayer = aiMoveMessage.gameState.players.find(
+              (p: any) => p.id === humanMove.playerId
+            );
+            const aiPlayer = aiMoveMessage.gameState.players.find(
+              (p: any) => p.id === aiMove.playerId
+            );
+
+            expect(humanPlayer.metadata?.isAI).toBeFalsy();
+            expect(aiPlayer.metadata?.isAI).toBe(true);
 
             done();
           }
@@ -261,20 +278,26 @@ describe('AI WebSocket Notifications Integration Tests', () => {
       ws.on('message', (data) => {
         const message = JSON.parse(data.toString());
 
-        if (message.type === WebSocketMessageType.GAME_UPDATE && message.lastMoveByAI) {
+        if (message.type === WebSocketMessageType.GAME_UPDATE) {
           const gameState = message.gameState;
 
-          // Verify AI player metadata
-          const aiPlayer = gameState.players.find((p: any) => p.metadata?.isAI === true);
-          expect(aiPlayer).toBeDefined();
-          expect(aiPlayer.metadata.isAI).toBe(true);
-          expect(aiPlayer.metadata.strategyId).toBe('easy');
+          // Check if this is an AI move by looking at the last move
+          const lastMove = gameState.moveHistory[gameState.moveHistory.length - 1];
+          const lastMovePlayer = gameState.players.find((p: any) => p.id === lastMove.playerId);
 
-          // Verify game metadata includes AI information
-          expect(gameState.metadata.hasAIPlayers).toBe(true);
-          expect(gameState.metadata.aiPlayerCount).toBe(1);
+          if (lastMovePlayer?.metadata?.isAI === true) {
+            // Verify AI player metadata
+            const aiPlayer = gameState.players.find((p: any) => p.metadata?.isAI === true);
+            expect(aiPlayer).toBeDefined();
+            expect(aiPlayer.metadata.isAI).toBe(true);
+            expect(aiPlayer.metadata.strategyId).toBe('easy');
 
-          done();
+            // Verify game metadata includes AI information
+            expect(gameState.metadata.hasAIPlayers).toBe(true);
+            expect(gameState.metadata.aiPlayerCount).toBe(1);
+
+            done();
+          }
         }
       });
 
@@ -320,7 +343,7 @@ describe('AI WebSocket Notifications Integration Tests', () => {
           { id: testUserId, username: 'Test User' },
           'AI Error Test Game'
         )
-      ).rejects.toThrow('AI strategy \'nonexistent\' not found for game type \'tic-tac-toe\'');
+      ).rejects.toThrow("AI strategy 'nonexistent' not found for game type 'tic-tac-toe'");
     });
   });
 });

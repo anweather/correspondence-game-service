@@ -319,6 +319,12 @@ export class AIPlayerService {
 
           move = await this.generateMoveWithTimeout(strategy, gameState, aiPlayerId, timeLimit);
 
+          // Ensure the move has the correct playerId set
+          move = {
+            ...move,
+            playerId: aiPlayerId,
+          };
+
           const moveGenerationTime = Date.now() - moveAttemptStartTime;
           aiLogger.info('AI move generated', {
             move,
@@ -390,6 +396,13 @@ export class AIPlayerService {
             // Generate new move for retry
             const retryStartTime = Date.now();
             move = await this.generateMoveWithTimeout(strategy, gameState, aiPlayerId, timeLimit);
+
+            // Ensure the retry move also has the correct playerId set
+            move = {
+              ...move,
+              playerId: aiPlayerId,
+            };
+
             const retryTime = Date.now() - retryStartTime;
 
             aiLogger.info('AI move regenerated for invalid move retry', {
