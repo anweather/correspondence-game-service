@@ -105,39 +105,39 @@
   - Test handling empty move lists
   - _Requirements: 3.5_
 
-- [ ] 7. Implement Tic-Tac-Toe AI strategies
-- [ ] 7.1 Create TicTacToeAI module structure
+- [x] 7. Implement Tic-Tac-Toe AI strategies
+- [x] 7.1 Create TicTacToeAI module structure
   - Create `games/tic-tac-toe/ai/` directory
   - Create `games/tic-tac-toe/ai/index.ts`
   - Create strategy interface implementations
   - _Requirements: 6.1, 6.2, 6.3_
 
-- [ ] 7.2 Implement perfect-play AI strategy for Tic-Tac-Toe
+- [x] 7.2 Implement perfect-play AI strategy for Tic-Tac-Toe
   - Create `games/tic-tac-toe/ai/PerfectPlayStrategy.ts`
   - Implement minimax algorithm or rule-based perfect play
   - Prioritize: immediate wins > block opponent wins > center > corners > edges
   - _Requirements: 6.1, 6.2_
 
-- [ ] 7.3 Write property test for Tic-Tac-Toe AI optimality
+- [x] 7.3 Write property test for Tic-Tac-Toe AI optimality
   - **Property 9: Tic-Tac-Toe AI Optimality**
   - **Validates: Requirements 6.2**
 
-- [ ] 7.4 Write property test for Tic-Tac-Toe AI performance
+- [x] 7.4 Write property test for Tic-Tac-Toe AI performance
   - **Property 10: AI Performance Requirements**
   - **Validates: Requirements 6.4**
 
-- [ ] 7.5 Implement easy AI strategy for Tic-Tac-Toe
+- [x] 7.5 Implement easy AI strategy for Tic-Tac-Toe
   - Create `games/tic-tac-toe/ai/EasyStrategy.ts`
   - Implement random valid move selection
   - _Requirements: 6.3_
 
-- [ ] 7.6 Write unit tests for Tic-Tac-Toe AI strategies
+- [x] 7.6 Write unit tests for Tic-Tac-Toe AI strategies
   - Test perfect-play strategy move selection
   - Test easy strategy randomness
   - Test edge cases (nearly full boards, immediate wins/blocks)
   - _Requirements: 6.1, 6.2, 6.3_
 
-- [ ] 7.7 Extend TicTacToeEngine with AI support
+- [x] 7.7 Extend TicTacToeEngine with AI support
   - Implement AICapableGamePlugin interface
   - Add getAIStrategies method
   - Add getDefaultAIStrategy method
@@ -145,40 +145,41 @@
   - Register AI strategies
   - _Requirements: 3.1, 6.1, 6.3_
 
-- [ ] 7.8 Write unit tests for TicTacToeEngine AI integration
+- [x] 7.8 Write unit tests for TicTacToeEngine AI integration
   - Test AI strategy registration
   - Test default strategy retrieval
   - Test AI player creation
   - _Requirements: 3.1, 6.1_
 
-- [ ] 8. Update REST API for AI player support
-- [ ] 8.1 Extend game creation endpoint
+- [-] 8. Update REST API for AI player support
+(Make sure this is backward compatible with the existing REST API we have for the frontend client.)
+- [x] 8.1 Extend game creation endpoint
   - Update POST /games endpoint to accept AI player configurations
   - Add validation for AI player parameters
   - Update request/response types
   - _Requirements: 1.1, 1.2, 1.5_
 
-- [ ] 8.2 Write integration tests for AI game creation API
+- [x] 8.2 Write integration tests for AI game creation API
   - Test creating games with AI players via API
   - Test AI player configuration validation
   - Test API response structure
   - _Requirements: 1.1, 1.2, 5.1, 5.4_
 
-- [ ] 8.3 Update game state retrieval endpoints
+- [x] 8.3 Update game state retrieval endpoints
   - Ensure GET /games/:id includes AI player metadata
   - Ensure GET /games includes AI game indicators
   - Update response types to include AI information
   - _Requirements: 4.1, 4.4, 5.4_
 
-- [ ] 8.4 Write property test for game state structure consistency
+- [x] 8.4 Write property test for game state structure consistency
   - **Property 6: Game State Structure Consistency**
   - **Validates: Requirements 4.2, 5.1**
 
-- [ ] 8.5 Write property test for move history consistency
+- [x] 8.5 Write property test for move history consistency
   - **Property 8: Move History Consistency**
   - **Validates: Requirements 5.2, 5.5**
 
-- [ ] 8.6 Write integration tests for AI game state retrieval
+- [x] 8.6 Write integration tests for AI game state retrieval
   - Test retrieving games with AI players
   - Test AI player identification in responses
   - Test move history includes AI moves
@@ -203,6 +204,7 @@
   - _Requirements: 7.4, 7.5_
 
 - [ ] 10. Update WebSocket notifications for AI moves
+   (Make sure that we have websockets integrated at the engine level, and not the player vs AI move level. Integrate once. a Move is just a move.)
 - [ ] 10.1 Extend WebSocket events for AI moves
   - Ensure AI moves trigger same WebSocket events as human moves
   - Add AI player type information to event payloads
@@ -217,7 +219,7 @@
 
 - [ ] 11. Add statistics tracking for AI games
 - [ ] 11.1 Update StatsService for AI player support
-  - Ensure AI player results are recorded in statistics
+  - Ensure AI player results are recorded in statistics ( we don't need the AI player in the stats view. These are just bots. Games with AI players should be in stas for the players that participated.)
   - Add AI game indicators to leaderboards
   - Update stats queries to handle AI players
   - _Requirements: 4.3_
