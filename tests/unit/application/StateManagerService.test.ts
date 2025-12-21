@@ -250,16 +250,17 @@ describe('StateManagerService', () => {
       const gameState = createMockGameState(players);
       await repository.save(gameState);
 
+      const testStartTime = new Date();
       const move1: Move = {
         playerId: 'player1',
-        timestamp: new Date(),
+        timestamp: new Date(), // This will be overridden by the service
         action: 'move1',
         parameters: {},
       };
 
       const move2: Move = {
         playerId: 'player2', // Changed to player2 since turn advances
-        timestamp: new Date(),
+        timestamp: new Date(), // This will be overridden by the service
         action: 'move2',
         parameters: {},
       };
@@ -275,8 +276,26 @@ describe('StateManagerService', () => {
 
       // Assert
       expect(state2.moveHistory).toHaveLength(2);
-      expect(state2.moveHistory[0]).toEqual(move1);
-      expect(state2.moveHistory[1]).toEqual(move2);
+      expect(state2.moveHistory[0]).toMatchObject({
+        playerId: 'player1',
+        action: 'move1',
+        parameters: {},
+      });
+      expect(state2.moveHistory[1]).toMatchObject({
+        playerId: 'player2',
+        action: 'move2',
+        parameters: {},
+      });
+      // Verify timestamps are recent (within 1 second of test start)
+      const testEndTime = new Date();
+      expect(state2.moveHistory[0].timestamp.getTime()).toBeGreaterThanOrEqual(
+        testStartTime.getTime()
+      );
+      expect(state2.moveHistory[0].timestamp.getTime()).toBeLessThanOrEqual(testEndTime.getTime());
+      expect(state2.moveHistory[1].timestamp.getTime()).toBeGreaterThanOrEqual(
+        testStartTime.getTime()
+      );
+      expect(state2.moveHistory[1].timestamp.getTime()).toBeLessThanOrEqual(testEndTime.getTime());
     });
 
     it('should detect game over and transition to COMPLETED lifecycle', async () => {
