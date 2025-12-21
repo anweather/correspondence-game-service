@@ -169,6 +169,13 @@ Create a new game instance.
         "name": "Bob"
       }
     ],
+    "aiPlayers": [
+      {
+        "name": "AI Bot",
+        "strategyId": "perfect-play",
+        "difficulty": "hard"
+      }
+    ],
     "customSettings": {
       "boardSize": 3
     }
@@ -178,7 +185,12 @@ Create a new game instance.
 
 **Parameters:**
 - `gameType` (required): The type of game to create
-- `config.players` (optional): Array of initial players
+- `config.players` (optional): Array of initial human players
+- `config.aiPlayers` (optional): Array of AI players to create
+  - `name` (required): Display name for the AI player
+  - `strategyId` (optional): AI strategy to use (defaults to game's default strategy)
+  - `difficulty` (optional): Difficulty level (e.g., "easy", "hard")
+  - `configuration` (optional): AI-specific configuration parameters
 - `config.customSettings` (optional): Game-specific configuration
 
 **Response:**
@@ -189,12 +201,34 @@ Create a new game instance.
     "gameId": "game-123",
     "gameType": "tic-tac-toe",
     "lifecycle": "active",
-    "players": [...],
+    "players": [
+      {
+        "id": "player1",
+        "name": "Alice",
+        "joinedAt": "2025-11-19T00:00:00.000Z",
+        "metadata": {
+          "isAI": false
+        }
+      },
+      {
+        "id": "ai-bot-456",
+        "name": "AI Bot",
+        "joinedAt": "2025-11-19T00:00:00.000Z",
+        "metadata": {
+          "isAI": true,
+          "strategyId": "perfect-play",
+          "difficulty": "hard"
+        }
+      }
+    ],
     "currentPlayerIndex": 0,
     "phase": "main",
     "board": {...},
     "moveHistory": [],
-    "metadata": {},
+    "metadata": {
+      "hasAIPlayers": true,
+      "aiPlayerCount": 1
+    },
     "version": 1,
     "createdAt": "2025-11-19T00:00:00.000Z",
     "updatedAt": "2025-11-19T00:00:00.000Z"
@@ -212,6 +246,50 @@ curl -X POST http://localhost:3000/api/games \
       "players": [
         {"id": "player1", "name": "Alice"},
         {"id": "player2", "name": "Bob"}
+      ]
+    }
+  }'
+```
+
+**Example (with AI players):**
+```bash
+curl -X POST http://localhost:3000/api/games \
+  -H "Content-Type: application/json" \
+  -d '{
+    "gameType": "tic-tac-toe",
+    "config": {
+      "players": [
+        {"id": "player1", "name": "Alice"}
+      ],
+      "aiPlayers": [
+        {
+          "name": "AI Bot",
+          "strategyId": "perfect-play",
+          "difficulty": "hard"
+        }
+      ]
+    }
+  }'
+```
+
+**Example (AI vs AI game):**
+```bash
+curl -X POST http://localhost:3000/api/games \
+  -H "Content-Type: application/json" \
+  -d '{
+    "gameType": "tic-tac-toe",
+    "config": {
+      "aiPlayers": [
+        {
+          "name": "AI Player 1",
+          "strategyId": "perfect-play",
+          "difficulty": "hard"
+        },
+        {
+          "name": "AI Player 2",
+          "strategyId": "easy",
+          "difficulty": "easy"
+        }
       ]
     }
   }'
@@ -252,10 +330,46 @@ Retrieve the current state of a specific game.
     "gameId": "game-123",
     "gameType": "tic-tac-toe",
     "lifecycle": "active",
-    "players": [...],
+    "players": [
+      {
+        "id": "player1",
+        "name": "Alice",
+        "joinedAt": "2025-11-19T00:00:00.000Z",
+        "metadata": {
+          "isAI": false
+        }
+      },
+      {
+        "id": "ai-bot-456",
+        "name": "AI Bot",
+        "joinedAt": "2025-11-19T00:00:00.000Z",
+        "metadata": {
+          "isAI": true,
+          "strategyId": "perfect-play",
+          "difficulty": "hard"
+        }
+      }
+    ],
     "currentPlayerIndex": 0,
     "board": {...},
-    "moveHistory": [...],
+    "moveHistory": [
+      {
+        "playerId": "player1",
+        "timestamp": "2025-11-19T00:00:00.000Z",
+        "action": "place",
+        "parameters": {"row": 0, "col": 0}
+      },
+      {
+        "playerId": "ai-bot-456",
+        "timestamp": "2025-11-19T00:00:30.000Z",
+        "action": "place",
+        "parameters": {"row": 1, "col": 1}
+      }
+    ],
+    "metadata": {
+      "hasAIPlayers": true,
+      "aiPlayerCount": 1
+    },
     "version": 5
   }
 }
@@ -391,6 +505,122 @@ curl -X DELETE http://localhost:3000/api/games/game-123
 
 ---
 
+## AI Player Features
+
+The API supports creating games with AI (computer-controlled) players that can participate alongside human players or play against each other.
+
+### AI Player Configuration
+
+When creating a game, you can specify AI players in the `config.aiPlayers` array:
+
+```json
+{
+  "gameType": "tic-tac-toe",
+  "config": {
+    "players": [
+      {"id": "human1", "name": "Alice"}
+    ],
+    "aiPlayers": [
+      {
+        "name": "AI Bot",
+        "strategyId": "perfect-play",
+        "difficulty": "hard",
+        "configuration": {
+          "thinkingTime": 500
+        }
+      }
+    ]
+  }
+}
+```
+
+**AI Player Parameters:**
+- `name` (required): Display name for the AI player
+- `strategyId` (optional): Specific AI strategy to use. If not provided, uses the game's default strategy
+- `difficulty` (optional): Difficulty level (game-specific values like "easy", "medium", "hard")
+- `configuration` (optional): Additional AI-specific configuration parameters
+
+### Available AI Strategies
+
+Different game types support different AI strategies. You can check available strategies by examining the game type metadata or consulting the game-specific documentation.
+
+**Tic-Tac-Toe AI Strategies:**
+- `perfect-play`: Optimal play using minimax algorithm (never loses)
+- `easy`: Random valid move selection
+- `random`: Fallback random strategy (available for all games)
+
+### AI Player Identification
+
+AI players are automatically assigned unique IDs and can be identified in API responses through their metadata:
+
+```json
+{
+  "id": "ai-bot-456",
+  "name": "AI Bot",
+  "joinedAt": "2025-11-19T00:00:00.000Z",
+  "metadata": {
+    "isAI": true,
+    "strategyId": "perfect-play",
+    "difficulty": "hard"
+  }
+}
+```
+
+### Automatic AI Moves
+
+AI players automatically make moves when it becomes their turn. The system:
+
+1. Detects when it's an AI player's turn
+2. Generates a move using the configured strategy
+3. Validates the move using the same rules as human players
+4. Applies the move to the game state
+5. Advances to the next player's turn
+
+This process is transparent to API clients - AI moves appear in the move history and game state updates just like human moves.
+
+### Game Metadata for AI Games
+
+Games containing AI players include additional metadata:
+
+```json
+{
+  "metadata": {
+    "hasAIPlayers": true,
+    "aiPlayerCount": 1
+  }
+}
+```
+
+This allows clients to:
+- Filter games by AI presence
+- Display appropriate UI indicators
+- Adjust gameplay expectations
+
+### Error Handling for AI Players
+
+AI players may encounter errors during move generation:
+
+- **Timeout**: AI takes too long to generate a move
+- **Invalid Move**: AI generates a move that violates game rules
+- **Strategy Failure**: AI strategy encounters an internal error
+
+When AI errors occur:
+1. The system logs detailed error information
+2. Retry logic attempts to recover (up to 3 attempts for invalid moves)
+3. If recovery fails, the game may end with an error state
+4. Human players are notified through the standard notification system
+
+### Performance Considerations
+
+AI move generation is designed to be fast:
+- Default timeout: 1 second per move
+- Tic-tac-toe perfect play: typically < 100ms
+- Complex games may have longer timeouts
+
+For real-time gameplay, AI moves are processed asynchronously and don't block API responses.
+
+---
+
 ## Gameplay Endpoints
 
 ### Get Current Game State
@@ -519,10 +749,16 @@ Retrieve the complete move history for a game.
       "parameters": {"row": 0, "col": 0}
     },
     {
-      "playerId": "player2",
-      "timestamp": "2025-11-19T00:01:00.000Z",
+      "playerId": "ai-bot-456",
+      "timestamp": "2025-11-19T00:00:30.000Z",
       "action": "place",
       "parameters": {"row": 1, "col": 1}
+    },
+    {
+      "playerId": "player1",
+      "timestamp": "2025-11-19T00:01:00.000Z",
+      "action": "place",
+      "parameters": {"row": 2, "col": 2}
     }
   ]
 }
@@ -593,6 +829,8 @@ Games progress through the following lifecycle states:
 |-------------|------------|-------------|
 | 400 | `INVALID_REQUEST` | Request validation failed |
 | 400 | `INVALID_MOVE` | Move is not valid according to game rules |
+| 400 | `INVALID_AI_CONFIG` | AI player configuration is invalid |
+| 400 | `AI_STRATEGY_NOT_FOUND` | Specified AI strategy is not available for this game type |
 | 401 | `AUTHENTICATION_REQUIRED` | Authentication required but not provided |
 | 401 | `INVALID_TOKEN` | Authentication token is invalid or malformed |
 | 401 | `TOKEN_EXPIRED` | Authentication token has expired |
@@ -603,6 +841,8 @@ Games progress through the following lifecycle states:
 | 409 | `CONCURRENCY_ERROR` | Version mismatch (optimistic locking) |
 | 409 | `GAME_FULL` | Game has reached maximum player capacity |
 | 500 | `INTERNAL_ERROR` | Internal server error |
+| 500 | `AI_MOVE_GENERATION_ERROR` | AI player failed to generate a valid move |
+| 500 | `AI_TIMEOUT_ERROR` | AI player exceeded time limit for move generation |
 
 ## Optimistic Locking
 

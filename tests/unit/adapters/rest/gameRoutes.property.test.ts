@@ -67,7 +67,7 @@ describe('Game Routes Property-Based Tests', () => {
 
     // Create app with real routes
     app = createApp();
-    const gameRouter = createGameRoutes(gameManagerService, repository, stateManagerService);
+    const gameRouter = createGameRoutes(gameManagerService, repository, stateManagerService, mockAIPlayerService);
     addApiRoutes(app, gameRouter);
     finalizeApp(app);
   });

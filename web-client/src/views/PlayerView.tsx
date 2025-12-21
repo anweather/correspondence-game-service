@@ -5,8 +5,9 @@ import { useWebSocket } from '../context/WebSocketContext';
 import { GameDetail } from '../components/GameDetail/GameDetail';
 import { MoveInput } from '../components/MoveInput/MoveInput';
 import { Modal } from '../components/common';
+import { AIPlayerConfig } from '../components/GameCreation/AIPlayerConfig';
 import { GameClient } from '../api/gameClient';
-import type { MoveInput as MoveInputType, GameState } from '../types/game';
+import type { MoveInput as MoveInputType, GameState, AIPlayerConfig as AIPlayerConfigType, GameType } from '../types/game';
 import styles from './PlayerView.module.css';
 
 /**
@@ -45,9 +46,10 @@ export function PlayerView() {
   const [selectedGameType, setSelectedGameType] = useState('');
   const [gameName, setGameName] = useState('');
   const [gameDescription, setGameDescription] = useState('');
+  const [aiPlayers, setAIPlayers] = useState<AIPlayerConfigType[]>([]);
   const [availableGames, setAvailableGames] = useState<GameState[]>([]);
   const [myGames, setMyGames] = useState<GameState[]>([]);
-  const [gameTypes, setGameTypes] = useState<Array<{ type: string; name: string; description: string }>>([]);
+  const [gameTypes, setGameTypes] = useState<GameType[]>([]);
   const [loadingGames, setLoadingGames] = useState(false);
   const [knownPlayers, setKnownPlayers] = useState<string[]>([]);
   const [showMoveModal, setShowMoveModal] = useState(false);
@@ -254,10 +256,12 @@ export function PlayerView() {
       await createGame(selectedGameType, {
         gameName: gameName.trim(),
         gameDescription: gameDescription.trim(),
+        aiPlayers: aiPlayers.length > 0 ? aiPlayers : undefined,
       });
       // Clear form after successful creation
       setGameName('');
       setGameDescription('');
+      setAIPlayers([]);
     }
   };
 
@@ -476,6 +480,16 @@ export function PlayerView() {
                   rows={3}
                 />
               </div>
+              
+              {selectedGameType && (
+                <AIPlayerConfig
+                  gameType={selectedGameType}
+                  maxPlayers={gameTypes.find(t => t.type === selectedGameType)?.maxPlayers || 2}
+                  currentPlayerCount={1} // Always 1 human player (the creator)
+                  onAIPlayersChange={setAIPlayers}
+                />
+              )}
+              
               <button
                 type="submit"
                 className={styles.button}

@@ -66,7 +66,7 @@ describe('Game Management Routes Integration', () => {
 
     // Create app with real routes
     app = createApp();
-    const gameRouter = createGameRoutes(gameManagerService, repository, stateManagerService);
+    const gameRouter = createGameRoutes(gameManagerService, repository, stateManagerService, mockAIPlayerService);
     addApiRoutes(app, gameRouter);
     finalizeApp(app);
   });
@@ -908,7 +908,7 @@ describe('Gameplay Routes Integration', () => {
 
     // Create app with real routes
     app = createApp();
-    const gameRouter = createGameRoutes(gameManagerService, repository, stateManagerService);
+    const gameRouter = createGameRoutes(gameManagerService, repository, stateManagerService, mockAIPlayerService);
     addApiRoutes(app, gameRouter);
     finalizeApp(app);
   });
@@ -1329,6 +1329,7 @@ describe('Rendering Routes Integration', () => {
       gameManagerService,
       repository,
       stateManagerService,
+      mockAIPlayerService,
       rendererService
     );
     addApiRoutes(app, gameRouter);
@@ -1519,7 +1520,7 @@ describe('Protected Game Routes Integration', () => {
 
     // Create app with real routes - pass playerIdentityRepository when auth is enabled
     app = createApp(playerIdentityRepository);
-    const gameRouter = createGameRoutes(gameManagerService, repository, stateManagerService);
+    const gameRouter = createGameRoutes(gameManagerService, repository, stateManagerService, mockAIPlayerService);
     addApiRoutes(app, gameRouter);
     finalizeApp(app);
   });

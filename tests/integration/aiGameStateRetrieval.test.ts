@@ -69,7 +69,7 @@ describe('AI Game State Retrieval Integration', () => {
 
     // Create app with real routes
     app = createApp();
-    const gameRouter = createGameRoutes(gameManagerService, repository, stateManagerService);
+    const gameRouter = createGameRoutes(gameManagerService, repository, stateManagerService, mockAIPlayerService);
     addApiRoutes(app, gameRouter);
     finalizeApp(app);
   });

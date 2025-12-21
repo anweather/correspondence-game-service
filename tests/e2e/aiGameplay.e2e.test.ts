@@ -61,6 +61,7 @@ describe('E2E: AI Gameplay Complete Flows', () => {
       gameManagerService,
       repository,
       stateManagerService,
+      aiPlayerService,
       rendererService
     );
     addApiRoutes(app, gameRouter);
@@ -336,8 +337,8 @@ describe('E2E: AI Gameplay Complete Flows', () => {
       expect(currentState.lifecycle).toBe('active');
       expect(currentState.players.every((p: any) => p.metadata?.isAI === true)).toBe(true);
 
-      // Step 3: Verify game setup is correct
-      expect(currentState.moveHistory.length).toBe(0); // No moves initially
+      // Step 3: Verify game setup is correct - AI should have made first move
+      expect(currentState.moveHistory.length).toBe(1); // AI made first move
       expect(currentState.players).toHaveLength(2);
 
       // Step 4: Verify move history structure (even if empty)
@@ -688,10 +689,9 @@ describe('E2E: AI Gameplay Complete Flows', () => {
       const aiPlayers = stateResponse.body.players.filter((p: any) => p.metadata?.isAI === true);
       expect(aiPlayers).toHaveLength(2);
 
-      // Note: AI vs AI games don't auto-start in current implementation
-      // This is a design limitation that could be improved
+      // Note: AI vs AI games now auto-start and AI makes first move
       expect(stateResponse.body.lifecycle).toBe('active');
-      expect(stateResponse.body.moveHistory).toHaveLength(0);
+      expect(stateResponse.body.moveHistory).toHaveLength(1); // AI made first move
     });
   });
 });

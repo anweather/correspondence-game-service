@@ -107,8 +107,14 @@ export class GameManagerService {
     // Invoke lifecycle hook
     plugin.onGameCreated(gameState, config);
 
+    // If game is active and first player is AI, process initial AI turn
+    let finalGameState = gameState;
+    if (lifecycle === GameLifecycle.ACTIVE) {
+      finalGameState = await this.processInitialAITurnIfNeeded(gameState);
+    }
+
     // Enhance with AI information before returning
-    return this.enhanceGameWithAIInfo(gameState);
+    return this.enhanceGameWithAIInfo(finalGameState);
   }
 
   /**
@@ -190,6 +196,10 @@ export class GameManagerService {
       game.lifecycle === GameLifecycle.WAITING_FOR_PLAYERS;
     if (newLifecycle === GameLifecycle.ACTIVE && wasNotActive) {
       plugin.onGameStarted(updatedGame);
+      
+      // Process initial AI turn if needed
+      const finalGame = await this.processInitialAITurnIfNeeded(updatedGame);
+      return this.enhanceGameWithAIInfo(finalGame);
     }
 
     return this.enhanceGameWithAIInfo(updatedGame);
@@ -251,6 +261,40 @@ export class GameManagerService {
         aiPlayerCount,
       },
     };
+  }
+
+  /**
+   * Process initial AI turn if the first player is an AI
+   * @param gameState - The game state to check
+   * @returns Updated game state after AI processing (if needed)
+   */
+  private async processInitialAITurnIfNeeded(gameState: GameState): Promise<GameState> {
+    const plugin = this.registry.get(gameState.gameType);
+    if (!plugin) {
+      return gameState;
+    }
+
+    // Get the current player (should be the first player)
+    const currentPlayerId = plugin.getCurrentPlayer(gameState);
+    if (!currentPlayerId) {
+      return gameState;
+    }
+
+    // Check if current player is AI
+    const isAI = await this.aiPlayerService.isAIPlayer(currentPlayerId);
+    if (!isAI) {
+      return gameState;
+    }
+
+    try {
+      // Process AI turn - this will generate, validate, and apply the AI move
+      const updatedState = await this.aiPlayerService.processAITurn(gameState.gameId, currentPlayerId);
+      return updatedState;
+    } catch (error) {
+      // Log error but don't fail game creation
+      console.error(`Failed to process initial AI turn for game ${gameState.gameId}:`, error);
+      return gameState;
+    }
   }
 
   /**

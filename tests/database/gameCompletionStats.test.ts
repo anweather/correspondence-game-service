@@ -102,7 +102,7 @@ describe('Game Completion Stats Update Integration', () => {
 
     // Create app with real routes
     app = createApp();
-    const gameRouter = createGameRoutes(gameManagerService, gameRepository, stateManagerService);
+    const gameRouter = createGameRoutes(gameManagerService, gameRepository, stateManagerService, mockAIPlayerService);
 
     // Add stats routes
     const { createStatsRoutes } = require('@adapters/rest/statsRoutes');

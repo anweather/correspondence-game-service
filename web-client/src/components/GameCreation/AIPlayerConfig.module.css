@@ -1,0 +1,176 @@
+.aiConfig {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px 0;
+  background-color: #f9f9f9;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.enableCheckbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.enableCheckbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.aiSupported {
+  color: #4caf50;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.configSection {
+  border-top: 1px solid #e0e0e0;
+  padding-top: 16px;
+}
+
+.formGroup {
+  margin-bottom: 16px;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 500;
+  color: #333;
+}
+
+.select,
+.input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: white;
+}
+
+.select:focus,
+.input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.aiPlayersList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 16px 0;
+}
+
+.aiPlayerCard {
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  padding: 16px;
+  background-color: white;
+  position: relative;
+}
+
+.aiPlayerCard h4 {
+  margin: 0 0 12px 0;
+  color: #666;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.aiPlayerCard h4::before {
+  content: "🤖";
+  font-size: 18px;
+}
+
+.strategyDescription {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+.preview {
+  border-top: 1px solid #e0e0e0;
+  padding-top: 16px;
+  margin-top: 16px;
+}
+
+.preview h4 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.playerSummary {
+  display: flex;
+  gap: 16px;
+  font-size: 14px;
+}
+
+.playerSummary span {
+  padding: 4px 8px;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.loading {
+  padding: 16px;
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}
+
+.error {
+  padding: 16px;
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  margin: 16px 0;
+}
+
+.warning {
+  padding: 12px;
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+  border-radius: 4px;
+  margin: 16px 0;
+  font-size: 14px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .aiConfig {
+    padding: 12px;
+  }
+  
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .playerSummary {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .aiPlayerCard {
+    padding: 12px;
+  }
+}

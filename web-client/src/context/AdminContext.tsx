@@ -9,7 +9,7 @@ import {
 import type { ReactNode } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { GameClient } from '../api/gameClient';
-import type { GameState, MoveInput } from '../types/game';
+import type { GameState, MoveInput, AIPlayerConfig } from '../types/game';
 
 /**
  * Filter options for game list
@@ -35,7 +35,7 @@ interface AdminContextState {
 interface AdminContextActions {
   loadGames: () => Promise<void>;
   selectGame: (gameId: string) => Promise<void>;
-  createTestGame: (gameType: string) => Promise<void>;
+  createTestGame: (gameType: string, aiPlayers?: AIPlayerConfig[]) => Promise<void>;
   addTestPlayer: (playerName: string) => Promise<void>;
   impersonatePlayer: (playerId: string | null) => void;
   submitMove: (move: MoveInput) => Promise<void>;
@@ -133,12 +133,14 @@ export function AdminProvider({ children }: AdminProviderProps) {
    * Create a new test game and join as the first player
    */
   const createTestGame = useCallback(
-    async (gameType: string) => {
+    async (gameType: string, aiPlayers?: AIPlayerConfig[]) => {
       setLoading(true);
       setError(null);
       try {
-        // Create the game
-        const newGame = await client.createGame(gameType, {});
+        // Create the game with AI players if provided
+        const newGame = await client.createGame(gameType, {
+          aiPlayers: aiPlayers && aiPlayers.length > 0 ? aiPlayers : undefined,
+        });
 
         // Join as the first player (Admin)
         const playerId = `player-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;

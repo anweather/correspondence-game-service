@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { GameManagerService } from '@application/services/GameManagerService';
 import { StateManagerService } from '@application/services/StateManagerService';
 import { RendererService } from '@infrastructure/rendering/RendererService';
+import { AIPlayerService } from '@application/services/AIPlayerService';
 import { GameRepository } from '@domain/interfaces';
 import { GameNotFoundError } from '@domain/errors';
 import { requireAuth } from './auth/requireAuth';
@@ -22,6 +23,7 @@ export function createGameRoutes(
   gameManagerService: GameManagerService,
   gameRepository: GameRepository,
   stateManagerService: StateManagerService,
+  aiPlayerService: AIPlayerService,
   rendererService?: RendererService
 ): Router {
   const router = Router();
@@ -256,6 +258,20 @@ export function createGameRoutes(
     }
   });
 
+  /**
+   * GET /api/game-types/:gameType/ai-strategies
+   * Get available AI strategies for a specific game type
+   */
+  router.get('/game-types/:gameType/ai-strategies', (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { gameType } = req.params;
+      const strategies = aiPlayerService.getAvailableStrategies(gameType);
+      res.json(strategies);
+    } catch (error) {
+      next(error);
+    }
+  });
+
   // ========== Gameplay Endpoints ==========
 
   /**
@@ -278,6 +294,7 @@ export function createGameRoutes(
    * POST /api/games/:gameId/moves
    * Apply a move to a game
    * Requires authentication and game participation (when enabled)
+   * Automatically processes AI turns after human moves
    */
   router.post(
     '/games/:gameId/moves',
@@ -285,6 +302,7 @@ export function createGameRoutes(
     async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
       try {
         const { playerId, move, version } = req.body;
+        // StateManagerService.applyMove() handles both the human move and subsequent AI turns
         const updatedState = await stateManagerService.applyMove(
           req.params.gameId,
           playerId,

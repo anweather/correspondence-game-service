@@ -111,6 +111,18 @@ export interface GameType {
   description: string;
   minPlayers: number;
   maxPlayers: number;
+  supportsAI?: boolean; // New field
+  aiStrategies?: AIStrategy[]; // New field - populated when fetching strategies
+}
+
+/**
+ * AI strategy configuration
+ */
+export interface AIStrategy {
+  id: string;
+  name: string;
+  description: string;
+  difficulty?: string;
 }
 
 /**

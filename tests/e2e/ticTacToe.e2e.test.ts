@@ -47,6 +47,7 @@ describe('E2E: Complete Tic-Tac-Toe Game Flow', () => {
       gameManagerService,
       repository,
       stateManagerService,
+      mockAIPlayerService,
       rendererService
     );
     addApiRoutes(app, gameRouter);

@@ -36,6 +36,13 @@ export class GameClient {
   }
 
   /**
+   * Get available AI strategies for a game type
+   */
+  async getAIStrategies(gameType: string): Promise<AIStrategy[]> {
+    return this.request<AIStrategy[]>(`${this.baseUrl}/game-types/${gameType}/ai-strategies`);
+  }
+
+  /**
    * Create a new game instance
    */
   async createGame(gameType: string, config: GameConfig): Promise<GameState> {

@@ -16,10 +16,12 @@ import { GameManagerService } from './application/services/GameManagerService';
 import { StateManagerService } from './application/services/StateManagerService';
 import { PlayerProfileService } from './application/services/PlayerProfileService';
 import { StatsService } from './application/services/StatsService';
+import { AIPlayerService } from './application/services/AIPlayerService';
 import { PostgresGameRepository } from './infrastructure/persistence/PostgresGameRepository';
 import { PostgresPlayerIdentityRepository } from './infrastructure/persistence/PostgresPlayerIdentityRepository';
 import { PostgresPlayerProfileRepository } from './infrastructure/persistence/PostgresPlayerProfileRepository';
 import { PostgresStatsRepository } from './infrastructure/persistence/PostgresStatsRepository';
+import { InMemoryAIPlayerRepository } from './infrastructure/persistence/InMemoryAIPlayerRepository';
 import { RendererService } from './infrastructure/rendering/RendererService';
 import { WebSocketManager } from './infrastructure/websocket/WebSocketManager';
 import { setupWebSocketServer } from './adapters/rest/websocketAdapter';
@@ -126,13 +128,23 @@ async function startApplication() {
   // Initialize WebSocket manager
   const webSocketManager = new WebSocketManager(logger);
 
+  // Initialize AI repository and service
+  const aiPlayerRepository = new InMemoryAIPlayerRepository();
+  const aiPlayerService = new AIPlayerService(
+    pluginRegistry,
+    aiPlayerRepository,
+    gameRepository,
+    logger
+  );
+
   // Initialize services
-  const gameManagerService = new GameManagerService(pluginRegistry, gameRepository);
+  const gameManagerService = new GameManagerService(pluginRegistry, gameRepository, aiPlayerService);
   const stateManagerService = new StateManagerService(
     gameRepository,
     pluginRegistry,
     gameLockManager,
-    webSocketManager
+    webSocketManager,
+    aiPlayerService
   );
   const playerProfileService = new PlayerProfileService(playerProfileRepository);
   const statsService = new StatsService(statsRepository);
@@ -145,6 +157,7 @@ async function startApplication() {
     gameManagerService,
     gameRepository,
     stateManagerService,
+    aiPlayerService,
     rendererService
   );
   const playerRouter = createPlayerRoutes(playerIdentityRepository);
