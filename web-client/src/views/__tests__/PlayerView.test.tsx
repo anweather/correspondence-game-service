@@ -79,6 +79,13 @@ const mockCreateInvitation = vi.fn();
 const mockGetProfile = vi.fn();
 const mockListAllPlayers = vi.fn().mockResolvedValue([]);
 
+// Add fail-fast implementations for missing methods
+const mockGetPlayerStats = vi.fn().mockRejectedValue(new Error('mockGetPlayerStats not implemented in this test'));
+const mockGetGameHistory = vi.fn().mockRejectedValue(new Error('mockGetGameHistory not implemented in this test'));
+const mockGetMoveHistory = vi.fn().mockRejectedValue(new Error('mockGetMoveHistory not implemented in this test'));
+const mockGetBoardSvgUrl = vi.fn().mockRejectedValue(new Error('mockGetBoardSvgUrl not implemented in this test'));
+const mockDeleteGame = vi.fn().mockRejectedValue(new Error('mockDeleteGame not implemented in this test'));
+
 vi.mock('../../api/gameClient', () => ({
   GameClient: class {
     getGameTypes = mockGetGameTypes;
@@ -92,6 +99,11 @@ vi.mock('../../api/gameClient', () => ({
     createInvitation = mockCreateInvitation;
     getProfile = mockGetProfile;
     listAllPlayers = mockListAllPlayers;
+    getPlayerStats = mockGetPlayerStats;
+    getGameHistory = mockGetGameHistory;
+    getMoveHistory = mockGetMoveHistory;
+    getBoardSvgUrl = mockGetBoardSvgUrl;
+    deleteGame = mockDeleteGame;
   },
 }));
 
@@ -137,6 +149,14 @@ describe('PlayerView', () => {
     localStorage.clear();
     // Clear URL hash to prevent deep linking from previous tests
     window.history.replaceState({}, '', window.location.pathname);
+    
+    // Set up fail-fast defaults for all mocks
+    mockCreateGame.mockRejectedValue(new Error('mockCreateGame not configured for this test'));
+    mockJoinGame.mockRejectedValue(new Error('mockJoinGame not configured for this test'));
+    mockGetGame.mockRejectedValue(new Error('mockGetGame not configured for this test'));
+    mockMakeMove.mockRejectedValue(new Error('mockMakeMove not configured for this test'));
+    mockCreateInvitation.mockRejectedValue(new Error('mockCreateInvitation not configured for this test'));
+    mockGetProfile.mockRejectedValue(new Error('mockGetProfile not configured for this test'));
     
     // Set default mock behavior for joinGame to return mockGame
     // This is critical because createGame() calls joinGame() and uses its return value
@@ -383,6 +403,7 @@ describe('PlayerView', () => {
         expect(mockCreateGame).toHaveBeenCalledWith('tic-tac-toe', {
           gameName: 'Test Game',
           gameDescription: '',
+          aiPlayers: undefined,
         });
       });
     });
@@ -1052,6 +1073,7 @@ describe('PlayerView', () => {
         expect(mockCreateGame).toHaveBeenCalledWith('tic-tac-toe', {
           gameName: 'Epic Battle',
           gameDescription: 'A friendly game between friends',
+          aiPlayers: undefined,
         });
       });
     });
@@ -1085,6 +1107,7 @@ describe('PlayerView', () => {
         expect(mockCreateGame).toHaveBeenCalledWith('tic-tac-toe', {
           gameName: 'Quick Game',
           gameDescription: '',
+          aiPlayers: undefined,
         });
       });
     });
@@ -1120,6 +1143,7 @@ describe('PlayerView', () => {
         expect(mockCreateGame).toHaveBeenCalledWith('tic-tac-toe', {
           gameName: 'Spaced Game',
           gameDescription: 'Spaced description',
+          aiPlayers: undefined,
         });
       });
     });

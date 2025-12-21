@@ -21,6 +21,7 @@ export function AdminView() {
     error,
     gameTypes,
     loadGames,
+    loadGameTypes,
     selectGame,
     createTestGame,
     addTestPlayer,
@@ -34,10 +35,11 @@ export function AdminView() {
   const [showCreateGameModal, setShowCreateGameModal] = useState(false);
   const [selectedGameType, setSelectedGameType] = useState<string>('');
 
-  // Load games on mount
+  // Load games and game types on mount
   useEffect(() => {
     loadGames();
-  }, [loadGames]);
+    loadGameTypes();
+  }, [loadGames, loadGameTypes]);
 
   // Set default game type when game types are loaded
   useEffect(() => {

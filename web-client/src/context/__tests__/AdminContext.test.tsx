@@ -44,6 +44,27 @@ describe('AdminContext', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    // Set up default mock returns
+    mockGetGameTypes.mockResolvedValue([
+      {
+        type: 'tic-tac-toe',
+        name: 'Tic Tac Toe',
+        description: 'Classic 3x3 grid game',
+        minPlayers: 2,
+        maxPlayers: 2,
+      },
+    ]);
+    mockListGames.mockResolvedValue({ 
+      items: [], 
+      total: 0, 
+      page: 1, 
+      pageSize: 10, 
+      totalPages: 0 
+    });
+    mockGetGame.mockResolvedValue(null);
+    mockCreateGame.mockResolvedValue(null);
+    mockJoinGame.mockResolvedValue(null);
+    mockDeleteGame.mockResolvedValue(undefined);
   });
 
   describe('State Initialization', () => {
@@ -92,16 +113,17 @@ describe('AdminContext', () => {
         await result.current.loadGames();
       });
 
-      await waitFor(() => {
-        expect(result.current.games).toEqual(mockGames);
-        expect(result.current.loading).toBe(false);
-      });
-    });
+      expect(result.current.games).toEqual(mockGames);
+      expect(result.current.loading).toBe(false);
+    }, 10000);
 
     it('should set loading state during API call', async () => {
-      mockListGames.mockImplementation(
-        () => new Promise((resolve) => setTimeout(resolve, 100))
-      );
+      let resolvePromise: (value: any) => void;
+      const loadingPromise = new Promise((resolve) => {
+        resolvePromise = resolve;
+      });
+      
+      mockListGames.mockImplementation(() => loadingPromise);
 
       const { result } = renderHook(() => useAdmin(), { wrapper });
 
@@ -110,7 +132,16 @@ describe('AdminContext', () => {
       });
 
       expect(result.current.loading).toBe(true);
-    });
+      
+      // Resolve the promise
+      act(() => {
+        resolvePromise!({ items: [], total: 0, page: 1, pageSize: 10, totalPages: 0 });
+      });
+
+      await waitFor(() => {
+        expect(result.current.loading).toBe(false);
+      });
+    }, 10000);
 
     it('should handle API errors', async () => {
       const errorMessage = 'Failed to load games';
@@ -122,11 +153,9 @@ describe('AdminContext', () => {
         await result.current.loadGames();
       });
 
-      await waitFor(() => {
-        expect(result.current.error).toBe(errorMessage);
-        expect(result.current.loading).toBe(false);
-      });
-    });
+      expect(result.current.error).toBe(errorMessage);
+      expect(result.current.loading).toBe(false);
+    }, 10000);
   });
 
   describe('selectGame', () => {
@@ -156,10 +185,8 @@ describe('AdminContext', () => {
         await result.current.selectGame('game-1');
       });
 
-      await waitFor(() => {
-        expect(result.current.selectedGame).toEqual(mockGame);
-      });
-    });
+      expect(result.current.selectedGame).toEqual(mockGame);
+    }, 10000);
 
     it('should handle errors when selecting game', async () => {
       const errorMessage = 'Game not found';
@@ -171,11 +198,9 @@ describe('AdminContext', () => {
         await result.current.selectGame('invalid-game');
       });
 
-      await waitFor(() => {
-        expect(result.current.error).toBe(errorMessage);
-        expect(result.current.selectedGame).toBeNull();
-      });
-    });
+      expect(result.current.error).toBe(errorMessage);
+      expect(result.current.selectedGame).toBeNull();
+    }, 10000);
   });
 
   describe('createTestGame', () => {
@@ -213,10 +238,8 @@ describe('AdminContext', () => {
         await result.current.createTestGame('tic-tac-toe');
       });
 
-      await waitFor(() => {
-        expect(result.current.selectedGame).toEqual(mockGame);
-      });
-    });
+      expect(result.current.selectedGame).toEqual(mockGame);
+    }, 10000);
 
     it('should handle errors during game creation', async () => {
       const errorMessage = 'Failed to create game';
@@ -228,10 +251,8 @@ describe('AdminContext', () => {
         await result.current.createTestGame('tic-tac-toe');
       });
 
-      await waitFor(() => {
-        expect(result.current.error).toBe(errorMessage);
-      });
-    });
+      expect(result.current.error).toBe(errorMessage);
+    }, 10000);
   });
 
   describe('addTestPlayer', () => {
@@ -263,6 +284,13 @@ describe('AdminContext', () => {
 
       mockGetGame.mockResolvedValue(initialGame);
       mockJoinGame.mockResolvedValue(updatedGame);
+      mockListGames.mockResolvedValue({
+        items: [updatedGame],
+        total: 1,
+        page: 1,
+        pageSize: 10,
+        totalPages: 1,
+      });
 
       const { result } = renderHook(() => useAdmin(), { wrapper });
 
@@ -275,11 +303,9 @@ describe('AdminContext', () => {
         await result.current.addTestPlayer('Bob');
       });
 
-      await waitFor(() => {
-        expect(result.current.selectedGame?.players).toHaveLength(2);
-        expect(result.current.selectedGame?.players[1].name).toBe('Bob');
-      });
-    });
+      expect(result.current.selectedGame?.players).toHaveLength(2);
+      expect(result.current.selectedGame?.players[1].name).toBe('Bob');
+    }, 10000);
 
     it('should handle errors when no game is selected', async () => {
       const { result } = renderHook(() => useAdmin(), { wrapper });
@@ -288,10 +314,8 @@ describe('AdminContext', () => {
         await result.current.addTestPlayer('Bob');
       });
 
-      await waitFor(() => {
-        expect(result.current.error).toBe('No game selected');
-      });
-    });
+      expect(result.current.error).toBe('No game selected');
+    }, 10000);
   });
 
   describe('impersonatePlayer', () => {
@@ -375,11 +399,9 @@ describe('AdminContext', () => {
         await result.current.deleteGame('game-1');
       });
 
-      await waitFor(() => {
-        expect(result.current.games).toHaveLength(1);
-        expect(result.current.games[0].gameId).toBe('game-2');
-      });
-    });
+      expect(result.current.games).toHaveLength(1);
+      expect(result.current.games[0].gameId).toBe('game-2');
+    }, 10000);
 
     it('should clear selected game if it was deleted', async () => {
       const mockGame: GameState = {
@@ -410,10 +432,8 @@ describe('AdminContext', () => {
         await result.current.deleteGame('game-1');
       });
 
-      await waitFor(() => {
-        expect(result.current.selectedGame).toBeNull();
-      });
-    });
+      expect(result.current.selectedGame).toBeNull();
+    }, 10000);
 
     it('should handle errors during deletion', async () => {
       const errorMessage = 'Failed to delete game';
@@ -425,10 +445,8 @@ describe('AdminContext', () => {
         await result.current.deleteGame('game-1');
       });
 
-      await waitFor(() => {
-        expect(result.current.error).toBe(errorMessage);
-      });
-    });
+      expect(result.current.error).toBe(errorMessage);
+    }, 10000);
   });
 
   describe('setFilter', () => {

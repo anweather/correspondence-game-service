@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { AIStrategy } from '../types/game';
+import type { AIStrategy } from '../types/game';
 import { GameClient } from '../api/gameClient';
 import { useAuth } from '@clerk/clerk-react';
 

@@ -144,7 +144,7 @@ export class TicTacToeEngine extends BaseGameEngine implements AICapableGamePlug
     }
 
     return new AIPlayer(
-      `ai-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      `ai-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
       name,
       this.getGameType(),
       strategy.id,

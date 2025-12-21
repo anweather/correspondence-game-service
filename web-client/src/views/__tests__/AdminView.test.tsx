@@ -71,6 +71,15 @@ const mockGetGame = vi.fn();
 const mockCreateGame = vi.fn();
 const mockJoinGame = vi.fn();
 const mockDeleteGame = vi.fn();
+const mockGetGameTypes = vi.fn().mockResolvedValue([
+  {
+    type: 'tic-tac-toe',
+    name: 'Tic Tac Toe',
+    description: 'Classic 3x3 grid game',
+    minPlayers: 2,
+    maxPlayers: 2,
+  },
+]);
 
 vi.mock('../../api/gameClient', () => ({
   GameClient: class {
@@ -79,6 +88,7 @@ vi.mock('../../api/gameClient', () => ({
     createGame = mockCreateGame;
     joinGame = mockJoinGame;
     deleteGame = mockDeleteGame;
+    getGameTypes = mockGetGameTypes;
   },
 }));
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AIPlayerConfig as AIPlayerConfigType, AIStrategy } from '../../types/game';
+import type { AIPlayerConfig as AIPlayerConfigType, AIStrategy } from '../../types/game';
 import { useAIStrategies } from '../../hooks/useAIStrategies';
 import styles from './AIPlayerConfig.module.css';
 

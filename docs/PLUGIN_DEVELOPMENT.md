@@ -657,48 +657,60 @@ interface AIStrategy {
 Here's how to add AI support to your game plugin:
 
 ```typescript
-import { AICapableGamePlugin, AIStrategy, AIPlayer } from '@domain/interfaces';
+import { AICapableGamePlugin, AIStrategy } from '@domain/interfaces';
+import { AIPlayer } from '@domain/models/AIPlayer';
 
 export class MyGameEngine extends BaseGameEngine implements AICapableGamePlugin {
-  private aiStrategies: Map<string, AIStrategy> = new Map();
+  private aiStrategies: AIStrategy[];
+  private defaultStrategy: AIStrategy;
 
   constructor() {
     super();
-    this.registerAIStrategies();
+    // Initialize AI strategies
+    this.aiStrategies = [
+      new EasyStrategy(),
+      new MediumStrategy(),
+      new HardStrategy()
+    ];
+    this.defaultStrategy = this.aiStrategies[0]; // Or choose your preferred default
   }
 
   // ... existing game methods ...
 
   getAIStrategies(): AIStrategy[] {
-    return Array.from(this.aiStrategies.values());
+    return [...this.aiStrategies]; // Return copy to prevent external modification
   }
 
   getDefaultAIStrategy(): AIStrategy {
-    return this.aiStrategies.get('medium') || this.aiStrategies.values().next().value;
+    return this.defaultStrategy;
   }
 
   createAIPlayer(name: string, strategyId?: string, difficulty?: string): AIPlayer {
-    const strategy = strategyId || this.getDefaultAIStrategy().id;
-    
-    return {
-      id: `ai-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      name,
-      gameType: this.getGameType(),
-      strategyId: strategy,
-      difficulty: difficulty || 'medium',
-      createdAt: new Date(),
-    };
-  }
+    // Find the requested strategy or use default
+    let strategy = this.defaultStrategy;
+    if (strategyId) {
+      const foundStrategy = this.aiStrategies.find(s => s.id === strategyId);
+      if (!foundStrategy) {
+        throw new Error(`AI strategy '${strategyId}' not found for ${this.getGameType()}`);
+      }
+      strategy = foundStrategy;
+    }
 
-  private registerAIStrategies(): void {
-    // Easy AI - Random moves
-    this.aiStrategies.set('easy', new RandomAIStrategy());
-    
-    // Medium AI - Basic heuristics
-    this.aiStrategies.set('medium', new HeuristicAIStrategy());
-    
-    // Hard AI - Advanced algorithm
-    this.aiStrategies.set('hard', new OptimalAIStrategy());
+    // If difficulty is specified, try to find a strategy with that difficulty
+    if (difficulty && !strategyId) {
+      const difficultyStrategy = this.aiStrategies.find(s => s.difficulty === difficulty);
+      if (difficultyStrategy) {
+        strategy = difficultyStrategy;
+      }
+    }
+
+    return new AIPlayer(
+      `ai-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      name,
+      this.getGameType(),
+      strategy.id,
+      difficulty || strategy.difficulty
+    );
   }
 }
 ```
@@ -709,125 +721,154 @@ Here's a complete example of implementing AI strategies for Tic-Tac-Toe:
 
 ```typescript
 // Easy AI Strategy - Random valid moves
-export class EasyTicTacToeStrategy implements AIStrategy {
-  id = 'easy';
-  name = 'Easy';
-  description = 'Makes random valid moves';
-  difficulty = 'easy';
+export class EasyStrategy implements AIStrategy {
+  readonly id = 'easy';
+  readonly name = 'Easy';
+  readonly description = 'Makes random valid moves - perfect for beginners';
+  readonly difficulty = 'easy';
 
-  async generateMove(state: GameState, aiPlayerId: string): Promise<Move> {
-    const validMoves = this.getValidMoves(state);
-    
-    if (validMoves.length === 0) {
+  async generateMove(state: GameState, _aiPlayerId: string): Promise<Move> {
+    // Get all available moves
+    const availableMoves: { row: number; col: number }[] = [];
+
+    for (let row = 0; row < BOARD_SIZE; row++) {
+      for (let col = 0; col < BOARD_SIZE; col++) {
+        if (!isSpaceOccupied(state, row, col)) {
+          availableMoves.push({ row, col });
+        }
+      }
+    }
+
+    if (availableMoves.length === 0) {
       throw new Error('No valid moves available');
     }
 
-    const randomIndex = Math.floor(Math.random() * validMoves.length);
-    return validMoves[randomIndex];
+    // Select a random move
+    const randomIndex = Math.floor(Math.random() * availableMoves.length);
+    const selectedMove = availableMoves[randomIndex];
+
+    return this.createMove(selectedMove.row, selectedMove.col);
   }
 
-  private getValidMoves(state: GameState): Move[] {
-    const moves: Move[] = [];
-    
-    for (let row = 0; row < 3; row++) {
-      for (let col = 0; col < 3; col++) {
-        const space = state.board.spaces.find(s => s.id === `${row},${col}`);
-        if (space && space.tokens.length === 0) {
-          moves.push({
-            playerId: '', // Will be set by the service
-            timestamp: new Date(),
-            action: 'place',
-            parameters: { row, col },
-          });
-        }
-      }
-    }
-    
-    return moves;
-  }
-}
-
-// Perfect Play AI Strategy - Minimax algorithm
-export class PerfectTicTacToeStrategy implements AIStrategy {
-  id = 'perfect-play';
-  name = 'Perfect Play';
-  description = 'Uses minimax algorithm for optimal play';
-  difficulty = 'hard';
-
-  async generateMove(state: GameState, aiPlayerId: string): Promise<Move> {
-    const bestMove = this.minimax(state, aiPlayerId, true);
-    
-    if (!bestMove.move) {
-      throw new Error('No optimal move found');
-    }
-
-    return bestMove.move;
-  }
-
-  private minimax(state: GameState, aiPlayerId: string, isMaximizing: boolean): { score: number; move?: Move } {
-    // Check terminal states
-    const winner = this.getWinner(state);
-    if (winner === aiPlayerId) return { score: 10 };
-    if (winner && winner !== aiPlayerId) return { score: -10 };
-    if (this.isBoardFull(state)) return { score: 0 };
-
-    const validMoves = this.getValidMoves(state);
-    let bestScore = isMaximizing ? -Infinity : Infinity;
-    let bestMove: Move | undefined;
-
-    for (const move of validMoves) {
-      // Simulate the move
-      const newState = this.simulateMove(state, move, isMaximizing ? aiPlayerId : this.getOpponentId(state, aiPlayerId));
-      const result = this.minimax(newState, aiPlayerId, !isMaximizing);
-
-      if (isMaximizing) {
-        if (result.score > bestScore) {
-          bestScore = result.score;
-          bestMove = move;
-        }
-      } else {
-        if (result.score < bestScore) {
-          bestScore = result.score;
-          bestMove = move;
-        }
-      }
-    }
-
-    return { score: bestScore, move: bestMove };
-  }
-
-  private simulateMove(state: GameState, move: Move, playerId: string): GameState {
-    // Create a copy of the state and apply the move
-    const newSpaces = state.board.spaces.map(space => {
-      if (space.id === `${move.parameters.row},${move.parameters.col}`) {
-        return {
-          ...space,
-          tokens: [{
-            id: `token-${Date.now()}`,
-            type: this.getPlayerSymbol(state, playerId),
-            ownerId: playerId,
-          }],
-        };
-      }
-      return space;
-    });
-
+  private createMove(row: number, col: number): Move {
     return {
-      ...state,
-      board: { ...state.board, spaces: newSpaces },
+      playerId: '', // Will be set by the calling service
+      action: 'place',
+      parameters: { row, col },
+      timestamp: new Date()
     };
   }
 
-  private getPlayerSymbol(state: GameState, playerId: string): string {
-    const playerIndex = state.players.findIndex(p => p.id === playerId);
-    return playerIndex === 0 ? 'X' : 'O';
+  getTimeLimit(): number {
+    return 100; // 100ms should be more than enough for random selection
   }
 
-  private getOpponentId(state: GameState, playerId: string): string {
-    return state.players.find(p => p.id !== playerId)?.id || '';
+  validateConfiguration(_config: Record<string, any>): boolean {
+    return true; // No configuration required
+  }
+}
+
+// Perfect Play AI Strategy - Rule-based optimal play
+export class PerfectPlayStrategy implements AIStrategy {
+  readonly id = 'perfect-play';
+  readonly name = 'Perfect Play';
+  readonly description = 'Plays optimally using strategic rules: win immediately, block opponent wins, prioritize center/corners';
+  readonly difficulty = 'hard';
+
+  async generateMove(state: GameState, aiPlayerId: string): Promise<Move> {
+    // Get AI player's token type
+    const aiPlayerIndex = state.players.findIndex(p => p.id === aiPlayerId);
+    const aiTokenType = aiPlayerIndex === 0 ? 'X' : 'O';
+    const opponentTokenType = aiTokenType === 'X' ? 'O' : 'X';
+
+    // Strategy 1: Take immediate win
+    const winningMove = this.findWinningMove(state, aiTokenType);
+    if (winningMove) {
+      return this.createMove(winningMove.row, winningMove.col);
+    }
+
+    // Strategy 2: Block opponent win
+    const blockingMove = this.findWinningMove(state, opponentTokenType);
+    if (blockingMove) {
+      return this.createMove(blockingMove.row, blockingMove.col);
+    }
+
+    // Strategy 3: Take center if available
+    if (!isSpaceOccupied(state, 1, 1)) {
+      return this.createMove(1, 1);
+    }
+
+    // Strategy 4: Take corners
+    const corners = [
+      { row: 0, col: 0 }, { row: 0, col: 2 },
+      { row: 2, col: 0 }, { row: 2, col: 2 }
+    ];
+
+    for (const corner of corners) {
+      if (!isSpaceOccupied(state, corner.row, corner.col)) {
+        return this.createMove(corner.row, corner.col);
+      }
+    }
+
+    // Strategy 5: Take edges as last resort
+    const edges = [
+      { row: 0, col: 1 }, { row: 1, col: 0 },
+      { row: 1, col: 2 }, { row: 2, col: 1 }
+    ];
+
+    for (const edge of edges) {
+      if (!isSpaceOccupied(state, edge.row, edge.col)) {
+        return this.createMove(edge.row, edge.col);
+      }
+    }
+
+    throw new Error('No valid moves available');
   }
 
-  // ... helper methods for getWinner, isBoardFull, getValidMoves ...
+  /**
+   * Find a move that would complete a winning pattern for the given token type
+   */
+  private findWinningMove(state: GameState, tokenType: string): { row: number; col: number } | null {
+    for (const pattern of WIN_PATTERNS) {
+      const spaces = pattern.map(id => {
+        const space = state.board.spaces.find(s => s.id === id);
+        return {
+          id,
+          hasToken: space && space.tokens.length > 0,
+          tokenType: space && space.tokens.length > 0 ? space.tokens[0].type : null
+        };
+      });
+
+      // Check if pattern has exactly 2 of our tokens and 1 empty space
+      const ourTokens = spaces.filter(s => s.tokenType === tokenType).length;
+      const emptySpaces = spaces.filter(s => !s.hasToken);
+
+      if (ourTokens === 2 && emptySpaces.length === 1) {
+        const emptySpaceId = emptySpaces[0].id;
+        const [row, col] = emptySpaceId.split(',').map(Number);
+        return { row, col };
+      }
+    }
+
+    return null;
+  }
+
+  private createMove(row: number, col: number): Move {
+    return {
+      playerId: '', // Will be set by the calling service
+      action: 'place',
+      parameters: { row, col },
+      timestamp: new Date()
+    };
+  }
+
+  getTimeLimit(): number {
+    return 500; // 500ms should be more than enough for rule-based strategy
+  }
+
+  validateConfiguration(_config: Record<string, any>): boolean {
+    return true; // No configuration required
+  }
 }
 ```
 
@@ -889,29 +930,26 @@ Register your AI strategies in the game engine constructor:
 
 ```typescript
 export class TicTacToeEngine extends BaseGameEngine implements AICapableGamePlugin {
-  private aiStrategies: Map<string, AIStrategy> = new Map();
+  private aiStrategies: AIStrategy[];
+  private defaultStrategy: AIStrategy;
 
   constructor() {
     super();
-    this.registerAIStrategies();
-  }
-
-  private registerAIStrategies(): void {
-    // Register all available strategies
-    this.aiStrategies.set('easy', new EasyTicTacToeStrategy());
-    this.aiStrategies.set('perfect-play', new PerfectTicTacToeStrategy());
-    
-    // The system will automatically provide a fallback random strategy
-    // if no strategies are registered
+    // Initialize AI strategies
+    this.aiStrategies = [
+      new PerfectPlayStrategy(),
+      new EasyStrategy()
+    ];
+    this.defaultStrategy = this.aiStrategies[0]; // Perfect play as default
   }
 
   getAIStrategies(): AIStrategy[] {
-    return Array.from(this.aiStrategies.values());
+    return [...this.aiStrategies]; // Return copy to prevent external modification
   }
 
   getDefaultAIStrategy(): AIStrategy {
     // Return the recommended default strategy
-    return this.aiStrategies.get('perfect-play') || this.aiStrategies.values().next().value;
+    return this.defaultStrategy;
   }
 }
 ```

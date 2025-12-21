@@ -4,12 +4,11 @@ import {
   useState,
   useCallback,
   useMemo,
-  useEffect,
 } from 'react';
 import type { ReactNode } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { GameClient } from '../api/gameClient';
-import type { GameState, MoveInput, AIPlayerConfig } from '../types/game';
+import type { GameState, MoveInput, AIPlayerConfig, GameConfig } from '../types/game';
 
 /**
  * Filter options for game list
@@ -34,6 +33,7 @@ interface AdminContextState {
  */
 interface AdminContextActions {
   loadGames: () => Promise<void>;
+  loadGameTypes: () => Promise<void>;
   selectGame: (gameId: string) => Promise<void>;
   createTestGame: (gameType: string, aiPlayers?: AIPlayerConfig[]) => Promise<void>;
   addTestPlayer: (playerName: string) => Promise<void>;
@@ -74,21 +74,23 @@ export function AdminProvider({ children }: AdminProviderProps) {
   const client = useMemo(() => new GameClient('/api', getToken), [getToken]);
 
   /**
-   * Load game types on mount
+   * Load game types on demand
    */
-  useEffect(() => {
-    const loadGameTypes = async () => {
-      try {
-        const types = await client.getGameTypes();
-        const typesMap = new Map(
-          types.map((type) => [type.type, { maxPlayers: type.maxPlayers }])
-        );
-        setGameTypes(typesMap);
-      } catch (err) {
-        console.error('Failed to load game types:', err);
+  const loadGameTypes = useCallback(async () => {
+    try {
+      const types = await client.getGameTypes();
+      if (!types || !Array.isArray(types)) {
+        console.warn('getGameTypes returned invalid data:', types);
+        setGameTypes(new Map());
+        return;
       }
-    };
-    loadGameTypes();
+      const typesMap = new Map(
+        types.map((type) => [type.type, { maxPlayers: type.maxPlayers }])
+      );
+      setGameTypes(typesMap);
+    } catch (err) {
+      console.error('Failed to load game types:', err);
+    }
   }, [client]);
 
   /**
@@ -138,9 +140,10 @@ export function AdminProvider({ children }: AdminProviderProps) {
       setError(null);
       try {
         // Create the game with AI players if provided
-        const newGame = await client.createGame(gameType, {
+        const config: GameConfig = {
           aiPlayers: aiPlayers && aiPlayers.length > 0 ? aiPlayers : undefined,
-        });
+        };
+        const newGame = await client.createGame(gameType, config);
 
         // Join as the first player (Admin)
         const playerId = `player-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -286,6 +289,7 @@ export function AdminProvider({ children }: AdminProviderProps) {
     error,
     gameTypes,
     loadGames,
+    loadGameTypes,
     selectGame,
     createTestGame,
     addTestPlayer,
