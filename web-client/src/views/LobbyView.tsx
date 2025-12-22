@@ -14,7 +14,7 @@ export function LobbyView() {
   const [filters, setFilters] = useState<GameFiltersState>({
     gameType: undefined,
     playerCount: undefined,
-    lifecycle: undefined,
+    lifecycle: 'waiting_for_players', // Default to waiting_for_players to hide completed games
     search: '',
   });
 
@@ -93,7 +93,8 @@ export function LobbyView() {
   };
 
   const handleGameClick = (gameId: string) => {
-    navigate(`/game/${gameId}`);
+    // Navigate to player view with gameId parameter
+    navigate(`/?gameId=${gameId}`);
   };
 
   const handleRetry = () => {

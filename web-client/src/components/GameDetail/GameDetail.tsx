@@ -165,15 +165,6 @@ export function GameDetail({
           </div>
         )}
         <div className={styles.actionButtons}>
-          {onRefresh && (
-            <button 
-              className={styles.refreshButton} 
-              onClick={onRefresh}
-              aria-label="Refresh game"
-            >
-              Refresh
-            </button>
-          )}
           {showInviteButton && (
             <button
               className={styles.inviteButton}

@@ -126,8 +126,17 @@ describe('LobbyView', () => {
         expect(mockListGames).toHaveBeenCalled();
       });
 
+      // With default filter (waiting_for_players), only game-1 should be visible
       await waitFor(() => {
         expect(screen.getByText('Quick Tic-Tac-Toe')).toBeInTheDocument();
+      });
+
+      // Change filter to show all games
+      const statusFilter = screen.getByLabelText(/status/i);
+      statusFilter.value = '';
+      statusFilter.dispatchEvent(new Event('change', { bubbles: true }));
+
+      await waitFor(() => {
         expect(screen.getByText('Connect Four Championship')).toBeInTheDocument();
         expect(screen.getByText('Finished Game')).toBeInTheDocument();
       });
@@ -138,6 +147,15 @@ describe('LobbyView', () => {
 
       await waitFor(() => {
         expect(screen.getByText('Quick Tic-Tac-Toe')).toBeInTheDocument();
+      });
+
+      // Change filter to show all games
+      const statusFilter = screen.getByLabelText(/status/i);
+      statusFilter.value = '';
+      statusFilter.dispatchEvent(new Event('change', { bubbles: true }));
+
+      await waitFor(() => {
+        expect(screen.getByText('Connect Four Championship')).toBeInTheDocument();
       });
 
       // Check game type is displayed (use getAllByText since there are multiple)
@@ -162,7 +180,15 @@ describe('LobbyView', () => {
       
       // Verify specific counts exist
       expect(screen.getAllByText(/1\/2/).length).toBeGreaterThan(0); // game-1
-      expect(screen.getAllByText(/2\/2/).length).toBeGreaterThan(0); // game-2
+      
+      // Change filter to show all games to see game-2
+      const statusFilter = screen.getByLabelText(/status/i);
+      statusFilter.value = '';
+      statusFilter.dispatchEvent(new Event('change', { bubbles: true }));
+
+      await waitFor(() => {
+        expect(screen.getAllByText(/2\/2/).length).toBeGreaterThan(0); // game-2
+      });
     });
 
     it('should display game state for each game', async () => {
@@ -174,8 +200,16 @@ describe('LobbyView', () => {
 
       // Check lifecycle states are displayed
       expect(screen.getByText('waiting_for_players')).toBeInTheDocument();
-      expect(screen.getByText('active')).toBeInTheDocument();
-      expect(screen.getByText('completed')).toBeInTheDocument();
+      
+      // Change filter to show all games to see other states
+      const statusFilter = screen.getByLabelText(/status/i);
+      statusFilter.value = '';
+      statusFilter.dispatchEvent(new Event('change', { bubbles: true }));
+
+      await waitFor(() => {
+        expect(screen.getByText('active')).toBeInTheDocument();
+        expect(screen.getByText('completed')).toBeInTheDocument();
+      });
     });
   });
 
@@ -201,9 +235,15 @@ describe('LobbyView', () => {
         expect(screen.getByText('Quick Tic-Tac-Toe')).toBeInTheDocument();
       });
 
-      // Initially all games are shown
-      expect(screen.getByText('Quick Tic-Tac-Toe')).toBeInTheDocument();
-      expect(screen.getByText('Connect Four Championship')).toBeInTheDocument();
+      // First, change filter to show all games
+      const statusFilter = screen.getByLabelText(/status/i);
+      await user.selectOptions(statusFilter, '');
+
+      await waitFor(() => {
+        // Now all games should be shown
+        expect(screen.getByText('Quick Tic-Tac-Toe')).toBeInTheDocument();
+        expect(screen.getByText('Connect Four Championship')).toBeInTheDocument();
+      });
 
       // Select tic-tac-toe filter
       const gameTypeSelect = screen.getByLabelText(/game type/i);
@@ -244,6 +284,14 @@ describe('LobbyView', () => {
 
       await waitFor(() => {
         expect(screen.getByText('Quick Tic-Tac-Toe')).toBeInTheDocument();
+      });
+
+      // First, change filter to show all games
+      const statusFilter = screen.getByLabelText(/status/i);
+      await user.selectOptions(statusFilter, '');
+
+      await waitFor(() => {
+        expect(screen.getByText('Connect Four Championship')).toBeInTheDocument();
       });
 
       // Type in search box
@@ -290,6 +338,14 @@ describe('LobbyView', () => {
 
       await waitFor(() => {
         expect(screen.getByText('Quick Tic-Tac-Toe')).toBeInTheDocument();
+      });
+
+      // First, change status filter to show all games
+      const statusFilter = screen.getByLabelText(/status/i);
+      await user.selectOptions(statusFilter, '');
+
+      await waitFor(() => {
+        expect(screen.getByText('Connect Four Championship')).toBeInTheDocument();
       });
 
       // Apply a filter
@@ -499,6 +555,15 @@ describe('LobbyView', () => {
       render(<LobbyView />);
 
       await waitFor(() => {
+        expect(screen.getByText('Quick Tic-Tac-Toe')).toBeInTheDocument();
+      });
+
+      // First, change filter to show all games (not just waiting_for_players)
+      const statusFilter = screen.getByLabelText(/status/i);
+      statusFilter.value = '';
+      statusFilter.dispatchEvent(new Event('change', { bubbles: true }));
+
+      await waitFor(() => {
         expect(screen.getByText('Connect Four Championship')).toBeInTheDocument();
       });
 
@@ -510,6 +575,15 @@ describe('LobbyView', () => {
 
     it('should not display join button for completed games', async () => {
       render(<LobbyView />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Quick Tic-Tac-Toe')).toBeInTheDocument();
+      });
+
+      // First, change filter to show all games to see the completed game
+      const statusFilter = screen.getByLabelText(/status/i);
+      statusFilter.value = '';
+      statusFilter.dispatchEvent(new Event('change', { bubbles: true }));
 
       await waitFor(() => {
         expect(screen.getByText('Finished Game')).toBeInTheDocument();
@@ -530,6 +604,15 @@ describe('LobbyView', () => {
 
       await waitFor(() => {
         expect(screen.getByText('Quick Tic-Tac-Toe')).toBeInTheDocument();
+      });
+
+      // First, change filter to show all games
+      const statusFilter = screen.getByLabelText(/status/i);
+      statusFilter.value = '';
+      statusFilter.dispatchEvent(new Event('change', { bubbles: true }));
+
+      await waitFor(() => {
+        expect(screen.getByText('Connect Four Championship')).toBeInTheDocument();
       });
 
       // Check that games are rendered (grid layout is CSS-based)

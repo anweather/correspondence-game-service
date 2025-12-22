@@ -31,6 +31,7 @@ interface PlayerContextState {
 interface PlayerContextActions {
   login: (name: string) => Promise<void>;
   logout: () => void;
+  clearGame: () => void;
   getKnownPlayerNames: () => Promise<string[]>;
   getAvailableGameTypes: () => Promise<GameType[]>;
   createGame: (gameType: string, metadata?: { gameName?: string; gameDescription?: string; aiPlayers?: AIPlayerConfig[] }) => Promise<void>;
@@ -167,6 +168,15 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
     setCurrentGameId(null);
     setError(null);
   }, [setPlayerName, setPlayerId, setCurrentGameId]);
+
+  /**
+   * Clear current game without logging out
+   */
+  const clearGame = useCallback(() => {
+    setCurrentGame(null);
+    setCurrentGameId(null);
+    setError(null);
+  }, [setCurrentGameId]);
 
   /**
    * Get list of known player names from backend
@@ -398,6 +408,7 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
     error,
     login,
     logout,
+    clearGame,
     getKnownPlayerNames,
     getAvailableGameTypes,
     createGame,

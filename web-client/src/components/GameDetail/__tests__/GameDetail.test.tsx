@@ -240,24 +240,6 @@ describe('GameDetail', () => {
     });
   });
 
-  describe('Refresh Functionality', () => {
-    it('should call onRefresh when refresh button is clicked', () => {
-      const onRefresh = vi.fn();
-      render(<GameDetail game={mockGame} onRefresh={onRefresh} />);
-
-      const refreshButton = screen.getByRole('button', { name: /refresh/i });
-      refreshButton.click();
-
-      expect(onRefresh).toHaveBeenCalledTimes(1);
-    });
-
-    it('should not render refresh button when onRefresh is not provided', () => {
-      render(<GameDetail game={mockGame} />);
-
-      expect(screen.queryByRole('button', { name: /refresh/i })).not.toBeInTheDocument();
-    });
-  });
-
   describe('Admin Controls', () => {
     it('should not show admin controls by default', () => {
       render(<GameDetail game={mockGame} />);

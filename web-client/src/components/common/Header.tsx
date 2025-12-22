@@ -15,7 +15,7 @@ interface HeaderProps {
  * Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 16.1, 16.2, 16.3, 16.4, 16.5
  */
 export function Header({ currentView }: HeaderProps) {
-  const { displayName } = usePlayer();
+  const { displayName, clearGame } = usePlayer();
   const { notifications, unreadCount, markAsRead, clearAll } = useNotifications();
 
   const navLinks = [
@@ -25,6 +25,15 @@ export function Header({ currentView }: HeaderProps) {
     { name: 'Stats', path: '/stats', view: 'stats' },
     { name: 'Leaderboard', path: '/leaderboard', view: 'leaderboard' },
   ];
+
+  const handleNavClick = (path: string) => {
+    // For home navigation, clear any current game to return to home screen
+    if (path === '/') {
+      clearGame();
+      // Clear URL parameters
+      window.history.replaceState({}, '', `${window.location.pathname}#/player`);
+    }
+  };
 
   return (
     <header className={styles.header} role="banner">
@@ -39,6 +48,7 @@ export function Header({ currentView }: HeaderProps) {
                   currentView === link.view ? styles.active : ''
                 }`}
                 aria-current={currentView === link.view ? 'page' : undefined}
+                onClick={() => handleNavClick(link.path)}
               >
                 {link.name}
               </Link>

@@ -403,35 +403,45 @@ export function PlayerView() {
         </div>
 
         <div className={styles.setupContainer}>
-          {myGames.length > 0 && (
+          {myGames.filter(game => 
+            // Only show games where the logged-in player is participating and game is not completed
+            game.lifecycle !== 'completed' && 
+            game.players.some(p => p.id === playerId)
+          ).length > 0 && (
             <div className={styles.myGamesSection}>
               <h2>My Games</h2>
               <div className={styles.gamesList}>
-                {myGames.map((game) => {
-                  const gameName = (game.metadata as any)?.gameName || game.gameId;
-                  const gameDescription = (game.metadata as any)?.gameDescription;
-                  
-                  return (
-                    <div
-                      key={game.gameId}
-                      className={styles.gameCard}
-                      onClick={() => loadGame(game.gameId)}
-                    >
-                      <div className={styles.gameCardHeader}>
-                        <strong>{gameName}</strong>
-                        <span className={styles.gameStatus}>{game.lifecycle}</span>
+                {myGames
+                  .filter(game => 
+                    // Only show games where the logged-in player is participating and game is not completed
+                    game.lifecycle !== 'completed' && 
+                    game.players.some(p => p.id === playerId)
+                  )
+                  .map((game) => {
+                    const gameName = (game.metadata as any)?.gameName || game.gameId;
+                    const gameDescription = (game.metadata as any)?.gameDescription;
+                    
+                    return (
+                      <div
+                        key={game.gameId}
+                        className={styles.gameCard}
+                        onClick={() => loadGame(game.gameId)}
+                      >
+                        <div className={styles.gameCardHeader}>
+                          <strong>{gameName}</strong>
+                          <span className={styles.gameStatus}>{game.lifecycle}</span>
+                        </div>
+                        <div className={styles.gameCardBody}>
+                          {gameDescription && (
+                            <div className={styles.gameCardDescription}>{gameDescription}</div>
+                          )}
+                          <div>Type: {game.gameType}</div>
+                          <div>Players: {game.players.map(p => p.name).join(', ')}</div>
+                          <div className={styles.gameId}>ID: {game.gameId.substring(0, 8)}...</div>
+                        </div>
                       </div>
-                      <div className={styles.gameCardBody}>
-                        {gameDescription && (
-                          <div className={styles.gameCardDescription}>{gameDescription}</div>
-                        )}
-                        <div>Type: {game.gameType}</div>
-                        <div>Players: {game.players.map(p => p.name).join(', ')}</div>
-                        <div className={styles.gameId}>ID: {game.gameId.substring(0, 8)}...</div>
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
               </div>
             </div>
           )}
