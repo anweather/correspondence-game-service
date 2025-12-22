@@ -56,13 +56,14 @@ export const StatsView: React.FC = () => {
     setHistoryError(null);
     
     try {
-      const response = await gameClient.getGameHistory(filters);
-      setGameHistory(response.items);
+      const games = await gameClient.getGameHistory(filters);
+      setGameHistory(games);
+      // Since API doesn't return pagination info, set basic pagination
       setPagination({
-        page: response.page,
-        pageSize: response.pageSize,
-        total: response.total,
-        totalPages: response.totalPages,
+        page: 1,
+        pageSize: games.length,
+        total: games.length,
+        totalPages: 1,
       });
     } catch (error) {
       console.error('Failed to fetch game history:', error);
@@ -183,11 +184,11 @@ export const StatsView: React.FC = () => {
             games={gameHistory}
             currentUserId={playerId}
             filters={historyFilters}
-            pagination={pagination.totalPages > 1 ? pagination : undefined}
+            pagination={undefined} // Disable pagination for now
             loading={historyLoading}
             error={historyError || undefined}
             onFilterChange={handleHistoryFilterChange}
-            onPageChange={handlePageChange}
+            onPageChange={undefined} // Disable page change for now
           />
         </section>
       </div>

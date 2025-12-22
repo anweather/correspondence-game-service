@@ -684,29 +684,23 @@ describe('GameClient', () => {
 
     describe('getGameHistory', () => {
       it('should fetch game history without filters', async () => {
-        const mockHistory = {
-          items: [
-            {
-              gameId: 'game-1',
-              gameType: 'tic-tac-toe',
-              lifecycle: 'completed',
-              players: [],
-              currentPlayerIndex: 0,
-              phase: 'completed',
-              board: { spaces: [], metadata: {} },
-              moveHistory: [],
-              metadata: {},
-              version: 10,
-              createdAt: '2024-01-01T00:00:00Z',
-              updatedAt: '2024-01-01T01:00:00Z',
-              winner: 'player-1',
-            },
-          ],
-          total: 1,
-          page: 1,
-          pageSize: 10,
-          totalPages: 1,
-        };
+        const mockHistory = [
+          {
+            gameId: 'game-1',
+            gameType: 'tic-tac-toe',
+            lifecycle: 'completed',
+            players: [],
+            currentPlayerIndex: 0,
+            phase: 'completed',
+            board: { spaces: [], metadata: {} },
+            moveHistory: [],
+            metadata: {},
+            version: 10,
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: '2024-01-01T01:00:00Z',
+            winner: 'player-1',
+          },
+        ];
 
         mockFetch.mockResolvedValueOnce({
           ok: true,
@@ -722,13 +716,7 @@ describe('GameClient', () => {
       });
 
       it('should fetch game history with filters', async () => {
-        const mockHistory = {
-          items: [],
-          total: 0,
-          page: 2,
-          pageSize: 20,
-          totalPages: 0,
-        };
+        const mockHistory: any[] = [];
 
         mockFetch.mockResolvedValueOnce({
           ok: true,

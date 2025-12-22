@@ -51,32 +51,26 @@ describe('StatsView', () => {
       averageTurnsPerGame: 29.38,
     });
 
-    mockGetGameHistory.mockResolvedValue({
-      items: [
-        {
-          gameId: 'game1',
-          gameType: 'tic-tac-toe',
-          lifecycle: 'completed',
-          players: [
-            { id: 'player123', name: 'TestPlayer', joinedAt: '2024-01-01T10:00:00Z' },
-            { id: 'player2', name: 'Bob', joinedAt: '2024-01-01T10:01:00Z' },
-          ],
-          currentPlayerIndex: 0,
-          phase: 'game_over',
-          board: { spaces: [], metadata: {} },
-          moveHistory: [],
-          metadata: { gameName: 'Quick Game' },
-          version: 5,
-          createdAt: '2024-01-01T10:00:00Z',
-          updatedAt: '2024-01-01T10:15:00Z',
-          winner: 'player123',
-        },
-      ],
-      total: 1,
-      page: 1,
-      pageSize: 10,
-      totalPages: 1,
-    });
+    mockGetGameHistory.mockResolvedValue([
+      {
+        gameId: 'game1',
+        gameType: 'tic-tac-toe',
+        lifecycle: 'completed',
+        players: [
+          { id: 'player123', name: 'TestPlayer', joinedAt: '2024-01-01T10:00:00Z' },
+          { id: 'player2', name: 'Bob', joinedAt: '2024-01-01T10:01:00Z' },
+        ],
+        currentPlayerIndex: 0,
+        phase: 'game_over',
+        board: { spaces: [], metadata: {} },
+        moveHistory: [],
+        metadata: { gameName: 'Quick Game' },
+        version: 5,
+        createdAt: '2024-01-01T10:00:00Z',
+        updatedAt: '2024-01-01T10:15:00Z',
+        winner: 'player123',
+      },
+    ]);
   });
 
   describe('Overview and History Integration', () => {
@@ -226,32 +220,26 @@ describe('StatsView', () => {
         averageTurnsPerGame: 9,
       });
 
-      mockGetGameHistory.mockResolvedValue({
-        items: [
-          {
-            gameId: 'game2',
-            gameType: 'tic-tac-toe',
-            lifecycle: 'completed',
-            players: [
-              { id: 'player123', name: 'TestPlayer', joinedAt: '2024-01-02T10:00:00Z' },
-              { id: 'player3', name: 'Alice', joinedAt: '2024-01-02T10:01:00Z' },
-            ],
-            currentPlayerIndex: 0,
-            phase: 'game_over',
-            board: { spaces: [], metadata: {} },
-            moveHistory: [],
-            metadata: { gameName: 'TTT Game' },
-            version: 5,
-            createdAt: '2024-01-02T10:00:00Z',
-            updatedAt: '2024-01-02T10:15:00Z',
-            winner: 'player123',
-          },
-        ],
-        total: 1,
-        page: 1,
-        pageSize: 10,
-        totalPages: 1,
-      });
+      mockGetGameHistory.mockResolvedValue([
+        {
+          gameId: 'game2',
+          gameType: 'tic-tac-toe',
+          lifecycle: 'completed',
+          players: [
+            { id: 'player123', name: 'TestPlayer', joinedAt: '2024-01-02T10:00:00Z' },
+            { id: 'player3', name: 'Alice', joinedAt: '2024-01-02T10:01:00Z' },
+          ],
+          currentPlayerIndex: 0,
+          phase: 'game_over',
+          board: { spaces: [], metadata: {} },
+          moveHistory: [],
+          metadata: { gameName: 'TTT Game' },
+          version: 5,
+          createdAt: '2024-01-02T10:00:00Z',
+          updatedAt: '2024-01-02T10:15:00Z',
+          winner: 'player123',
+        },
+      ]);
 
       render(<StatsView />);
 
@@ -314,13 +302,7 @@ describe('StatsView', () => {
 
     it('should show loading state in StatsOverview while fetching', () => {
       mockGetPlayerStats.mockReturnValue(new Promise(() => {}));
-      mockGetGameHistory.mockResolvedValue({
-        items: [],
-        total: 0,
-        page: 1,
-        pageSize: 10,
-        totalPages: 0,
-      });
+      mockGetGameHistory.mockResolvedValue([]);
 
       render(<StatsView />);
 
@@ -401,13 +383,7 @@ describe('StatsView', () => {
   describe('Error Handling', () => {
     it('should display error message when stats fetch fails', async () => {
       mockGetPlayerStats.mockRejectedValue(new Error('Failed to fetch stats'));
-      mockGetGameHistory.mockResolvedValue({
-        items: [],
-        total: 0,
-        page: 1,
-        pageSize: 10,
-        totalPages: 0,
-      });
+      mockGetGameHistory.mockResolvedValue([]);
 
       render(<StatsView />);
 
@@ -438,13 +414,7 @@ describe('StatsView', () => {
 
     it('should show retry button when stats fetch fails', async () => {
       mockGetPlayerStats.mockRejectedValue(new Error('Network error'));
-      mockGetGameHistory.mockResolvedValue({
-        items: [],
-        total: 0,
-        page: 1,
-        pageSize: 10,
-        totalPages: 0,
-      });
+      mockGetGameHistory.mockResolvedValue([]);
 
       render(<StatsView />);
 
@@ -455,13 +425,7 @@ describe('StatsView', () => {
 
     it('should retry fetching stats when retry button is clicked', async () => {
       mockGetPlayerStats.mockRejectedValueOnce(new Error('Network error'));
-      mockGetGameHistory.mockResolvedValue({
-        items: [],
-        total: 0,
-        page: 1,
-        pageSize: 10,
-        totalPages: 0,
-      });
+      mockGetGameHistory.mockResolvedValue([]);
 
       render(<StatsView />);
 
@@ -506,13 +470,7 @@ describe('StatsView', () => {
 
     it('should clear error when filter changes successfully', async () => {
       mockGetPlayerStats.mockRejectedValueOnce(new Error('Network error'));
-      mockGetGameHistory.mockResolvedValue({
-        items: [],
-        total: 0,
-        page: 1,
-        pageSize: 10,
-        totalPages: 0,
-      });
+      mockGetGameHistory.mockResolvedValue([]);
 
       render(<StatsView />);
 
@@ -615,13 +573,7 @@ describe('StatsView', () => {
         totalTurns: 0,
         averageTurnsPerGame: 0,
       });
-      mockGetGameHistory.mockResolvedValue({
-        items: [],
-        total: 0,
-        page: 1,
-        pageSize: 10,
-        totalPages: 0,
-      });
+      mockGetGameHistory.mockResolvedValue([]);
 
       render(<StatsView />);
 
@@ -642,13 +594,7 @@ describe('StatsView', () => {
         totalTurns: 0,
         averageTurnsPerGame: 0,
       });
-      mockGetGameHistory.mockResolvedValue({
-        items: [],
-        total: 0,
-        page: 1,
-        pageSize: 10,
-        totalPages: 0,
-      });
+      mockGetGameHistory.mockResolvedValue([]);
 
       render(<StatsView />);
 
@@ -679,13 +625,7 @@ describe('StatsView', () => {
 
     it('should have accessible retry button', async () => {
       mockGetPlayerStats.mockRejectedValue(new Error('Network error'));
-      mockGetGameHistory.mockResolvedValue({
-        items: [],
-        total: 0,
-        page: 1,
-        pageSize: 10,
-        totalPages: 0,
-      });
+      mockGetGameHistory.mockResolvedValue([]);
 
       render(<StatsView />);
 

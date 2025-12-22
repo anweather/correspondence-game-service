@@ -276,12 +276,12 @@ export class GameClient {
   /**
    * Get game history for current player
    */
-  async getGameHistory(filters?: GameHistoryFilters): Promise<PaginatedResult<GameState>> {
+  async getGameHistory(filters?: GameHistoryFilters): Promise<GameState[]> {
     const queryParams = this.buildHistoryQueryParams(filters);
     const url = queryParams
       ? `${this.baseUrl}/players/history?${queryParams}`
       : `${this.baseUrl}/players/history`;
-    return this.request<PaginatedResult<GameState>>(url);
+    return this.request<GameState[]>(url);
   }
 
   /**
