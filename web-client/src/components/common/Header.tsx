@@ -21,7 +21,6 @@ export function Header({ currentView }: HeaderProps) {
   const navLinks = [
     { name: 'Home', path: '/', view: 'home' },
     { name: 'Lobby', path: '/lobby', view: 'lobby' },
-    { name: 'My Games', path: '/games', view: 'games' },
     { name: 'Stats', path: '/stats', view: 'stats' },
     { name: 'Leaderboard', path: '/leaderboard', view: 'leaderboard' },
   ];

@@ -41,7 +41,6 @@ describe('Header', () => {
 
       expect(screen.getByRole('link', { name: /home/i })).toBeInTheDocument();
       expect(screen.getByRole('link', { name: /lobby/i })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: /my games/i })).toBeInTheDocument();
       expect(screen.getByRole('link', { name: /stats/i })).toBeInTheDocument();
       expect(screen.getByRole('link', { name: /leaderboard/i })).toBeInTheDocument();
     });
@@ -58,7 +57,6 @@ describe('Header', () => {
 
       expect(screen.getByRole('link', { name: /home/i })).toHaveAttribute('href', '/');
       expect(screen.getByRole('link', { name: /lobby/i })).toHaveAttribute('href', '/lobby');
-      expect(screen.getByRole('link', { name: /my games/i })).toHaveAttribute('href', '/games');
       expect(screen.getByRole('link', { name: /stats/i })).toHaveAttribute('href', '/stats');
       expect(screen.getByRole('link', { name: /leaderboard/i })).toHaveAttribute('href', '/leaderboard');
       expect(screen.getByRole('link', { name: 'TestPlayer' })).toHaveAttribute('href', '/profile');
@@ -80,11 +78,13 @@ describe('Header', () => {
       expect(lobbyLink.className).toContain('active');
     });
 
-    it('should highlight games link when on games view', () => {
+    it('should highlight home link when on games view', () => {
+      // Since we removed "My Games", the /games route now shows home
       render(<Header currentView="games" />);
 
-      const gamesLink = screen.getByRole('link', { name: /my games/i });
-      expect(gamesLink.className).toContain('active');
+      // No link should be highlighted since 'games' view doesn't exist in nav
+      const homeLink = screen.getByRole('link', { name: /home/i });
+      expect(homeLink.className).not.toContain('active');
     });
 
     it('should highlight stats link when on stats view', () => {
