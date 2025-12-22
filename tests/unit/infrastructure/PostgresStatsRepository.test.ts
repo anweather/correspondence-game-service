@@ -105,7 +105,7 @@ describe('PostgresStatsRepository', () => {
       const stats = await repository.getPlayerStats('user_123', 'tic-tac-toe');
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        expect.stringContaining('game_type = $4'),
+        expect.stringContaining('game_type = $3'),
         expect.arrayContaining(['user_123', 'tic-tac-toe'])
       );
       expect(stats.userId).toBe('user_123');
@@ -394,8 +394,8 @@ describe('PostgresStatsRepository', () => {
       const history = await repository.getGameHistory('user_123');
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        expect.stringContaining("state->'players' @>"),
-        expect.arrayContaining([JSON.stringify([{ id: 'user_123' }])])
+        expect.stringContaining("EXISTS ("),
+        expect.arrayContaining(['user_123'])
       );
       expect(history).toEqual([]);
     });
@@ -410,7 +410,7 @@ describe('PostgresStatsRepository', () => {
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('game_type = $2'),
-        expect.arrayContaining([JSON.stringify([{ id: 'user_123' }]), 'tic-tac-toe'])
+        expect.arrayContaining(['user_123', 'tic-tac-toe'])
       );
     });
 
@@ -423,7 +423,7 @@ describe('PostgresStatsRepository', () => {
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('lifecycle = $2'),
-        expect.arrayContaining([JSON.stringify([{ id: 'user_123' }]), GameLifecycle.COMPLETED])
+        expect.arrayContaining(['user_123', GameLifecycle.COMPLETED])
       );
     });
 

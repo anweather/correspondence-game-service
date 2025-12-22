@@ -98,7 +98,10 @@ export class PostgresStatsRepository {
           ) THEN 1 ELSE 0 END
         ) as ai_games
       FROM games
-      WHERE state->'players' @> $3::jsonb
+      WHERE EXISTS (
+        SELECT 1 FROM jsonb_array_elements(state->'players') AS player 
+        WHERE player->>'id' = $1
+      )
         AND lifecycle = $2
         AND NOT EXISTS (
           SELECT 1 FROM jsonb_array_elements(state->'players') AS player 
@@ -106,10 +109,10 @@ export class PostgresStatsRepository {
         )
     `;
 
-    const params: any[] = [userId, GameLifecycle.COMPLETED, JSON.stringify([{ id: userId }])];
+    const params: any[] = [userId, GameLifecycle.COMPLETED];
 
     if (gameType) {
-      query += ' AND game_type = $4';
+      query += ' AND game_type = $3';
       params.push(gameType);
     }
 
@@ -306,10 +309,13 @@ export class PostgresStatsRepository {
 
     let query = `
       SELECT * FROM games
-      WHERE state->'players' @> $1::jsonb
+      WHERE EXISTS (
+        SELECT 1 FROM jsonb_array_elements(state->'players') AS player 
+        WHERE player->>'id' = $1
+      )
     `;
 
-    const params: any[] = [JSON.stringify([{ id: userId }])];
+    const params: any[] = [userId];
     let paramIndex = 2;
 
     if (filters.gameType) {

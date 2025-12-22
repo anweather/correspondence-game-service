@@ -11,7 +11,7 @@
  * Requirements: 1.1, 1.2, 4.2, 4.3
  */
 
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { getAuth } from '@clerk/express';
 import { loadConfig } from '../../../config';
 import { AuthenticatedRequest } from './types';
@@ -30,9 +30,19 @@ import { getLogger } from '../../../infrastructure/logging/Logger';
 export function clerkMiddleware(playerIdentityRepository: PlayerIdentityRepository) {
   const config = loadConfig();
 
-  // If auth is disabled, return a no-op middleware
+  // If auth is disabled, return a middleware that handles test users
   if (!config.auth.enabled) {
-    return (_req: Request, _res: Response, next: NextFunction): void => {
+    return (req: AuthenticatedRequest, _res: Response, next: NextFunction): void => {
+      // Check for test user header
+      const testUserId = req.headers['x-test-user-id'] as string;
+      if (testUserId) {
+        req.user = {
+          id: testUserId,
+          externalId: testUserId,
+          username: `test-user-${testUserId}`,
+          email: `test-${testUserId}@example.com`,
+        };
+      }
       next();
     };
   }
