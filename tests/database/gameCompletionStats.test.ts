@@ -37,6 +37,7 @@ import { PostgresGameRepository } from '@infrastructure/persistence/PostgresGame
 import { PostgresStatsRepository } from '@infrastructure/persistence/PostgresStatsRepository';
 
 import { loadConfig } from '../../src/config';
+import { InMemoryPlayerIdentityRepository } from '@infrastructure/persistence/InMemoryPlayerIdentityRepository';
 
 // Mock config to disable auth for these tests
 jest.mock('../../src/config', () => ({
@@ -54,6 +55,7 @@ jest.mock('../../src/config', () => ({
 describe('Game Completion Stats Update Integration', () => {
   const dbHelper = createSharedDatabaseHelper();
   let app: Express;
+  let playerIdentityRepository: InMemoryPlayerIdentityRepository;
   let gameManagerService: GameManagerService;
   let stateManagerService: StateManagerService;
   let statsService: StatsService;
@@ -79,6 +81,7 @@ describe('Game Completion Stats Update Integration', () => {
     const connectionString = dbHelper.getConnectionString();
     gameRepository = new PostgresGameRepository(connectionString, 5);
     statsRepository = new PostgresStatsRepository(connectionString, 5);
+    playerIdentityRepository = new InMemoryPlayerIdentityRepository();
 
     registry = new PluginRegistry();
     lockManager = new GameLockManager();
@@ -101,8 +104,15 @@ describe('Game Completion Stats Update Integration', () => {
     statsService = new StatsService(statsRepository);
 
     // Create app with real routes
-    app = createApp();
-    const gameRouter = createGameRoutes(gameManagerService, gameRepository, stateManagerService, mockAIPlayerService);
+    app = createApp(playerIdentityRepository, { disableAuth: true });
+    const gameRouter = createGameRoutes(
+      gameManagerService,
+      gameRepository,
+      stateManagerService,
+      mockAIPlayerService,
+      undefined,
+      { disableAuth: true }
+    );
 
     // Add stats routes
     const { createStatsRoutes } = require('@adapters/rest/statsRoutes');

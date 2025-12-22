@@ -232,8 +232,8 @@ describe('Stats Routes Integration', () => {
     statsRepository = new InMemoryStatsRepository();
     statsService = new StatsService(statsRepository as any);
 
-    // Create app with stats routes
-    app = createApp(playerIdentityRepository);
+    // Create app with stats routes - AUTH ENABLED for testing auth behavior
+    app = createApp(playerIdentityRepository, { disableAuth: false });
     const { createStatsRoutes } = require('@adapters/rest/statsRoutes');
     const statsRouter = createStatsRoutes(statsService);
     addApiRoutes(app, statsRouter);
@@ -255,18 +255,7 @@ describe('Stats Routes Integration', () => {
     });
 
     it('should return stats for authenticated user', async () => {
-      // Mock authenticated request
-      (getAuth as jest.Mock).mockReturnValue({
-        userId: 'user_123',
-        sessionId: 'session_123',
-      });
-
-      (clerkClient.users.getUser as jest.Mock).mockResolvedValue({
-        id: 'user_123',
-        username: 'testuser',
-        emailAddresses: [{ emailAddress: 'test@example.com' }],
-      });
-
+      // Remove the Clerk mocking since we'll use test header
       // Add some test games
       statsRepository.addGame(
         createTestGame(
@@ -301,7 +290,7 @@ describe('Stats Routes Integration', () => {
 
       const response = await request(app)
         .get('/api/players/stats')
-        .set('Authorization', 'Bearer valid_token')
+        .set('x-test-user-id', 'user_123')
         .expect(200);
 
       expect(response.body.userId).toBe('user_123');
@@ -328,7 +317,7 @@ describe('Stats Routes Integration', () => {
 
       const response = await request(app)
         .get('/api/players/stats')
-        .set('Authorization', 'Bearer valid_token')
+        .set('x-test-user-id', 'user_new')
         .expect(200);
 
       expect(response.body.userId).toBe('user_new');
@@ -375,7 +364,7 @@ describe('Stats Routes Integration', () => {
 
       const response = await request(app)
         .get('/api/players/stats')
-        .set('Authorization', 'Bearer valid_token')
+        .set('x-test-user-id', 'user_active')
         .expect(200);
 
       expect(response.body.totalGames).toBe(1);
@@ -443,7 +432,7 @@ describe('Stats Routes Integration', () => {
 
       const response = await request(app)
         .get('/api/players/stats/tic-tac-toe')
-        .set('Authorization', 'Bearer valid_token')
+        .set('x-test-user-id', 'user_filter')
         .expect(200);
 
       expect(response.body.userId).toBe('user_filter');
@@ -525,7 +514,7 @@ describe('Stats Routes Integration', () => {
 
       const response = await request(app)
         .get('/api/players/history')
-        .set('Authorization', 'Bearer valid_token')
+        .set('x-test-user-id', 'user_history')
         .expect(200);
 
       expect(Array.isArray(response.body)).toBe(true);
@@ -569,7 +558,7 @@ describe('Stats Routes Integration', () => {
 
       const response = await request(app)
         .get('/api/players/history?gameType=tic-tac-toe')
-        .set('Authorization', 'Bearer valid_token')
+        .set('x-test-user-id', 'user_filter_history')
         .expect(200);
 
       expect(response.body.length).toBe(1);
@@ -611,7 +600,7 @@ describe('Stats Routes Integration', () => {
 
       const response = await request(app)
         .get(`/api/players/history?lifecycle=${GameLifecycle.COMPLETED}`)
-        .set('Authorization', 'Bearer valid_token')
+        .set('x-test-user-id', 'user_lifecycle')
         .expect(200);
 
       expect(response.body.length).toBe(1);
@@ -647,7 +636,7 @@ describe('Stats Routes Integration', () => {
       // Get first page
       const response1 = await request(app)
         .get('/api/players/history?page=1&pageSize=10')
-        .set('Authorization', 'Bearer valid_token')
+        .set('x-test-user-id', 'user_pagination')
         .expect(200);
 
       expect(response1.body.length).toBe(10);
@@ -655,7 +644,7 @@ describe('Stats Routes Integration', () => {
       // Get second page
       const response2 = await request(app)
         .get('/api/players/history?page=2&pageSize=10')
-        .set('Authorization', 'Bearer valid_token')
+        .set('x-test-user-id', 'user_pagination')
         .expect(200);
 
       expect(response2.body.length).toBe(10);
@@ -663,7 +652,7 @@ describe('Stats Routes Integration', () => {
       // Get third page
       const response3 = await request(app)
         .get('/api/players/history?page=3&pageSize=10')
-        .set('Authorization', 'Bearer valid_token')
+        .set('x-test-user-id', 'user_pagination')
         .expect(200);
 
       expect(response3.body.length).toBe(5);
@@ -684,7 +673,7 @@ describe('Stats Routes Integration', () => {
 
       const response = await request(app)
         .get('/api/players/history')
-        .set('Authorization', 'Bearer valid_token')
+        .set('x-test-user-id', 'user_empty')
         .expect(200);
 
       expect(Array.isArray(response.body)).toBe(true);

@@ -10,9 +10,9 @@ import {
 import { requestIdMiddleware } from './requestIdMiddleware';
 import { requestLoggingMiddleware } from './requestLoggingMiddleware';
 import { securityHeadersMiddleware } from './securityHeaders';
+import { sentinelUserMiddleware } from './auth/sentinelUserMiddleware';
 import { getLogger } from '../../infrastructure/logging/Logger';
 import { clerkMiddleware } from './auth/clerkMiddleware';
-import { loadConfig } from '../../config';
 import { PlayerIdentityRepository } from '../../domain/interfaces/PlayerIdentityRepository';
 
 /**
@@ -192,11 +192,14 @@ export function notFoundHandler(_req: Request, res: Response): void {
 /**
  * Creates and configures the Express application
  * @param playerIdentityRepository - Repository for player identity persistence (required if auth enabled)
+ * @param options - Optional configuration options
  * @returns Configured Express app instance
  */
-export function createApp(playerIdentityRepository?: PlayerIdentityRepository): Express {
+export function createApp(
+  playerIdentityRepository?: PlayerIdentityRepository,
+  options: { disableAuth?: boolean } = {}
+): Express {
   const app = express();
-  const config = loadConfig();
 
   // Middleware setup
   app.use(express.json());
@@ -211,13 +214,18 @@ export function createApp(playerIdentityRepository?: PlayerIdentityRepository): 
   // Request logging middleware
   app.use(requestLoggingMiddleware);
 
-  // Clerk authentication middleware
-  // Always load Clerk middleware to handle JWT tokens when present
-  // But only require authentication when AUTH_ENABLED=true
-  const logger = getLogger();
-  logger.info('Setting up authentication', { authEnabled: config.auth.enabled });
+  // Sentinel user middleware (must be before Clerk middleware)
+  app.use(sentinelUserMiddleware);
 
-  if (playerIdentityRepository) {
+  // Clerk authentication middleware (skip in tests if disabled)
+  if (!options.disableAuth) {
+    const logger = getLogger();
+    logger.info('Setting up authentication');
+
+    if (!playerIdentityRepository) {
+      throw new Error('playerIdentityRepository is required');
+    }
+
     // First, register Clerk's base middleware
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { clerkMiddleware: baseClerkMiddleware } = require('@clerk/express');
@@ -227,21 +235,6 @@ export function createApp(playerIdentityRepository?: PlayerIdentityRepository): 
     // Then, register our custom middleware that uses getAuth()
     app.use(clerkMiddleware(playerIdentityRepository));
     logger.info('Registered custom Clerk middleware');
-
-    if (!config.auth.enabled) {
-      // Log info when authentication is optional
-      logger.info(
-        'Authentication is optional (AUTH_ENABLED=false) - JWT tokens will be processed but not required'
-      );
-    }
-  } else {
-    if (config.auth.enabled) {
-      throw new Error('playerIdentityRepository is required when AUTH_ENABLED=true');
-    }
-    // Log warning when authentication is completely disabled
-    logger.warn(
-      'Authentication is disabled (AUTH_ENABLED=false) and no playerIdentityRepository provided'
-    );
   }
 
   // Track in-flight requests for graceful shutdown

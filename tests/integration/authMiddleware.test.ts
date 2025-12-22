@@ -283,7 +283,8 @@ describe('Authentication Middleware Integration', () => {
   });
 
   describe('AUTH_ENABLED Configuration', () => {
-    it('should bypass authentication when AUTH_ENABLED is false', async () => {
+    it('should bypass authentication when disableAuth is true', async () => {
+      // Mock config (not used anymore, but kept for completeness)
       (loadConfig as jest.Mock).mockReturnValue({
         auth: {
           enabled: false,
@@ -295,7 +296,7 @@ describe('Authentication Middleware Integration', () => {
       });
 
       const mockRepository = new InMemoryPlayerIdentityRepository();
-      app = createApp(mockRepository);
+      app = createApp(mockRepository, { disableAuth: true });
 
       const testRouter = express.Router();
       testRouter.get('/public', (req: AuthenticatedRequest, res) => {

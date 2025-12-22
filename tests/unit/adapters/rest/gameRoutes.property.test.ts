@@ -33,9 +33,11 @@ jest.mock('@clerk/express', () => ({
 }));
 
 import { getAuth, clerkClient } from '@clerk/express';
+import { InMemoryPlayerIdentityRepository } from '@infrastructure/persistence/InMemoryPlayerIdentityRepository';
 
 describe('Game Routes Property-Based Tests', () => {
   let app: Express;
+  let playerIdentityRepository: InMemoryPlayerIdentityRepository;
   let gameManagerService: GameManagerService;
   let stateManagerService: StateManagerService;
   let repository: InMemoryGameRepository;
@@ -47,6 +49,7 @@ describe('Game Routes Property-Based Tests', () => {
 
     // Set up real dependencies
     repository = new InMemoryGameRepository();
+    playerIdentityRepository = new InMemoryPlayerIdentityRepository();
     registry = new PluginRegistry();
     lockManager = new GameLockManager();
 
@@ -66,8 +69,15 @@ describe('Game Routes Property-Based Tests', () => {
     stateManagerService = new StateManagerService(repository, registry, lockManager);
 
     // Create app with real routes
-    app = createApp();
-    const gameRouter = createGameRoutes(gameManagerService, repository, stateManagerService, mockAIPlayerService);
+    app = createApp(playerIdentityRepository, { disableAuth: true });
+    const gameRouter = createGameRoutes(
+      gameManagerService,
+      repository,
+      stateManagerService,
+      mockAIPlayerService,
+      undefined,
+      { disableAuth: true }
+    );
     addApiRoutes(app, gameRouter);
     finalizeApp(app);
   });

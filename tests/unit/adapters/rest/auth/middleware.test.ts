@@ -82,11 +82,14 @@ describe('clerkMiddleware', () => {
       expect(mockRequest.user).toBeUndefined();
     });
 
-    it('should not call Clerk SDK when auth is disabled', async () => {
+    it('should call Clerk SDK but bypass authentication when auth is disabled', async () => {
       const middleware = clerkMiddleware(mockRepository);
       await middleware(mockRequest as any, mockResponse as Response, mockNext);
 
-      expect(getAuth).not.toHaveBeenCalled();
+      // Clerk SDK is called (we always check auth status)
+      expect(getAuth).toHaveBeenCalled();
+      // But user is not populated when auth is disabled
+      expect(mockRequest.user).toBeUndefined();
     });
   });
 

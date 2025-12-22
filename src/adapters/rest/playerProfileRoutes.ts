@@ -15,7 +15,6 @@ import { Router, Response, NextFunction } from 'express';
 import { PlayerProfileService } from '@application/services/PlayerProfileService';
 import { requireAuth } from './auth/requireAuth';
 import { AuthenticatedRequest } from './auth/types';
-import { loadConfig } from '../../config';
 
 /**
  * Creates player profile routes
@@ -24,26 +23,6 @@ import { loadConfig } from '../../config';
  */
 export function createPlayerProfileRoutes(playerProfileService: PlayerProfileService): Router {
   const router = Router();
-  const config = loadConfig();
-
-  /**
-   * Conditional auth middleware - only require auth when AUTH_ENABLED=true
-   * When AUTH_ENABLED=false, Clerk middleware still processes JWT tokens but doesn't require them
-   */
-  const conditionalAuth = config.auth.enabled
-    ? requireAuth
-    : (req: AuthenticatedRequest, _res: Response, next: NextFunction) => {
-        // When auth is disabled, create a mock user if Clerk middleware didn't set one
-        if (!req.user) {
-          req.user = {
-            id: 'test-user',
-            externalId: 'test-user',
-            username: 'TestUser',
-            email: 'test@example.com',
-          };
-        }
-        next();
-      };
 
   /**
    * POST /api/players/profile
@@ -52,7 +31,7 @@ export function createPlayerProfileRoutes(playerProfileService: PlayerProfileSer
    */
   router.post(
     '/players/profile',
-    conditionalAuth,
+    requireAuth,
     async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
       try {
         // Use externalId (Clerk user ID) for profile, not PlayerIdentity ID
@@ -111,7 +90,7 @@ export function createPlayerProfileRoutes(playerProfileService: PlayerProfileSer
    */
   router.get(
     '/players/profile',
-    conditionalAuth,
+    requireAuth,
     async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
       try {
         // Use externalId (Clerk user ID) for profile, not PlayerIdentity ID
@@ -142,7 +121,7 @@ export function createPlayerProfileRoutes(playerProfileService: PlayerProfileSer
    */
   router.put(
     '/players/profile',
-    conditionalAuth,
+    requireAuth,
     async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
       try {
         // Use externalId (Clerk user ID) for profile, not PlayerIdentity ID

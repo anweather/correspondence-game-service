@@ -230,7 +230,7 @@ describe('Leaderboard Routes Integration', () => {
     statsService = new StatsService(statsRepository as any);
 
     // Create app with leaderboard routes
-    app = createApp(playerIdentityRepository);
+    app = createApp(playerIdentityRepository, { disableAuth: true });
     const { createLeaderboardRoutes } = require('@adapters/rest/leaderboardRoutes');
     const leaderboardRouter = createLeaderboardRoutes(statsService);
     addApiRoutes(app, leaderboardRouter);

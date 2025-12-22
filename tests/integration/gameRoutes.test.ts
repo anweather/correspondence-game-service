@@ -29,6 +29,7 @@ describe('Game Management Routes Integration', () => {
   let gameManagerService: GameManagerService;
   let stateManagerService: StateManagerService;
   let repository: InMemoryGameRepository;
+  let playerIdentityRepository: InMemoryPlayerIdentityRepository;
   let registry: PluginRegistry;
   let lockManager: GameLockManager;
 
@@ -46,6 +47,7 @@ describe('Game Management Routes Integration', () => {
 
     // Set up real dependencies
     repository = new InMemoryGameRepository();
+    playerIdentityRepository = new InMemoryPlayerIdentityRepository();
     registry = new PluginRegistry();
     lockManager = new GameLockManager();
 
@@ -65,8 +67,15 @@ describe('Game Management Routes Integration', () => {
     stateManagerService = new StateManagerService(repository, registry, lockManager);
 
     // Create app with real routes
-    app = createApp();
-    const gameRouter = createGameRoutes(gameManagerService, repository, stateManagerService, mockAIPlayerService);
+    app = createApp(playerIdentityRepository, { disableAuth: true });
+    const gameRouter = createGameRoutes(
+      gameManagerService,
+      repository,
+      stateManagerService,
+      mockAIPlayerService,
+      undefined,
+      { disableAuth: true }
+    );
     addApiRoutes(app, gameRouter);
     finalizeApp(app);
   });
@@ -871,6 +880,7 @@ describe('Gameplay Routes Integration', () => {
   let gameManagerService: GameManagerService;
   let stateManagerService: StateManagerService;
   let repository: InMemoryGameRepository;
+  let playerIdentityRepository: InMemoryPlayerIdentityRepository;
   let registry: PluginRegistry;
   let lockManager: GameLockManager;
 
@@ -888,6 +898,7 @@ describe('Gameplay Routes Integration', () => {
 
     // Set up real dependencies
     repository = new InMemoryGameRepository();
+    playerIdentityRepository = new InMemoryPlayerIdentityRepository();
     registry = new PluginRegistry();
     lockManager = new GameLockManager();
 
@@ -907,8 +918,15 @@ describe('Gameplay Routes Integration', () => {
     stateManagerService = new StateManagerService(repository, registry, lockManager);
 
     // Create app with real routes
-    app = createApp();
-    const gameRouter = createGameRoutes(gameManagerService, repository, stateManagerService, mockAIPlayerService);
+    app = createApp(playerIdentityRepository, { disableAuth: true });
+    const gameRouter = createGameRoutes(
+      gameManagerService,
+      repository,
+      stateManagerService,
+      mockAIPlayerService,
+      undefined,
+      { disableAuth: true }
+    );
     addApiRoutes(app, gameRouter);
     finalizeApp(app);
   });
@@ -1287,6 +1305,7 @@ describe('Rendering Routes Integration', () => {
   let stateManagerService: StateManagerService;
   let rendererService: RendererService;
   let repository: InMemoryGameRepository;
+  let playerIdentityRepository: InMemoryPlayerIdentityRepository;
   let registry: PluginRegistry;
   let lockManager: GameLockManager;
 
@@ -1304,6 +1323,7 @@ describe('Rendering Routes Integration', () => {
 
     // Set up real dependencies
     repository = new InMemoryGameRepository();
+    playerIdentityRepository = new InMemoryPlayerIdentityRepository();
     registry = new PluginRegistry();
     lockManager = new GameLockManager();
 
@@ -1324,13 +1344,14 @@ describe('Rendering Routes Integration', () => {
     rendererService = new RendererService(registry, repository);
 
     // Create app with real routes including renderer
-    app = createApp();
+    app = createApp(playerIdentityRepository, { disableAuth: true });
     const gameRouter = createGameRoutes(
       gameManagerService,
       repository,
       stateManagerService,
       mockAIPlayerService,
-      rendererService
+      rendererService,
+      { disableAuth: true }
     );
     addApiRoutes(app, gameRouter);
     finalizeApp(app);
@@ -1518,9 +1539,16 @@ describe('Protected Game Routes Integration', () => {
     gameManagerService = new GameManagerService(registry, repository, mockAIPlayerService);
     stateManagerService = new StateManagerService(repository, registry, lockManager);
 
-    // Create app with real routes - pass playerIdentityRepository when auth is enabled
-    app = createApp(playerIdentityRepository);
-    const gameRouter = createGameRoutes(gameManagerService, repository, stateManagerService, mockAIPlayerService);
+    // Create app with real routes - AUTH ENABLED for testing protected routes
+    app = createApp(playerIdentityRepository, { disableAuth: false });
+    const gameRouter = createGameRoutes(
+      gameManagerService,
+      repository,
+      stateManagerService,
+      mockAIPlayerService,
+      undefined,
+      { disableAuth: false }
+    );
     addApiRoutes(app, gameRouter);
     finalizeApp(app);
   });

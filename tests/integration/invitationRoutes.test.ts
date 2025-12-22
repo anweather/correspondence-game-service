@@ -357,8 +357,8 @@ describe('Invitation Routes Integration', () => {
 
     await gameRepository.save(testGame);
 
-    // Create app with invitation routes
-    app = createApp(playerIdentityRepository);
+    // Create app with invitation routes - AUTH ENABLED for testing auth behavior
+    app = createApp(playerIdentityRepository, { disableAuth: false });
     const { createInvitationRoutes } = require('@adapters/rest/invitationRoutes');
     const invitationRouter = createInvitationRoutes(invitationService);
     addApiRoutes(app, invitationRouter);

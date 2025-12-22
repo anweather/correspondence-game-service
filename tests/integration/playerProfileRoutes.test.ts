@@ -171,8 +171,8 @@ describe('Player Profile Routes Integration', () => {
     playerProfileRepository = new InMemoryPlayerProfileRepository();
     playerProfileService = new PlayerProfileService(playerProfileRepository);
 
-    // Create app with player profile routes
-    app = createApp(playerIdentityRepository);
+    // Create app with player profile routes - AUTH ENABLED for testing auth behavior
+    app = createApp(playerIdentityRepository, { disableAuth: false });
     const { createPlayerProfileRoutes } = require('@adapters/rest/playerProfileRoutes');
     const playerProfileRouter = createPlayerProfileRoutes(playerProfileService);
     addApiRoutes(app, playerProfileRouter);

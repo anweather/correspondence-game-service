@@ -122,7 +122,7 @@ export const StatsView: React.FC = () => {
   // Loading state
   const isLoading = statsLoading || historyLoading;
 
-  if (isLoading && !stats && gameHistory.length === 0) {
+  if (isLoading && !stats && (!gameHistory || gameHistory.length === 0)) {
     return (
       <div className={styles.container}>
         <div className={styles.loading}>Loading statistics...</div>

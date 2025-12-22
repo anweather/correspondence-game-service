@@ -1,6 +1,7 @@
 import request from 'supertest';
 import { Express } from 'express';
 import { createApp, finalizeApp, inFlightTracker } from '@adapters/rest/app';
+import { InMemoryPlayerIdentityRepository } from '@infrastructure/persistence/InMemoryPlayerIdentityRepository';
 import {
   GameError,
   GameNotFoundError,
@@ -12,9 +13,11 @@ import {
 
 describe('Express App Initialization', () => {
   let app: Express;
+  let playerIdentityRepository: InMemoryPlayerIdentityRepository;
 
   beforeEach(() => {
-    app = createApp();
+    playerIdentityRepository = new InMemoryPlayerIdentityRepository();
+    app = createApp(playerIdentityRepository, { disableAuth: true });
   });
 
   describe('Middleware Setup', () => {

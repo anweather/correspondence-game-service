@@ -25,6 +25,8 @@ describe('Configuration Service', () => {
       process.env.DATABASE_URL = 'postgresql://user:pass@localhost:5432/db';
       process.env.DB_POOL_SIZE = '20';
       process.env.LOG_LEVEL = 'debug';
+      process.env.CLERK_PUBLISHABLE_KEY = 'pk_test_valid_key_12345';
+      process.env.CLERK_SECRET_KEY = 'sk_test_valid_secret_12345';
 
       const config = loadConfig();
 
@@ -38,6 +40,8 @@ describe('Configuration Service', () => {
 
     it('should use default values when optional environment variables are not set', () => {
       process.env.DATABASE_URL = 'postgresql://user:pass@localhost:5432/db';
+      process.env.CLERK_PUBLISHABLE_KEY = 'pk_test_valid_key_12345';
+      process.env.CLERK_SECRET_KEY = 'sk_test_valid_secret_12345';
       delete process.env.NODE_ENV;
       delete process.env.PORT;
       delete process.env.DB_POOL_SIZE;
@@ -53,6 +57,8 @@ describe('Configuration Service', () => {
     });
 
     it('should allow missing DATABASE_URL (falls back to in-memory storage)', () => {
+      process.env.CLERK_PUBLISHABLE_KEY = 'pk_test_valid_key_12345';
+      process.env.CLERK_SECRET_KEY = 'sk_test_valid_secret_12345';
       delete process.env.DATABASE_URL;
 
       const config = loadConfig();
@@ -62,12 +68,16 @@ describe('Configuration Service', () => {
 
     it('should throw error when DATABASE_URL has invalid format', () => {
       process.env.DATABASE_URL = 'mysql://user:pass@localhost:3306/db';
+      process.env.CLERK_PUBLISHABLE_KEY = 'pk_test_valid_key_12345';
+      process.env.CLERK_SECRET_KEY = 'sk_test_valid_secret_12345';
 
       expect(() => loadConfig()).toThrow('Invalid DATABASE_URL format');
     });
 
     it('should accept postgres:// prefix for DATABASE_URL', () => {
       process.env.DATABASE_URL = 'postgres://user:pass@localhost:5432/db';
+      process.env.CLERK_PUBLISHABLE_KEY = 'pk_test_valid_key_12345';
+      process.env.CLERK_SECRET_KEY = 'sk_test_valid_secret_12345';
 
       const config = loadConfig();
 
@@ -77,6 +87,8 @@ describe('Configuration Service', () => {
     it('should throw error when PORT is invalid', () => {
       process.env.PORT = 'invalid';
       process.env.DATABASE_URL = 'postgresql://user:pass@localhost:5432/db';
+      process.env.CLERK_PUBLISHABLE_KEY = 'pk_test_valid_key_12345';
+      process.env.CLERK_SECRET_KEY = 'sk_test_valid_secret_12345';
 
       expect(() => loadConfig()).toThrow('Invalid PORT');
     });
@@ -84,6 +96,8 @@ describe('Configuration Service', () => {
     it('should throw error when PORT is out of range', () => {
       process.env.PORT = '70000';
       process.env.DATABASE_URL = 'postgresql://user:pass@localhost:5432/db';
+      process.env.CLERK_PUBLISHABLE_KEY = 'pk_test_valid_key_12345';
+      process.env.CLERK_SECRET_KEY = 'sk_test_valid_secret_12345';
 
       expect(() => loadConfig()).toThrow('Invalid PORT');
     });
@@ -91,6 +105,8 @@ describe('Configuration Service', () => {
     it('should throw error when NODE_ENV is invalid', () => {
       process.env.NODE_ENV = 'staging';
       process.env.DATABASE_URL = 'postgresql://user:pass@localhost:5432/db';
+      process.env.CLERK_PUBLISHABLE_KEY = 'pk_test_valid_key_12345';
+      process.env.CLERK_SECRET_KEY = 'sk_test_valid_secret_12345';
 
       expect(() => loadConfig()).toThrow('Invalid NODE_ENV');
     });
@@ -98,6 +114,8 @@ describe('Configuration Service', () => {
     it('should throw error when DB_POOL_SIZE is invalid', () => {
       process.env.DB_POOL_SIZE = 'invalid';
       process.env.DATABASE_URL = 'postgresql://user:pass@localhost:5432/db';
+      process.env.CLERK_PUBLISHABLE_KEY = 'pk_test_valid_key_12345';
+      process.env.CLERK_SECRET_KEY = 'sk_test_valid_secret_12345';
 
       expect(() => loadConfig()).toThrow('Invalid DB_POOL_SIZE');
     });
@@ -105,6 +123,8 @@ describe('Configuration Service', () => {
     it('should throw error when DB_POOL_SIZE is out of range', () => {
       process.env.DB_POOL_SIZE = '150';
       process.env.DATABASE_URL = 'postgresql://user:pass@localhost:5432/db';
+      process.env.CLERK_PUBLISHABLE_KEY = 'pk_test_valid_key_12345';
+      process.env.CLERK_SECRET_KEY = 'sk_test_valid_secret_12345';
 
       expect(() => loadConfig()).toThrow('Invalid DB_POOL_SIZE');
     });
@@ -112,6 +132,8 @@ describe('Configuration Service', () => {
     it('should throw error when LOG_LEVEL is invalid', () => {
       process.env.LOG_LEVEL = 'trace';
       process.env.DATABASE_URL = 'postgresql://user:pass@localhost:5432/db';
+      process.env.CLERK_PUBLISHABLE_KEY = 'pk_test_valid_key_12345';
+      process.env.CLERK_SECRET_KEY = 'sk_test_valid_secret_12345';
 
       expect(() => loadConfig()).toThrow('Invalid LOG_LEVEL');
     });
@@ -119,6 +141,8 @@ describe('Configuration Service', () => {
     it('should set log format to json in production mode', () => {
       process.env.NODE_ENV = 'production';
       process.env.DATABASE_URL = 'postgresql://user:pass@localhost:5432/db';
+      process.env.CLERK_PUBLISHABLE_KEY = 'pk_test_valid_key_12345';
+      process.env.CLERK_SECRET_KEY = 'sk_test_valid_secret_12345';
 
       const config = loadConfig();
 
@@ -128,6 +152,8 @@ describe('Configuration Service', () => {
     it('should set log format to pretty in development mode', () => {
       process.env.NODE_ENV = 'development';
       process.env.DATABASE_URL = 'postgresql://user:pass@localhost:5432/db';
+      process.env.CLERK_PUBLISHABLE_KEY = 'pk_test_valid_key_12345';
+      process.env.CLERK_SECRET_KEY = 'sk_test_valid_secret_12345';
 
       const config = loadConfig();
 
@@ -137,6 +163,8 @@ describe('Configuration Service', () => {
     it('should set log format to pretty in test mode', () => {
       process.env.NODE_ENV = 'test';
       process.env.DATABASE_URL = 'postgresql://user:pass@localhost:5432/db';
+      process.env.CLERK_PUBLISHABLE_KEY = 'pk_test_valid_key_12345';
+      process.env.CLERK_SECRET_KEY = 'sk_test_valid_secret_12345';
 
       const config = loadConfig();
 
@@ -145,88 +173,35 @@ describe('Configuration Service', () => {
   });
 
   describe('Clerk Authentication Configuration', () => {
-    describe('when AUTH_ENABLED is true', () => {
-      it('should load configuration with valid Clerk keys', () => {
-        process.env.AUTH_ENABLED = 'true';
-        process.env.CLERK_PUBLISHABLE_KEY = 'pk_test_valid_key_12345';
-        process.env.CLERK_SECRET_KEY = 'sk_test_valid_secret_12345';
+    it('should load configuration with valid Clerk keys', () => {
+      process.env.CLERK_PUBLISHABLE_KEY = 'pk_test_valid_key_12345';
+      process.env.CLERK_SECRET_KEY = 'sk_test_valid_secret_12345';
 
-        const config = loadConfig();
+      const config = loadConfig();
 
-        expect(config.auth.enabled).toBe(true);
-        expect(config.auth.clerk.publishableKey).toBe('pk_test_valid_key_12345');
-        expect(config.auth.clerk.secretKey).toBe('sk_test_valid_secret_12345');
-      });
-
-      it('should throw error when CLERK_PUBLISHABLE_KEY is missing', () => {
-        process.env.AUTH_ENABLED = 'true';
-        delete process.env.CLERK_PUBLISHABLE_KEY;
-        process.env.CLERK_SECRET_KEY = 'sk_test_valid_secret_12345';
-
-        expect(() => loadConfig()).toThrow(
-          'CLERK_PUBLISHABLE_KEY is required when AUTH_ENABLED is true'
-        );
-      });
-
-      it('should throw error when CLERK_SECRET_KEY is missing', () => {
-        process.env.AUTH_ENABLED = 'true';
-        process.env.CLERK_PUBLISHABLE_KEY = 'pk_test_valid_key_12345';
-        delete process.env.CLERK_SECRET_KEY;
-
-        expect(() => loadConfig()).toThrow(
-          'CLERK_SECRET_KEY is required when AUTH_ENABLED is true'
-        );
-      });
-
-      it('should throw error when both Clerk keys are missing', () => {
-        process.env.AUTH_ENABLED = 'true';
-        delete process.env.CLERK_PUBLISHABLE_KEY;
-        delete process.env.CLERK_SECRET_KEY;
-
-        expect(() => loadConfig()).toThrow(
-          'CLERK_PUBLISHABLE_KEY is required when AUTH_ENABLED is true'
-        );
-      });
+      expect(config.auth.clerk.publishableKey).toBe('pk_test_valid_key_12345');
+      expect(config.auth.clerk.secretKey).toBe('sk_test_valid_secret_12345');
     });
 
-    describe('when AUTH_ENABLED is false', () => {
-      it('should bypass validation and not require Clerk keys', () => {
-        process.env.AUTH_ENABLED = 'false';
-        delete process.env.CLERK_PUBLISHABLE_KEY;
-        delete process.env.CLERK_SECRET_KEY;
+    it('should throw error when CLERK_PUBLISHABLE_KEY is missing', () => {
+      delete process.env.CLERK_PUBLISHABLE_KEY;
+      process.env.CLERK_SECRET_KEY = 'sk_test_valid_secret_12345';
 
-        const config = loadConfig();
-
-        expect(config.auth.enabled).toBe(false);
-        expect(config.auth.clerk.publishableKey).toBe('');
-        expect(config.auth.clerk.secretKey).toBe('');
-      });
-
-      it('should still load Clerk keys if provided even when disabled', () => {
-        process.env.AUTH_ENABLED = 'false';
-        process.env.CLERK_PUBLISHABLE_KEY = 'pk_test_valid_key_12345';
-        process.env.CLERK_SECRET_KEY = 'sk_test_valid_secret_12345';
-
-        const config = loadConfig();
-
-        expect(config.auth.enabled).toBe(false);
-        expect(config.auth.clerk.publishableKey).toBe('pk_test_valid_key_12345');
-        expect(config.auth.clerk.secretKey).toBe('sk_test_valid_secret_12345');
-      });
+      expect(() => loadConfig()).toThrow('CLERK_PUBLISHABLE_KEY is required');
     });
 
-    describe('when AUTH_ENABLED is not set', () => {
-      it('should default to false and bypass validation', () => {
-        delete process.env.AUTH_ENABLED;
-        delete process.env.CLERK_PUBLISHABLE_KEY;
-        delete process.env.CLERK_SECRET_KEY;
+    it('should throw error when CLERK_SECRET_KEY is missing', () => {
+      process.env.CLERK_PUBLISHABLE_KEY = 'pk_test_valid_key_12345';
+      delete process.env.CLERK_SECRET_KEY;
 
-        const config = loadConfig();
+      expect(() => loadConfig()).toThrow('CLERK_SECRET_KEY is required');
+    });
 
-        expect(config.auth.enabled).toBe(false);
-        expect(config.auth.clerk.publishableKey).toBe('');
-        expect(config.auth.clerk.secretKey).toBe('');
-      });
+    it('should throw error when both Clerk keys are missing', () => {
+      delete process.env.CLERK_PUBLISHABLE_KEY;
+      delete process.env.CLERK_SECRET_KEY;
+
+      expect(() => loadConfig()).toThrow('CLERK_PUBLISHABLE_KEY is required');
     });
   });
 
@@ -252,6 +227,8 @@ describe('Configuration Service', () => {
     it('should load configuration successfully without verbose logging', () => {
       process.env.DATABASE_URL = 'postgresql://user:secretpass@localhost:5432/db';
       process.env.PORT = '3000';
+      process.env.CLERK_PUBLISHABLE_KEY = 'pk_test_valid_key_12345';
+      process.env.CLERK_SECRET_KEY = 'sk_test_valid_secret_12345';
 
       const config = validateAndLogConfig();
 
@@ -266,6 +243,8 @@ describe('Configuration Service', () => {
 
     it('should exit process when configuration is invalid', () => {
       process.env.PORT = 'invalid';
+      process.env.CLERK_PUBLISHABLE_KEY = 'pk_test_valid_key_12345';
+      process.env.CLERK_SECRET_KEY = 'sk_test_valid_secret_12345';
 
       expect(() => validateAndLogConfig()).toThrow('process.exit called');
       expect(consoleErrorSpy).toHaveBeenCalledWith(
@@ -274,22 +253,19 @@ describe('Configuration Service', () => {
       );
     });
 
-    it('should load auth configuration when enabled without verbose logging', () => {
-      process.env.AUTH_ENABLED = 'true';
+    it('should load auth configuration without verbose logging', () => {
       process.env.CLERK_PUBLISHABLE_KEY = 'pk_test_valid_key_12345';
       process.env.CLERK_SECRET_KEY = 'sk_test_valid_secret_12345';
 
       const config = validateAndLogConfig();
 
       expect(config).toBeDefined();
-      expect(config.auth.enabled).toBe(true);
       expect(config.auth.clerk.publishableKey).toBe('pk_test_valid_key_12345');
       expect(config.auth.clerk.secretKey).toBe('sk_test_valid_secret_12345');
       // Verbose logging has been removed for performance
     });
 
     it('should load configuration without exposing secrets', () => {
-      process.env.AUTH_ENABLED = 'true';
       process.env.CLERK_PUBLISHABLE_KEY = 'pk_test_valid_key_12345';
       process.env.CLERK_SECRET_KEY = 'sk_test_secret_should_be_masked';
 

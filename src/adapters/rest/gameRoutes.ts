@@ -5,18 +5,18 @@ import { RendererService } from '@infrastructure/rendering/RendererService';
 import { AIPlayerService } from '@application/services/AIPlayerService';
 import { GameRepository } from '@domain/interfaces';
 import { GameNotFoundError } from '@domain/errors';
-import { requireAuth } from './auth/requireAuth';
 import { requireGameParticipant } from './auth/requireGameParticipant';
+import { createConditionalAuth } from './auth/conditionalAuth';
 import { AuthenticatedRequest } from './auth/types';
-
-import { loadConfig } from '../../config';
 
 /**
  * Creates game management and gameplay routes
  * @param gameManagerService - Service for managing games
  * @param gameRepository - Repository for game persistence
  * @param stateManagerService - Service for managing game state and moves
+ * @param aiPlayerService - Service for AI player management
  * @param rendererService - Service for rendering game boards (optional)
+ * @param options - Configuration options for routes
  * @returns Express router with game management and gameplay routes
  */
 export function createGameRoutes(
@@ -24,16 +24,16 @@ export function createGameRoutes(
   gameRepository: GameRepository,
   stateManagerService: StateManagerService,
   aiPlayerService: AIPlayerService,
-  rendererService?: RendererService
+  rendererService?: RendererService,
+  options: { disableAuth?: boolean } = {}
 ): Router {
   const router = Router();
-  const config = loadConfig();
 
-  // Helper to conditionally apply auth middleware
-  const authMiddleware = config.auth.enabled ? [requireAuth] : [];
-  const participantMiddleware = config.auth.enabled
-    ? [requireAuth, requireGameParticipant(gameRepository)]
-    : [];
+  // Create conditional auth middleware based on options
+  const conditionalAuth = createConditionalAuth(!options.disableAuth);
+  const conditionalGameParticipant = options.disableAuth
+    ? (_req: AuthenticatedRequest, _res: Response, next: NextFunction): void => next()
+    : requireGameParticipant(gameRepository);
 
   /**
    * POST /api/games
@@ -44,7 +44,7 @@ export function createGameRoutes(
    */
   router.post(
     '/games',
-    ...authMiddleware,
+    conditionalAuth,
     async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
       try {
         const { gameType, config, gameName, gameDescription } = req.body;
@@ -262,15 +262,18 @@ export function createGameRoutes(
    * GET /api/game-types/:gameType/ai-strategies
    * Get available AI strategies for a specific game type
    */
-  router.get('/game-types/:gameType/ai-strategies', (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { gameType } = req.params;
-      const strategies = aiPlayerService.getAvailableStrategies(gameType);
-      res.json(strategies);
-    } catch (error) {
-      next(error);
+  router.get(
+    '/game-types/:gameType/ai-strategies',
+    (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const { gameType } = req.params;
+        const strategies = aiPlayerService.getAvailableStrategies(gameType);
+        res.json(strategies);
+      } catch (error) {
+        next(error);
+      }
     }
-  });
+  );
 
   // ========== Gameplay Endpoints ==========
 
@@ -298,7 +301,8 @@ export function createGameRoutes(
    */
   router.post(
     '/games/:gameId/moves',
-    ...participantMiddleware,
+    conditionalAuth,
+    conditionalGameParticipant,
     async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
       try {
         const { playerId, move, version } = req.body;

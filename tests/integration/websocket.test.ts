@@ -39,7 +39,7 @@ describe('WebSocket Adapter Integration Tests', () => {
     wsManager = new WebSocketManager();
 
     // Create Express app
-    app = createApp(playerIdentityRepo);
+    app = createApp(playerIdentityRepo, { disableAuth: true });
 
     // Finalize app
     finalizeApp(app);

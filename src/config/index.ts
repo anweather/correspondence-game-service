@@ -13,7 +13,6 @@ export interface LoggingConfig {
 }
 
 export interface AuthConfig {
-  enabled: boolean;
   clerk: {
     publishableKey: string;
     secretKey: string;
@@ -91,18 +90,15 @@ export function loadConfig(): AppConfig {
   const logFormat: LoggingConfig['format'] = nodeEnv === 'production' ? 'json' : 'pretty';
 
   // Validate and load authentication configuration
-  const authEnabled = process.env.AUTH_ENABLED === 'true';
   const clerkPublishableKey = process.env.CLERK_PUBLISHABLE_KEY || '';
   const clerkSecretKey = process.env.CLERK_SECRET_KEY || '';
 
-  // Validate Clerk keys when authentication is enabled
-  if (authEnabled) {
-    if (!clerkPublishableKey) {
-      throw new ConfigurationError('CLERK_PUBLISHABLE_KEY is required when AUTH_ENABLED is true');
-    }
-    if (!clerkSecretKey) {
-      throw new ConfigurationError('CLERK_SECRET_KEY is required when AUTH_ENABLED is true');
-    }
+  // Validate Clerk keys (always required now)
+  if (!clerkPublishableKey) {
+    throw new ConfigurationError('CLERK_PUBLISHABLE_KEY is required');
+  }
+  if (!clerkSecretKey) {
+    throw new ConfigurationError('CLERK_SECRET_KEY is required');
   }
 
   // Load admin user IDs from environment variable
@@ -124,7 +120,6 @@ export function loadConfig(): AppConfig {
       format: logFormat,
     },
     auth: {
-      enabled: authEnabled,
       clerk: {
         publishableKey: clerkPublishableKey,
         secretKey: clerkSecretKey,

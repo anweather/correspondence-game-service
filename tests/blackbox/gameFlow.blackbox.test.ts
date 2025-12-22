@@ -1,6 +1,6 @@
 import { ApiClient } from './apiClient';
 
-const API_BASE_URL = 'http://localhost:3001'; // Assume server is running
+const API_BASE_URL = process.env.BLACKBOX_API_URL || 'http://localhost:3001';
 
 describe('Blackbox API Tests - Complete Game Flow', () => {
   let player1Client: ApiClient;

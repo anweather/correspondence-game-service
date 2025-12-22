@@ -4,14 +4,17 @@ import { createApp, finalizeApp } from '@adapters/rest/app';
 import { createHealthRoutes } from '@adapters/rest/healthRoutes';
 import { GameRepository } from '@domain/interfaces';
 import { InMemoryGameRepository } from '@infrastructure/persistence/InMemoryGameRepository';
+import { InMemoryPlayerIdentityRepository } from '@infrastructure/persistence/InMemoryPlayerIdentityRepository';
 
 describe('Health Check Routes Integration', () => {
   let app: Express;
+  let playerIdentityRepository: InMemoryPlayerIdentityRepository;
   let repository: GameRepository;
 
   beforeEach(() => {
     repository = new InMemoryGameRepository();
-    app = createApp();
+    playerIdentityRepository = new InMemoryPlayerIdentityRepository();
+    app = createApp(playerIdentityRepository, { disableAuth: true });
     const healthRouter = createHealthRoutes(repository);
     app.use(healthRouter);
     finalizeApp(app);
@@ -51,7 +54,7 @@ describe('Health Check Routes Integration', () => {
         healthCheck: jest.fn().mockResolvedValue(false),
       };
 
-      const failingApp = createApp();
+      const failingApp = createApp(playerIdentityRepository, { disableAuth: true });
       const healthRouter = createHealthRoutes(failingRepository);
       failingApp.use(healthRouter);
       finalizeApp(failingApp);
@@ -72,7 +75,7 @@ describe('Health Check Routes Integration', () => {
         }),
       };
 
-      const delayedApp = createApp();
+      const delayedApp = createApp(playerIdentityRepository, { disableAuth: true });
       const healthRouter = createHealthRoutes(delayedRepository);
       delayedApp.use(healthRouter);
       finalizeApp(delayedApp);

@@ -20,9 +20,11 @@ import { PluginRegistry } from '@application/PluginRegistry';
 import { InMemoryGameRepository } from '@infrastructure/persistence/InMemoryGameRepository';
 import { InMemoryAIPlayerRepository } from '@infrastructure/persistence/InMemoryAIPlayerRepository';
 import { TicTacToeEngine } from '@games/tic-tac-toe/engine';
+import { InMemoryPlayerIdentityRepository } from '@infrastructure/persistence/InMemoryPlayerIdentityRepository';
 
 describe('E2E: AI Gameplay Complete Flows', () => {
   let app: Express;
+  let playerIdentityRepository: InMemoryPlayerIdentityRepository;
   let gameManagerService: GameManagerService;
   let stateManagerService: StateManagerService;
   let aiPlayerService: AIPlayerService;
@@ -35,6 +37,7 @@ describe('E2E: AI Gameplay Complete Flows', () => {
   beforeEach(() => {
     // Set up real dependencies
     repository = new InMemoryGameRepository();
+    playerIdentityRepository = new InMemoryPlayerIdentityRepository();
     aiRepository = new InMemoryAIPlayerRepository();
     registry = new PluginRegistry();
     lockManager = new GameLockManager();
@@ -56,13 +59,14 @@ describe('E2E: AI Gameplay Complete Flows', () => {
     rendererService = new RendererService(registry, repository);
 
     // Create app with all routes
-    app = createApp();
+    app = createApp(playerIdentityRepository, { disableAuth: true });
     const gameRouter = createGameRoutes(
       gameManagerService,
       repository,
       stateManagerService,
       aiPlayerService,
-      rendererService
+      rendererService,
+      { disableAuth: true }
     );
     addApiRoutes(app, gameRouter);
     finalizeApp(app);

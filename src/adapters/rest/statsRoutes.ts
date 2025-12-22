@@ -16,7 +16,6 @@ import { StatsService } from '@application/services/StatsService';
 import { requireAuth } from './auth/requireAuth';
 import { AuthenticatedRequest } from './auth/types';
 import { GameLifecycle } from '@domain/models';
-import { loadConfig } from '../../config';
 
 /**
  * Creates stats routes
@@ -25,10 +24,6 @@ import { loadConfig } from '../../config';
  */
 export function createStatsRoutes(statsService: StatsService): Router {
   const router = Router();
-  const config = loadConfig();
-
-  // Helper to conditionally apply auth middleware
-  const authMiddleware = config.auth.enabled ? [requireAuth] : [];
 
   /**
    * GET /api/players/stats
@@ -37,12 +32,12 @@ export function createStatsRoutes(statsService: StatsService): Router {
    */
   router.get(
     '/players/stats',
-    ...authMiddleware,
+    requireAuth,
     async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
       try {
-        // Use externalId (Clerk user ID) for stats, or fallback to test user ID
-        let userId = req.user?.externalId || req.user?.id;
-        
+        // Use internal player ID for stats (matches game data storage)
+        let userId = req.user?.id;
+
         // If no user from auth, check for test header directly
         if (!userId) {
           const testUserId = req.headers['x-test-user-id'] as string;
@@ -68,11 +63,11 @@ export function createStatsRoutes(statsService: StatsService): Router {
    */
   router.get(
     '/players/stats/:gameType',
-    ...authMiddleware,
+    requireAuth,
     async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
       try {
-        // Use externalId (Clerk user ID) for stats, or fallback to test user ID
-        const userId = req.user?.externalId || req.user?.id || 'anonymous';
+        // Use internal player ID for stats (matches game data storage)
+        const userId = req.user?.id || 'anonymous';
         const { gameType } = req.params;
 
         const stats = await statsService.getPlayerStats(userId, gameType);
@@ -95,11 +90,11 @@ export function createStatsRoutes(statsService: StatsService): Router {
    */
   router.get(
     '/players/history',
-    ...authMiddleware,
+    requireAuth,
     async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
       try {
-        // Use externalId (Clerk user ID) for history, or fallback to test user ID
-        const userId = req.user?.externalId || req.user?.id || 'anonymous';
+        // Use internal player ID for history (matches game data storage)
+        const userId = req.user?.id || 'anonymous';
 
         // Parse query parameters
         const filters: any = {};

@@ -71,7 +71,7 @@ describe('AI WebSocket Notifications Integration Tests', () => {
     gameManagerService = new GameManagerService(pluginRegistry, gameRepository, aiPlayerService);
 
     // Create Express app
-    app = createApp(playerIdentityRepo);
+    app = createApp(playerIdentityRepo, { disableAuth: true });
 
     // Finalize app
     finalizeApp(app);

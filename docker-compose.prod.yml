@@ -36,7 +36,6 @@ services:
       - DATABASE_URL=postgresql://boardgame:${DB_PASSWORD}@postgres:5432/boardgame
       - DB_POOL_SIZE=10
       - LOG_LEVEL=info
-      - AUTH_ENABLED=${AUTH_ENABLED:-false}
       - CLERK_PUBLISHABLE_KEY=${CLERK_PUBLISHABLE_KEY}
       - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
     depends_on:
