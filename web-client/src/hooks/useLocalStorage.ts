@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 /**
  * Custom hook for managing state synchronized with localStorage
@@ -22,23 +22,25 @@ export function useLocalStorage<T>(
   });
 
   // Update localStorage when state changes
-  const setValue = (value: T | ((prev: T) => T)) => {
+  const setValue = useCallback((value: T | ((prev: T) => T)) => {
     try {
-      // Allow value to be a function (like useState)
-      const valueToStore = value instanceof Function ? value(storedValue) : value;
+      setStoredValue((prev) => {
+        // Allow value to be a function (like useState)
+        const valueToStore = value instanceof Function ? value(prev) : value;
 
-      setStoredValue(valueToStore);
-
-      // Remove from localStorage if value is null or undefined
-      if (valueToStore === null || valueToStore === undefined) {
-        localStorage.removeItem(key);
-      } else {
-        localStorage.setItem(key, JSON.stringify(valueToStore));
-      }
+        // Remove from localStorage if value is null or undefined
+        if (valueToStore === null || valueToStore === undefined) {
+          localStorage.removeItem(key);
+        } else {
+          localStorage.setItem(key, JSON.stringify(valueToStore));
+        }
+        
+        return valueToStore;
+      });
     } catch (error) {
       console.warn(`Error setting localStorage key "${key}":`, error);
     }
-  };
+  }, [key]); // Remove storedValue from dependencies!
 
   // Listen for changes to localStorage from other tabs/windows
   useEffect(() => {

@@ -2,6 +2,12 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { useProfile } from '../useProfile';
 
+// Mock Clerk with a stable getToken function
+const mockGetToken = vi.fn().mockResolvedValue('mock-token');
+vi.mock('@clerk/clerk-react', () => ({
+  useAuth: () => ({ getToken: mockGetToken }),
+}));
+
 // Mock the GameClient module
 const mockGetProfile = vi.fn();
 const mockCreateProfile = vi.fn();
@@ -22,6 +28,8 @@ describe('useProfile', () => {
     vi.clearAllMocks();
     // Clear localStorage before each test
     localStorage.clear();
+    // Reset the stable getToken mock
+    mockGetToken.mockResolvedValue('mock-token');
   });
 
   describe('profile loading', () => {

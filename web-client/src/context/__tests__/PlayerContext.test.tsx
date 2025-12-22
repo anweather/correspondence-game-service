@@ -1,12 +1,42 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
 import type { ReactNode } from 'react';
-import { PlayerProvider, usePlayer } from '../PlayerContext';
 import type { GameState } from '../../types/game';
 
 // Mock Clerk
 vi.mock('@clerk/clerk-react', () => ({
   useAuth: () => ({ getToken: vi.fn().mockResolvedValue(null) }),
+}));
+
+// Mock useProfile hook ONLY for this test file to avoid infinite loops
+// This mock reads from localStorage to simulate profile caching
+vi.mock('../../hooks/useProfile', () => ({
+  useProfile: () => {
+    let profile = null;
+    try {
+      const cached = localStorage.getItem('playerProfile');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        profile = {
+          ...parsed,
+          createdAt: new Date(parsed.createdAt),
+          updatedAt: new Date(parsed.updatedAt),
+        };
+      }
+    } catch (error) {
+      // Ignore cache errors
+    }
+    
+    return {
+      profile,
+      loading: false,
+      updating: false,
+      error: null,
+      updateProfile: vi.fn(),
+      createProfile: vi.fn(),
+      reload: vi.fn(),
+    };
+  },
 }));
 
 // Create mock functions that will be shared across all tests
@@ -47,6 +77,9 @@ vi.mock('../../api/gameClient', () => {
   };
 });
 
+// Import after mocks are set up
+import { PlayerProvider, usePlayer } from '../PlayerContext';
+
 describe('PlayerContext', () => {
   const wrapper = ({ children }: { children: ReactNode }) => (
     <PlayerProvider>{children}</PlayerProvider>
@@ -55,6 +88,7 @@ describe('PlayerContext', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     localStorage.clear();
+    
     // Default: no profile exists (404)
     mockGetProfile.mockRejectedValue({ status: 404 });
   });

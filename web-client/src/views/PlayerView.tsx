@@ -153,7 +153,8 @@ export function PlayerView() {
         isLoadingFromUrl.current = false;
       }
     }
-  }, [playerName, currentGame, loading, loadGame]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playerName, currentGame, loading]);
 
   // Load available games, my games, and game types when logged in
   useEffect(() => {
@@ -176,7 +177,8 @@ export function PlayerView() {
       };
       loadGames();
     }
-  }, [playerName, currentGame, listAvailableGames, listMyGames, getAvailableGameTypes, selectedGameType]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playerName, currentGame]);
 
   // Load known player names when login screen is shown
   useEffect(() => {
@@ -187,7 +189,8 @@ export function PlayerView() {
       };
       loadKnownPlayers();
     }
-  }, [playerName, getKnownPlayerNames]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playerName]);
 
   // Load available players when game is loaded
   useEffect(() => {
@@ -240,7 +243,8 @@ export function PlayerView() {
         unsubscribe(currentGame.gameId);
       };
     }
-  }, [currentGame, subscribe, unsubscribe, onGameUpdate, onTurnNotification, refreshGame]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentGame]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

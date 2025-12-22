@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useAuth } from '@clerk/clerk-react';
 import { GameClient } from '../api/gameClient';
 
 /**
@@ -24,6 +25,8 @@ export interface PlayerProfile {
  * @returns Profile state and management functions
  */
 export function useProfile() {
+  const { getToken } = useAuth();
+  
   const [profile, setProfile] = useState<PlayerProfile | null>(() => {
     // Try to load from cache immediately
     try {
@@ -47,8 +50,8 @@ export function useProfile() {
   const [updating, setUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Create client instance once
-  const client = useMemo(() => new GameClient(), []);
+  // Create client instance once and memoize it properly
+  const client = useMemo(() => new GameClient('/api', getToken), [getToken]);
 
   /**
    * Cache profile in localStorage
