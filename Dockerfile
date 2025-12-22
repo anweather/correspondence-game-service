@@ -56,32 +56,33 @@ FROM node:20-alpine
 
 WORKDIR /app
 
+# Create non-root user first
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001
+
 # Copy backend package files
 COPY package*.json ./
 COPY package-lock.json ./
 
-# Install production dependencies only (skip prepare scripts like husky)
-RUN npm ci --omit=dev --ignore-scripts
+# Install production dependencies and tsconfig-paths together (faster than separate installs)
+RUN npm ci --omit=dev --ignore-scripts --prefer-offline && \
+    npm install tsconfig-paths --prefer-offline
 
-# Install tsconfig-paths for runtime path alias resolution
-RUN npm install tsconfig-paths
+# Copy built backend artifacts from backend-builder with correct ownership
+COPY --from=backend-builder --chown=nodejs:nodejs /app/dist ./dist
 
-# Copy built backend artifacts from backend-builder
-COPY --from=backend-builder /app/dist ./dist
-
-# Copy SQL migration files (not compiled by TypeScript, copy from source)
-COPY --from=backend-builder /app/src/infrastructure/persistence/migrations ./dist/src/infrastructure/persistence/migrations
+# Copy SQL migration files (not compiled by TypeScript, copy from source) with correct ownership
+COPY --from=backend-builder --chown=nodejs:nodejs /app/src/infrastructure/persistence/migrations ./dist/src/infrastructure/persistence/migrations
 
 # Create a production tsconfig for path alias resolution
 RUN echo '{"compilerOptions":{"baseUrl":"./dist","paths":{"@domain/*":["src/domain/*"],"@application/*":["src/application/*"],"@infrastructure/*":["src/infrastructure/*"],"@adapters/*":["src/adapters/*"],"@games/*":["games/*"]}}}' > tsconfig.json
 
-# Copy built web client artifacts from web-builder
-COPY --from=web-builder /app/web-client/dist ./web-client/dist
+# Copy built web client artifacts from web-builder with correct ownership
+COPY --from=web-builder --chown=nodejs:nodejs /app/web-client/dist ./web-client/dist
 
-# Create non-root user and switch to it
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001 && \
-    chown -R nodejs:nodejs /app
+# Set ownership for remaining files and switch to non-root user
+RUN chown nodejs:nodejs /app/tsconfig.json && \
+    chown nodejs:nodejs /app
 
 USER nodejs
 
