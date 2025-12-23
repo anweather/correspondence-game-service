@@ -1,6 +1,6 @@
 /**
  * Yahtzee Plugin Integration Test
- * 
+ *
  * Verifies that the complete Yahtzee plugin structure is properly set up
  * and integrates correctly with the service architecture.
  */
@@ -29,17 +29,17 @@ describe('Yahtzee Plugin Integration', () => {
 
   it('should integrate with plugin registry system', () => {
     const engine = new YahtzeeEngine();
-    
+
     // Should register without errors
     expect(() => registry.register(engine)).not.toThrow();
-    
+
     // Should be discoverable
     const plugin = registry.get(GAME_TYPE);
     expect(plugin).toBe(engine);
-    
+
     // Should appear in listings
     const plugins = registry.list();
-    const yahtzeePlugin = plugins.find(p => p.type === GAME_TYPE);
+    const yahtzeePlugin = plugins.find((p) => p.type === GAME_TYPE);
     expect(yahtzeePlugin).toBeDefined();
   });
 
@@ -47,7 +47,7 @@ describe('Yahtzee Plugin Integration', () => {
     // Verify the engine can be instantiated
     const engine = new YahtzeeEngine();
     expect(engine).toBeInstanceOf(YahtzeeEngine);
-    
+
     // Verify it implements the required interface
     expect(typeof engine.getGameType).toBe('function');
     expect(typeof engine.getMinPlayers).toBe('function');
@@ -63,25 +63,27 @@ describe('Yahtzee Plugin Integration', () => {
 
   it('should be ready for implementation tasks', () => {
     const engine = new YahtzeeEngine();
-    
+
     // Metadata should work (implemented in this task)
     expect(engine.getGameType()).toBe('yahtzee');
     expect(engine.getMinPlayers()).toBe(1);
     expect(engine.getMaxPlayers()).toBe(8);
     expect(engine.getDescription()).toContain('dice');
-    
+
     // initializeGame should work (implemented in task 5)
     const players = [{ id: 'player1', name: 'Test Player', joinedAt: new Date() }];
     const config = { customSettings: { gameId: 'test-game' } };
     expect(() => engine.initializeGame(players, config)).not.toThrow();
-    
+
     // validateMove is now implemented
     expect(() => engine.validateMove({} as any, 'player1', {} as any)).not.toThrow();
-    
-    // Other methods should throw appropriate errors (to be implemented in future tasks)
-    expect(() => engine.applyMove({} as any, 'player1', {} as any)).toThrow('not yet implemented');
-    expect(() => engine.isGameOver({} as any)).toThrow('not yet implemented');
-    expect(() => engine.getWinner({} as any)).toThrow('not yet implemented');
+
+    // Rules methods are now implemented (task 8)
+    expect(() => engine.applyMove({} as any, 'player1', {} as any)).toThrow('Invalid move type');
+    expect(() => engine.isGameOver({} as any)).not.toThrow();
+    expect(() => engine.getWinner({} as any)).not.toThrow();
+
+    // renderBoard should still throw (not yet implemented)
     expect(() => engine.renderBoard({} as any)).toThrow('not yet implemented');
   });
 });

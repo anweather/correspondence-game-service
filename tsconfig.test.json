@@ -12,6 +12,6 @@
       "@tests/*": ["tests/*"]
     }
   },
-  "include": ["src/**/*", "tests/**/*"],
+  "include": ["src/**/*", "tests/**/*", "games/**/*"],
   "exclude": ["node_modules", "dist"]
 }

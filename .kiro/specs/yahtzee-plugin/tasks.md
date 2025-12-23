@@ -108,15 +108,15 @@ This implementation plan converts the Yahtzee plugin design into a series of TDD
 - [ ] 7. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 8. Implement game rules and state transitions
-  - [ ] 8.1 Write unit tests for rules module
+- [x] 8. Implement game rules and state transitions
+  - [x] 8.1 Write unit tests for rules module
     - Write failing tests for dice roll move application
     - Write failing tests for scoring move application
     - Write failing tests for turn advancement logic
     - Write failing tests for game completion detection
     - _Requirements: 2.1, 2.3, 3.1, 3.5, 1.5_
 
-  - [ ] 8.2 Create rules module for move application
+  - [x] 8.2 Create rules module for move application
     - Implement rules functions to make tests pass
     - Apply dice roll moves with selective re-rolling using DiceEngine
     - Apply scoring moves with scorecard updates and turn advancement
@@ -124,15 +124,15 @@ This implementation plan converts the Yahtzee plugin design into a series of TDD
     - Refactor for clean rules logic
     - _Requirements: 2.1, 2.3, 3.1, 3.5, 1.5_
 
-  - [ ] 8.3 Write property test for turn management consistency
+  - [x] 8.3 Write property test for turn management consistency
     - **Property 2: Turn management consistency**
     - **Validates: Requirements 1.4, 2.4, 3.5**
 
-  - [ ] 8.4 Write property test for dice keep selection preservation
+  - [x] 8.4 Write property test for dice keep selection preservation
     - **Property 6: Dice keep selection preservation**
     - **Validates: Requirements 2.2, 2.3**
 
-  - [ ] 8.5 Write property test for game completion detection
+  - [x] 8.5 Write property test for game completion detection
     - **Property 4: Game completion detection**
     - **Validates: Requirements 1.5**
 

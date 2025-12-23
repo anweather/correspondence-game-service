@@ -86,6 +86,21 @@
       "prettier --write",
       "npm run test:run -- --bail --findRelatedTests"
     ],
+    "games/connect-four/**/*.ts": [
+      "eslint --fix",
+      "prettier --write",
+      "npm run test:run -- games/connect-four"
+    ],
+    "games/tic-tac-toe/**/*.ts": [
+      "eslint --fix",
+      "prettier --write",
+      "npm run test:run -- games/tic-tac-toe"
+    ],
+    "games/yahtzee/**/*.ts": [
+      "eslint --fix",
+      "prettier --write",
+      "npm run test:run -- games/yahtzee"
+    ],
     "web-client/src/**/*.{ts,tsx}": [
       "bash -c 'cd web-client && npm run test:run'"
     ]
