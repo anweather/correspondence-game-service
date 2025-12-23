@@ -12,20 +12,20 @@ This implementation plan converts the Yahtzee plugin design into a series of TDD
   - Set up basic plugin registration structure
   - _Requirements: 6.1, 6.4_
 
-- [ ] 2. Implement core DiceEngine utility in domain layer
-  - [ ] 2.1 Write unit tests for DiceEngine class
+- [x] 2. Implement core DiceEngine utility in domain layer
+  - [x] 2.1 Write unit tests for DiceEngine class
     - Write failing tests for seeded random generation
     - Write failing tests for N dice with M sides interface
     - Write failing tests for stateless behavior
     - _Requirements: 5.1, 5.2, 5.3, 5.4_
 
-  - [ ] 2.2 Create DiceEngine class with seeded random generation
+  - [x] 2.2 Create DiceEngine class with seeded random generation
     - Implement DiceEngine class in `src/domain/game-utils/DiceEngine.ts`
     - Make unit tests pass with minimal implementation
     - Refactor for clean, reusable design
     - _Requirements: 5.1, 5.2, 5.3, 5.4_
 
-  - [ ] 2.3 Write property test for DiceEngine deterministic behavior
+  - [x] 2.3 Write property test for DiceEngine deterministic behavior
     - **Property 5: Dice engine deterministic behavior**
     - **Validates: Requirements 5.1, 5.2, 5.4**
 
