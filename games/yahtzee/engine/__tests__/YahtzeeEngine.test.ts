@@ -50,9 +50,20 @@ describe('YahtzeeEngine - Basic Structure', () => {
     });
   });
 
+  describe('Implemented Methods', () => {
+    it('should have working initializeGame method', () => {
+      const players = [{ id: 'player1', name: 'Test Player', joinedAt: new Date() }];
+      const config = { customSettings: { gameId: 'test-game' } };
+      
+      expect(() => engine.initializeGame(players, config)).not.toThrow();
+      const gameState = engine.initializeGame(players, config);
+      expect(gameState.gameId).toBe('test-game');
+      expect(gameState.gameType).toBe(GAME_TYPE);
+    });
+  });
+
   describe('Unimplemented Methods', () => {
     it('should throw appropriate errors for unimplemented methods', () => {
-      expect(() => engine.initializeGame([], {})).toThrow('initializeGame not yet implemented');
       expect(() => engine.validateMove({} as any, 'player1', {} as any)).toThrow('validateMove not yet implemented');
       expect(() => engine.applyMove({} as any, 'player1', {} as any)).toThrow('applyMove not yet implemented');
       expect(() => engine.isGameOver({} as any)).toThrow('isGameOver not yet implemented');

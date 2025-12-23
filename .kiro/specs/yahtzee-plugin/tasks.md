@@ -29,55 +29,55 @@ This implementation plan converts the Yahtzee plugin design into a series of TDD
     - **Property 5: Dice engine deterministic behavior**
     - **Validates: Requirements 5.1, 5.2, 5.4**
 
-- [ ] 3. Implement Yahtzee metadata and constants
-  - [ ] 3.1 Write unit tests for metadata module
+- [x] 3. Implement Yahtzee metadata and constants
+  - [x] 3.1 Write unit tests for metadata module
     - Write failing tests for game type identification
     - Write failing tests for player limit validation
     - Write failing tests for game description
     - _Requirements: 6.1_
 
-  - [ ] 3.2 Create metadata module with game information
+  - [x] 3.2 Create metadata module with game information
     - Implement metadata functions to make tests pass
     - Define Yahtzee constants (categories, scoring values, game limits)
     - Refactor for clarity and maintainability
     - _Requirements: 6.1_
 
-- [ ] 4. Implement Yahtzee scoring calculations
-  - [ ] 4.1 Write unit tests for scoring module
+- [x] 4. Implement Yahtzee scoring calculations
+  - [x] 4.1 Write unit tests for scoring module
     - Write failing tests for each of the 13 category calculations
     - Write failing tests for upper section bonus logic
     - Write failing tests for edge cases and invalid combinations
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 7.8, 3.2, 3.3_
 
-  - [ ] 4.2 Create scoring module with all category calculations
+  - [x] 4.2 Create scoring module with all category calculations
     - Implement scoring functions to make unit tests pass
     - Include upper section bonus calculation logic
     - Refactor for clean, maintainable scoring logic
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 7.8, 3.2, 3.3_
 
-  - [ ] 4.3 Write property test for upper section scoring and bonus
+  - [x] 4.3 Write property test for upper section scoring and bonus
     - **Property 7: Upper section scoring and bonus calculation**
     - **Validates: Requirements 3.2, 3.3, 7.1**
 
-  - [ ] 4.4 Write property test for lower section scoring accuracy
+  - [x] 4.4 Write property test for lower section scoring accuracy
     - **Property 8: Lower section scoring accuracy**
     - **Validates: Requirements 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 7.8**
 
-- [ ] 5. Implement game initialization and scorecard management
-  - [ ] 5.1 Write unit tests for initialization module
+- [x] 5. Implement game initialization and scorecard management
+  - [x] 5.1 Write unit tests for initialization module
     - Write failing tests for game state creation with multiple players
     - Write failing tests for scorecard initialization
     - Write failing tests for turn order establishment
     - _Requirements: 1.1, 1.2, 1.3_
 
-  - [ ] 5.2 Create initialization module with game state setup
+  - [x] 5.2 Create initialization module with game state setup
     - Implement initialization functions to make tests pass
     - Initialize game state with empty scorecards for all players
     - Set up initial dice state and turn management using DiceEngine
     - Refactor for clean initialization logic
     - _Requirements: 1.1, 1.2, 1.3_
 
-  - [ ] 5.3 Write property test for game initialization completeness
+  - [x] 5.3 Write property test for game initialization completeness
     - **Property 1: Game initialization completeness**
     - **Validates: Requirements 1.2, 1.3**
 

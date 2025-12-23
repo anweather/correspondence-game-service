@@ -70,8 +70,12 @@ describe('Yahtzee Plugin Integration', () => {
     expect(engine.getMaxPlayers()).toBe(8);
     expect(engine.getDescription()).toContain('dice');
     
+    // initializeGame should work (implemented in task 5)
+    const players = [{ id: 'player1', name: 'Test Player', joinedAt: new Date() }];
+    const config = { customSettings: { gameId: 'test-game' } };
+    expect(() => engine.initializeGame(players, config)).not.toThrow();
+    
     // Other methods should throw appropriate errors (to be implemented in future tasks)
-    expect(() => engine.initializeGame([], {})).toThrow('not yet implemented');
     expect(() => engine.validateMove({} as any, 'player1', {} as any)).toThrow('not yet implemented');
     expect(() => engine.applyMove({} as any, 'player1', {} as any)).toThrow('not yet implemented');
     expect(() => engine.isGameOver({} as any)).toThrow('not yet implemented');
