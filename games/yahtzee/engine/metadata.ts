@@ -5,13 +5,20 @@
  * This module will be fully implemented in task 3.
  */
 
-import { GAME_TYPE, GAME_DESCRIPTION, MIN_PLAYERS, MAX_PLAYERS } from '../shared/constants';
+import { GAME_TYPE, GAME_NAME, GAME_DESCRIPTION, MIN_PLAYERS, MAX_PLAYERS } from '../shared/constants';
 
 /**
  * Get the game type identifier
  */
 export function getGameType(): string {
   return GAME_TYPE;
+}
+
+/**
+ * Get the human-readable game name
+ */
+export function getGameName(): string {
+  return GAME_NAME;
 }
 
 /**
