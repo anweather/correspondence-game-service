@@ -4,7 +4,7 @@ import { StatsOverview } from '../components/Stats/StatsOverview';
 import { GameHistory } from '../components/Stats/GameHistory';
 import { usePlayer } from '../context/PlayerContext';
 import { GameClient } from '../api/gameClient';
-import type { PlayerStats, GameState, GameHistoryFilters } from '../types/game';
+import type { PlayerStats, GameState, GameHistoryFilters, GameType } from '../types/game';
 import styles from './StatsView.module.css';
 
 export const StatsView: React.FC = () => {
@@ -17,6 +17,7 @@ export const StatsView: React.FC = () => {
   const [stats, setStats] = useState<PlayerStats | undefined>(undefined);
   const [gameHistory, setGameHistory] = useState<GameState[]>([]);
   const [selectedGameType, setSelectedGameType] = useState<string>('');
+  const [gameTypes, setGameTypes] = useState<GameType[]>([]);
   const [historyFilters, setHistoryFilters] = useState<GameHistoryFilters>({});
   const [pagination, setPagination] = useState({
     page: 1,
@@ -29,6 +30,18 @@ export const StatsView: React.FC = () => {
   const [historyLoading, setHistoryLoading] = useState(true);
   const [statsError, setStatsError] = useState<string | null>(null);
   const [historyError, setHistoryError] = useState<string | null>(null);
+
+  // Fetch available game types
+  const fetchGameTypes = async () => {
+    try {
+      const types = await gameClient.getGameTypes();
+      setGameTypes(types);
+    } catch (err) {
+      console.error('Failed to fetch game types:', err);
+      // Don't set error state for game types failure - just use empty array
+      setGameTypes([]);
+    }
+  };
 
   // Fetch player stats
   const fetchStats = async (gameType?: string) => {
@@ -74,6 +87,10 @@ export const StatsView: React.FC = () => {
   };
 
   // Initial load
+  useEffect(() => {
+    fetchGameTypes();
+  }, []);
+
   useEffect(() => {
     if (playerId) {
       fetchStats();
@@ -154,8 +171,11 @@ export const StatsView: React.FC = () => {
             className={styles.filterSelect}
           >
             <option value="">All Games</option>
-            <option value="tic-tac-toe">Tic Tac Toe</option>
-            <option value="connect-four">Connect Four</option>
+            {gameTypes.map((type) => (
+              <option key={type.type} value={type.type}>
+                {type.name}
+              </option>
+            ))}
           </select>
         </div>
       </header>

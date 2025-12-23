@@ -3,7 +3,7 @@ import { useAuth } from '@clerk/clerk-react';
 import { GameClient } from '../api/gameClient';
 import { usePlayer } from '../context/PlayerContext';
 import { LeaderboardTable } from '../components/Leaderboard/LeaderboardTable';
-import type { LeaderboardEntry, PaginatedResult } from '../types/game';
+import type { LeaderboardEntry, PaginatedResult, GameType } from '../types/game';
 import styles from './LeaderboardView.module.css';
 
 /**
@@ -17,10 +17,23 @@ export function LeaderboardView() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [gameType, setGameType] = useState<string>('');
+  const [gameTypes, setGameTypes] = useState<GameType[]>([]);
   const [page, setPage] = useState(1);
   const pageSize = 50;
 
   const gameClient = new GameClient('/api', getToken);
+
+  // Fetch available game types
+  const fetchGameTypes = async () => {
+    try {
+      const types = await gameClient.getGameTypes();
+      setGameTypes(types);
+    } catch (err) {
+      console.error('Failed to fetch game types:', err);
+      // Don't set error state for game types failure - just use empty array
+      setGameTypes([]);
+    }
+  };
 
   const fetchLeaderboard = async () => {
     try {
@@ -64,6 +77,10 @@ export function LeaderboardView() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchGameTypes();
+  }, []);
 
   useEffect(() => {
     fetchLeaderboard();
@@ -114,8 +131,11 @@ export function LeaderboardView() {
               className={styles.select}
             >
               <option value="">All Games</option>
-              <option value="tic-tac-toe">Tic-Tac-Toe</option>
-              <option value="connect-four">Connect Four</option>
+              {gameTypes.map((type) => (
+                <option key={type.type} value={type.type}>
+                  {type.name}
+                </option>
+              ))}
             </select>
           </label>
         </div>
@@ -146,8 +166,11 @@ export function LeaderboardView() {
             className={styles.select}
           >
             <option value="">All Games</option>
-            <option value="tic-tac-toe">Tic-Tac-Toe</option>
-            <option value="connect-four">Connect Four</option>
+            {gameTypes.map((type) => (
+              <option key={type.type} value={type.type}>
+                {type.name}
+              </option>
+            ))}
           </select>
         </label>
       </div>

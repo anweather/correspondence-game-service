@@ -27,6 +27,7 @@ import { WebSocketManager } from './infrastructure/websocket/WebSocketManager';
 import { setupWebSocketServer } from './adapters/rest/websocketAdapter';
 import { TicTacToeEngine } from '@games/tic-tac-toe/engine';
 import { ConnectFourEngine } from '@games/connect-four/engine';
+import { YahtzeeEngine } from '@games/yahtzee/engine';
 import { DatabaseConnection } from './infrastructure/persistence/DatabaseConnection';
 import { DatabaseMigrator } from './infrastructure/persistence/DatabaseMigrator';
 import { validateAndLogConfig } from './config';
@@ -125,6 +126,12 @@ async function startApplication() {
     gameType: connectFourEngine.getGameType(),
   });
 
+  const yahtzeeEngine = new YahtzeeEngine();
+  pluginRegistry.register(yahtzeeEngine);
+  logger.info('Registered game plugin', {
+    gameType: yahtzeeEngine.getGameType(),
+  });
+
   // Initialize WebSocket manager
   const webSocketManager = new WebSocketManager(logger);
 
@@ -138,7 +145,11 @@ async function startApplication() {
   );
 
   // Initialize services
-  const gameManagerService = new GameManagerService(pluginRegistry, gameRepository, aiPlayerService);
+  const gameManagerService = new GameManagerService(
+    pluginRegistry,
+    gameRepository,
+    aiPlayerService
+  );
   const stateManagerService = new StateManagerService(
     gameRepository,
     pluginRegistry,

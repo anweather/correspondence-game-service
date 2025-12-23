@@ -6,12 +6,14 @@ import type { ReactNode } from 'react';
 // Mock the gameClient - create mocks outside the factory
 const mockGetPlayerStats = vi.fn();
 const mockGetGameHistory = vi.fn();
+const mockGetGameTypes = vi.fn();
 
 vi.mock('../../api/gameClient', () => {
   return {
     GameClient: class MockGameClient {
       getPlayerStats = mockGetPlayerStats;
       getGameHistory = mockGetGameHistory;
+      getGameTypes = mockGetGameTypes;
     },
   };
 });
@@ -38,6 +40,12 @@ vi.mock('../../context/PlayerContext', () => ({
 describe('StatsView', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    
+    // Default mock response for game types
+    mockGetGameTypes.mockResolvedValue([
+      { type: 'tic-tac-toe', name: 'Tic Tac Toe' },
+      { type: 'connect-four', name: 'Connect Four' },
+    ]);
     
     // Default mock responses
     mockGetPlayerStats.mockResolvedValue({

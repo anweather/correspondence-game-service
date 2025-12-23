@@ -4,11 +4,13 @@ import { LeaderboardView } from '../LeaderboardView';
 
 // Mock the gameClient - create mocks outside the factory
 const mockGetLeaderboard = vi.fn();
+const mockGetGameTypes = vi.fn();
 
 vi.mock('../../api/gameClient', () => {
   return {
     GameClient: class MockGameClient {
       getLeaderboard = mockGetLeaderboard;
+      getGameTypes = mockGetGameTypes;
     },
   };
 });
@@ -35,6 +37,12 @@ vi.mock('../../context/PlayerContext', () => ({
 describe('LeaderboardView', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    
+    // Default mock response for game types
+    mockGetGameTypes.mockResolvedValue([
+      { type: 'tic-tac-toe', name: 'Tic Tac Toe' },
+      { type: 'connect-four', name: 'Connect Four' },
+    ]);
     
     // Default mock response
     mockGetLeaderboard.mockResolvedValue({
