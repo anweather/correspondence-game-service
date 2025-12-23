@@ -62,9 +62,15 @@ describe('YahtzeeEngine - Basic Structure', () => {
     });
   });
 
+  describe('Implemented Methods', () => {
+    it('should have working validateMove method', () => {
+      // validateMove should not throw - it's now implemented
+      expect(() => engine.validateMove({} as any, 'player1', {} as any)).not.toThrow();
+    });
+  });
+
   describe('Unimplemented Methods', () => {
     it('should throw appropriate errors for unimplemented methods', () => {
-      expect(() => engine.validateMove({} as any, 'player1', {} as any)).toThrow('validateMove not yet implemented');
       expect(() => engine.applyMove({} as any, 'player1', {} as any)).toThrow('applyMove not yet implemented');
       expect(() => engine.isGameOver({} as any)).toThrow('isGameOver not yet implemented');
       expect(() => engine.getWinner({} as any)).toThrow('getWinner not yet implemented');

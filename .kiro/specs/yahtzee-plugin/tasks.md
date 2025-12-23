@@ -81,15 +81,15 @@ This implementation plan converts the Yahtzee plugin design into a series of TDD
     - **Property 1: Game initialization completeness**
     - **Validates: Requirements 1.2, 1.3**
 
-- [ ] 6. Implement move validation logic
-  - [ ] 6.1 Write unit tests for validation module
+- [x] 6. Implement move validation logic
+  - [x] 6.1 Write unit tests for validation module
     - Write failing tests for dice roll move validation
     - Write failing tests for scoring move validation
     - Write failing tests for turn order validation
     - Write failing tests for ValidationResult object structure
     - _Requirements: 2.2, 2.4, 3.4, 6.2_
 
-  - [ ] 6.2 Create validation module for dice and scoring moves
+  - [x] 6.2 Create validation module for dice and scoring moves
     - Implement validation functions to make tests pass
     - Validate dice roll moves (re-roll selections, roll limits)
     - Validate scoring moves (category availability, turn order)
@@ -97,11 +97,11 @@ This implementation plan converts the Yahtzee plugin design into a series of TDD
     - Refactor for clean validation logic
     - _Requirements: 2.2, 2.4, 3.4, 6.2_
 
-  - [ ] 6.3 Write property test for category usage uniqueness
+  - [x] 6.3 Write property test for category usage uniqueness
     - **Property 3: Category usage uniqueness**
     - **Validates: Requirements 3.4**
 
-  - [ ] 6.4 Write property test for API compatibility
+  - [x] 6.4 Write property test for API compatibility
     - **Property 10: API compatibility**
     - **Validates: Requirements 6.2, 6.3**
 

@@ -9,6 +9,7 @@
 import { BaseGameEngine } from '@domain/interfaces';
 import { GameState, Player, Move } from '@domain/models';
 import { GameConfig, ValidationResult, BoardRenderData } from '@domain/interfaces';
+import { YahtzeeMetadata } from '../shared/types';
 
 // Import all module functions (to be implemented in subsequent tasks)
 import * as metadata from './metadata';
@@ -52,7 +53,7 @@ export class YahtzeeEngine extends BaseGameEngine {
   // ===== Move Validation =====
 
   validateMove(state: GameState, playerId: string, move: Move): ValidationResult {
-    return validation.validateMove(state, playerId, move);
+    return validation.validateMove(state as GameState<YahtzeeMetadata>, playerId, move);
   }
 
   // ===== Game Rules and State Transitions =====

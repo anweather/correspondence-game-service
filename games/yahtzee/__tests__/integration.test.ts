@@ -75,8 +75,10 @@ describe('Yahtzee Plugin Integration', () => {
     const config = { customSettings: { gameId: 'test-game' } };
     expect(() => engine.initializeGame(players, config)).not.toThrow();
     
+    // validateMove is now implemented
+    expect(() => engine.validateMove({} as any, 'player1', {} as any)).not.toThrow();
+    
     // Other methods should throw appropriate errors (to be implemented in future tasks)
-    expect(() => engine.validateMove({} as any, 'player1', {} as any)).toThrow('not yet implemented');
     expect(() => engine.applyMove({} as any, 'player1', {} as any)).toThrow('not yet implemented');
     expect(() => engine.isGameOver({} as any)).toThrow('not yet implemented');
     expect(() => engine.getWinner({} as any)).toThrow('not yet implemented');
