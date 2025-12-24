@@ -83,7 +83,32 @@ describe('Yahtzee Plugin Integration', () => {
     expect(() => engine.isGameOver({} as any)).not.toThrow();
     expect(() => engine.getWinner({} as any)).not.toThrow();
 
-    // renderBoard should still throw (not yet implemented)
-    expect(() => engine.renderBoard({} as any)).toThrow('not yet implemented');
+    // renderBoard is now implemented (task 9)
+    // It should not throw with a valid game state, but may throw with invalid state
+    const validState = {
+      players: [{ id: 'player1', name: 'Player 1', joinedAt: new Date() }],
+      currentPlayerIndex: 0,
+      metadata: {
+        scorecards: new Map([
+          [
+            'player1',
+            {
+              playerId: 'player1',
+              categories: new Map(),
+              upperSectionTotal: 0,
+              upperSectionBonus: 0,
+              lowerSectionTotal: 0,
+              grandTotal: 0,
+            },
+          ],
+        ]),
+        currentDice: { values: [1, 2, 3, 4, 5], keptDice: [false, false, false, false, false] },
+        rollCount: 1,
+        gamePhase: 'rolling' as const,
+        rollHistory: [],
+        randomSeed: 'test-seed',
+      },
+    };
+    expect(() => engine.renderBoard(validState as any)).not.toThrow();
   });
 });

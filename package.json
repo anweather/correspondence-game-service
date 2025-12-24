@@ -26,7 +26,8 @@
     "format:check": "prettier --check \"src/**/*.ts\" \"tests/**/*.ts\"",
     "typecheck": "tsc --noEmit",
     "prepare": "husky",
-    "generate:connect-four-svg": "ts-node games/connect-four/scripts/generate-svg-examples.ts"
+    "generate:connect-four-svg": "ts-node games/connect-four/scripts/generate-svg-examples.ts",
+    "generate:yahtzee-svg": "ts-node -r tsconfig-paths/register games/yahtzee/scripts/generate-svg-examples.ts"
   },
   "keywords": [
     "boardgame",

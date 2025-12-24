@@ -15,6 +15,12 @@ module.exports = {
     jest: true,
     es6: true
   },
+  ignorePatterns: [
+    'dist/',
+    'node_modules/',
+    'web-client/',
+    '**/scripts/**/*.ts'
+  ],
   rules: {
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/no-explicit-any': 'warn',

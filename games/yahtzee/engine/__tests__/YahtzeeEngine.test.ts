@@ -82,9 +82,50 @@ describe('YahtzeeEngine - Basic Structure', () => {
     });
   });
 
-  describe('Unimplemented Methods', () => {
-    it('should throw appropriate errors for unimplemented methods', () => {
-      expect(() => engine.renderBoard({} as any)).toThrow('renderBoard not yet implemented');
+  describe('Implemented Methods', () => {
+    it('should have working renderBoard method', () => {
+      // Create a minimal valid game state for testing
+      const testState = {
+        gameId: 'test',
+        gameType: 'yahtzee',
+        lifecycle: 'active',
+        players: [{ id: 'player1', name: 'Player 1', joinedAt: new Date() }],
+        currentPlayerIndex: 0,
+        phase: 'playing',
+        board: { spaces: [], metadata: {} },
+        moveHistory: [],
+        metadata: {
+          scorecards: new Map([
+            [
+              'player1',
+              {
+                playerId: 'player1',
+                categories: new Map(),
+                upperSectionTotal: 0,
+                upperSectionBonus: 0,
+                lowerSectionTotal: 0,
+                grandTotal: 0,
+              },
+            ],
+          ]),
+          currentDice: { values: [1, 2, 3, 4, 5], keptDice: [false, false, false, false, false] },
+          rollCount: 1,
+          gamePhase: 'rolling' as const,
+          rollHistory: [],
+          randomSeed: 'test-seed',
+        },
+        winner: null,
+        version: 1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      // renderBoard should not throw and should return valid render data
+      expect(() => engine.renderBoard(testState as any)).not.toThrow();
+      const renderData = engine.renderBoard(testState as any);
+      expect(renderData).toBeDefined();
+      expect(renderData.viewBox).toBeDefined();
+      expect(renderData.layers).toBeDefined();
     });
   });
 });

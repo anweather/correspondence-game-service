@@ -1,6 +1,6 @@
 /**
  * Yahtzee Game Engine
- * 
+ *
  * Main engine class that orchestrates all game modules and implements
  * the BaseGameEngine interface. This class acts as a facade, delegating
  * to specialized modules for specific functionality.
@@ -20,14 +20,13 @@ import * as renderer from './renderer';
 
 /**
  * Yahtzee game engine implementation
- * 
+ *
  * This class acts as a facade, providing a clean interface to the game
  * while delegating to specialized modules for specific functionality.
  */
 export class YahtzeeEngine extends BaseGameEngine {
-  
   // ===== Metadata Methods =====
-  
+
   getGameType(): string {
     return metadata.getGameType();
   }
@@ -73,6 +72,6 @@ export class YahtzeeEngine extends BaseGameEngine {
   // ===== Board Rendering =====
 
   renderBoard(state: GameState): BoardRenderData {
-    return renderer.renderBoard(state);
+    return renderer.renderBoard(state as GameState<YahtzeeMetadata>);
   }
 }

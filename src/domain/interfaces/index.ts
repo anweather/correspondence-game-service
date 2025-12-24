@@ -74,8 +74,9 @@ export interface RenderLayer {
  * A single render element (shape, text, image, etc.)
  */
 export interface RenderElement {
-  type: 'rect' | 'circle' | 'path' | 'text' | 'image';
+  type: 'rect' | 'circle' | 'path' | 'text' | 'image' | 'g';
   attributes: Record<string, any>;
+  textContent?: string;
 }
 
 /**
